@@ -1,0 +1,17 @@
+\name{flo}
+\alias{flo}
+\title{Florentine Wedding Data (Padgett)}
+\description{
+  This is a data set of Padgett (1994), consisting of weddings among leading Florentine families.  This data is stored in symmetric adjacency matrix form.}
+\usage{
+ data(flo)
+}
+\source{Padgett, John F. 1994. Marriage and Elite Structure
+in Renaissance Florence, 1282-1500. Paper delivered to the
+Social Science History Association.}
+\references{
+Wasserman, S. and Faust, K. (1994) \emph{Social Network Analysis: Methods and
+Applications}, Cambridge: Cambridge University Press.
+}
+\seealso{\code{\link{network}}}
+\keyword{datasets}

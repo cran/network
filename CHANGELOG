@@ -1,0 +1,43 @@
+CHANGELOG:
+
+v0.5-4 New Facilities for Bipartite, New Features, Changes, and Bug fixes
+  New Functions:
+    - network.bipartite to store an explicit bipartite network.
+      Modified network.initialize, etc, to accept "bipartite" argument. [MSH]
+    - is.bipartite: logical test for a bipartite network [MSH]
+    - read.paj: read one or more network objects from a Pajek file [MSH, DS]
+  New Features:
+    - summary.network now reports on edge attributes [MSH]
+  Changes:
+    - The composition operator (%c%) has been removed due to a name conflict
+      with the sna package; since sna now supports network objects, its
+      version can be used instead. [CTB]
+    - as.sociomatrix is now properly configured to work in tandem with 
+      as.sociomatrix.sna (in the sna package).  The functionality of the 
+      routine has also been extended slightly.  [CTB]
+  Bug Fixes:
+    - .First.lib: Print out correct welcome banner for package [MSH]
+    - Fix displayisolates determination in plot.network.default [MSH]
+
+v0.5-3 New Functions, New Data Set, and Changes
+  New Functions:
+    - permute.vertexIDs: Permute vertices in their internal representation [CTB]
+  New Data:
+    - emon: Drabek et al.'s Emergent Multi-organizational Networks [CTB]
+  Changes:
+    - The obsolete examples directory has been removed. [CTB]
+
+v0.5-2 New Features, New Functions and Bug Fixes
+  New Functions:
+    - delete.vertices: Remove one or more vertices (and associated edges)
+      from a network object.
+    - delete.edge.attribute, delete.network.attribute, delete.vertex attribute:
+      Remove an edge/network/vertex attribute.
+    - list.edge.attributes, list.network.attributes, list.vertex attributes:
+      List all edge/network/vertex attribute names.
+  New Features:
+    - plot.graph.default now accepts vertex/edge attribute names for most
+      vertex/edge display properties.
+  Bug Fixes:
+    - Edge deletion produced exciting and unexpected behavior in some cases.
+    - network.initialize set vertex na attributes to TRUE by default.
