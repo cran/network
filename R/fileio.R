@@ -23,9 +23,9 @@
 #
 ######################################################################
 
-
 #Read an input file in Pajek format
-read.paj <- function(file,verbose=FALSE,debug=FALSE, simplify=FALSE) 
+read.paj <- function(file,verbose=FALSE,debug=FALSE,
+                     edge.name=NULL, simplify=FALSE) 
   {
 
     fileNameParts0 <- strsplit(file,"/")[[1]]
@@ -184,10 +184,11 @@ read.paj <- function(file,verbose=FALSE,debug=FALSE, simplify=FALSE)
       if(!isURL)
       preReadTablePosition <- seek(file,where=NA)
 
-      if(network.title =="SanJuanSur_deathmessage.net")  #read.third paragraph in details of documentation of read table about how it determines the number of columns in the first 5 lines... 
-        vertex <- read.table(file,skip=-1,nrows=nvertex,col.names=1:8,comment.char="%",fill=TRUE,as.is=FALSE)  #dschruth added 'comment.char="%"' and 'fill=TRUE'        
-      else
+#     if(network.title =="SanJuanSur_deathmessage.net")  #read.third paragraph in details of documentation of read table about how it determines the number of columns in the first 5 lines... 
+#       vertex <- read.table(file,skip=-1,nrows=nvertex,col.names=1:8,comment.char="%",fill=TRUE,as.is=FALSE)  #dschruth added 'comment.char="%"' and 'fill=TRUE'        
+#     else
         vertex <- read.table(file,skip=-1,nrows=nvertex,              comment.char="%",fill=TRUE,as.is=FALSE)  #dschruth added 'comment.char="%"' and 'fill=TRUE'
+        if(ncol(vertex)==1){ vertex <- cbind(1:nrow(vertex),vertex)}
 
 
       #need to check to see if we are reading in more rows than there actually are (some edges are implied)
@@ -199,6 +200,7 @@ read.paj <- function(file,verbose=FALSE,debug=FALSE, simplify=FALSE)
        nVertexRows <- edgelistPosition-1
         dummyNotUsed <- seek(file,where=preReadTablePosition)  #reset the file position back to before the table was read
         vertex <- read.table(file,skip=-1,nrows=nVertexRows,comment.char="%",fill=TRUE,as.is=FALSE)  #dschruth added 'comment.char="%"' and 'fill=TRUE' 
+        if(ncol(vertex)==1){ vertex <- cbind(1:nrow(vertex),vertex)}
       }      
       if(nvertex!=nrow(vertex)){
        if(verbose) print(paste("vertex list (length=",nrow(vertex),") is being re-sized to conform with specified network size (n=",nvertex,")",sep=""))
@@ -267,11 +269,15 @@ read.paj <- function(file,verbose=FALSE,debug=FALSE, simplify=FALSE)
     if(arcsLinePresent | edgesLinePresent){
       if(debug) print(paste("arc or edge lines present"))#,line)   
       
-      if(length(line)>1){
+      if(missing(edge.name)){
+       if(length(line)>1){
         network.name <- strsplit(paste(line[3:length(line)],collapse="."),'\"')[[1]][2]  #dschruth added collapse to allow for multi work network names
-      }else{
+       }else{
         network.name <- paste(network.title,nnetworks+1,sep="")
         #network.name <- network.title  #old way
+       }
+      }else{
+        network.name <- edge.name
       }
       
       dyadList <- list() #dschruth changed (was NULL)
@@ -348,8 +354,8 @@ read.paj <- function(file,verbose=FALSE,debug=FALSE, simplify=FALSE)
           if(verbose) print("first dyad list (arcs?), is too short to be a full network, skipping to next dyad list (edges?)")
         }else{
           temp <- network(x=dyads[,1:2],directed=directed)#arcsLinePresent)#dschruth added
-          temp <- set.edge.value(temp,"FALSE",NULL) #dschruth is this necessary??   should i comment out?
-          temp <- set.edge.value(temp,"NULL",NULL)  #dschruth is this necessary??   should i comment out?
+#         temp <- set.edge.value(temp,"FALSE",NULL) #dschruth is this necessary??   should i comment out?
+#         temp <- set.edge.value(temp,"NULL",NULL)  #dschruth is this necessary??   should i comment out?
           if(dim(dyads)[2]>2){  #only try to set the edge value if there is a third column
             temp <- set.edge.attribute(temp,network.names[nnetworks], dyads[,3])
             if(verbose) print("edge value created from edge/arc list")

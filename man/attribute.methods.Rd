@@ -58,11 +58,12 @@ The \code{list.attributes} functions return the names of all edge, network, or v
 
 The \code{get.attribute} functions look for an edge, network, or vertex attribute (respectively) with the name \code{attrname}, returning its values.  Note that, to retrieve an edge attribute from all edges within a network \code{x}, \code{x$mel} should be used as the first argument to \code{get.edge.attribute}; \code{get.edge.value} is a convenience function which does this automatically.  \code{network.vertex.names} is a convenience function to extract the \code{"vertex.names"} attribute from all vertices.
 
-The \code{set.attribute} functions allow one to set the values of edge, network, or vertex attributes.  \code{set.edge.value} is a convenience function which allows edge attributes to be given in adjacency matrix form.  The \code{delete.attribute} functions are actually front-ends to their respective \code{set.attribute} functions, which set the designated attribute to \code{NULL} (thereby deleting it).  
+The \code{set.attribute} functions allow one to set the values of edge, network, or vertex attributes.  \code{set.edge.value} is a convenience function which allows edge attributes to be given in adjacency matrix form.  The \code{delete.attribute} functions, by contrast, remove the named attribute from the network, from all edges, or from all vertices (as appropriate).  If \code{attrname} is a vector of attribute names, each will be removed in turn.  These functions modify their arguments in place, although a pointer to the modified object is also (invisibly) returned.
 
+Note that some attribute assignment/extraction can be performed through the various extraction/replacement operators.  See the associated man page for details.
 }
 \value{
-For the \code{list.attributes} methods, a vector containing attribute names.  For the \code{get.attribute} methods, a list containing the values of the attribute in question (or simply the value itself, for \code{get.network.attribute}).  For the \code{set.attribute} and \code{delete.attribute} methods, the updated \code{network} object.
+For the \code{list.attributes} methods, a vector containing attribute names.  For the \code{get.attribute} methods, a list containing the values of the attribute in question (or simply the value itself, for \code{get.network.attribute}).  For the \code{set.attribute} and \code{delete.attribute} methods, a pointer to the updated \code{network} object.
 }
 \references{ Butts, C.T.  2002.  ``Memory Structures for Relational Data in R: Classes and Interfaces''  Working Paper. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
@@ -70,18 +71,22 @@ For the \code{list.attributes} methods, a vector containing attribute names.  Fo
 %
 % ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link{network}}, \code{\link{as.network.matrix}} }
+\seealso{ \code{\link{network}}, \code{\link{as.network.matrix}}, \code{\link{as.sociomatrix}}, \code{\link{as.matrix.network}}, \code{\link{network.extraction}}}
 \examples{
 #Create a network with three edges
 m<-matrix(0,3,3)
 m[1,2]<-1; m[2,3]<-1; m[3,1]<-1
 g<-network(m)
 
+#Create a matrix of values corresponding to edges
+mm<-m
+mm[1,2]<-7; mm[2,3]<-4; mm[3,1]<-2
+
 #Assign some attributes
-g<-set.edge.attribute(g,"myeval",3:5)
-g<-set.edge.value(g,"myeval2",m*5)
-g<-set.network.attribute(g,"mygval","boo")
-g<-set.vertex.attribute(g,"myvval",letters[1:3])
+set.edge.attribute(g,"myeval",3:5)
+set.edge.value(g,"myeval2",mm)
+set.network.attribute(g,"mygval","boo")
+set.vertex.attribute(g,"myvval",letters[1:3])
 
 #List the attributes
 list.edge.attributes(g)
@@ -96,15 +101,26 @@ get.network.attribute(g,"mygval")
 get.vertex.attribute(g,"myvval")
 
 #Purge the attributes
-g<-delete.edge.attribute(g,"myeval")
-g<-delete.edge.attribute(g,"myeval2")
-g<-delete.network.attribute(g,"mygval")
-g<-delete.vertex.attribute(g,"myvval")
+delete.edge.attribute(g,"myeval")
+delete.edge.attribute(g,"myeval2")
+delete.network.attribute(g,"mygval")
+delete.vertex.attribute(g,"myvval")
 
 #Verify that the attributes are gone
 list.edge.attributes(g)
 list.network.attributes(g)
 list.vertex.attributes(g)
+
+#Note that we can do similar things using operators
+g \%n\% "mygval" <- "boo"               #Set attributes, as above
+g \%v\% "myvval" <- letters[1:3]
+g \%e\% "myeval" <- mm
+g[,,names.eval="myeval"] <- mm          #Another way to do this
+g \%n\% "mygval"                        #Retrieve the attributes
+g \%v\% "myvval"
+g \%e\% "mevval"
+as.sociomatrix(g,"myeval")              # Or like this
+
 }
 \keyword{ classes }% at least one, from doc/KEYWORDS
 \keyword{ graphs }% __ONLY ONE__ keyword per line

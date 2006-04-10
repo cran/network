@@ -18,7 +18,7 @@ add.vertices(x, nv, vattr = NULL)
 Note that the attribute format used here is based on the internal (vertex-wise) storage method, as opposed to the attribute-wise format used by \code{\link{network}}.
 }
 \value{
-  The updated \code{network} object
+  Invisibly, a pointer to the updated \code{network} object; \code{add.vertices} modifies its argument in place.
 }
 \references{ Butts, C.T.  2002.  ``Memory Structures for Relational Data in R: Classes and Interfaces''  Working Paper. }
 \author{ Carter T. Butts \email{buttsc@uci.edu}}
@@ -33,7 +33,7 @@ g<-network.initialize(5)
 g
 
 #Add five more vertices
-g<-add.vertices(g,5)
+add.vertices(g,5)
 g
 }
 \keyword{ classes }% at least one, from doc/KEYWORDS

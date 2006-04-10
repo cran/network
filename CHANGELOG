@@ -1,6 +1,49 @@
 CHANGELOG:
 
-v0.5-4 New Facilities for Bipartite, New Features, Changes, and Bug fixes
+v1.0 New Functions, New Features, Changes, and Bug Fixes
+  New Functions:
+    - Operator overloading for +, -, *, |, &, and ! have been added, as has the
+      composition operator, %c% [CTB]
+    - Operator overloading is now supported for "[" and "[<-"; this allows
+      network objects to be treated transparently as if they were adjacency
+      matrices (in some cases, at least).  New extraction/replacement operators
+      %n%, %n%<-, %v%, %v%<- have been added for extracting/assigning values to
+      network and vertex attributes (respectively) [CTB]
+    - network.copy: returns a copy of the input network [CTB]
+    - network.dyadcount: return the number of dyads in a network (optionally
+      adjusting for the missing dyads) [MSH]
+  New Features:
+    - add.edges now checks for illegal loop-like edges when edge.check==TRUE
+      [CTB]
+    - get.neighborhood now allows users to specify whether missing edges should
+      be ignored [CTB]
+    - set.edge.value now accepts edge values in vector format [CTB]
+  Changes:
+    - All access access functions now modify their arguments in place; this
+      greatly improves performance, but may produce unexpected behavior.
+      If users wish to generate a modified copy of a network, they must
+      first generate the copy and then modify it.  Otherwise, the old
+      object will be modified as well. In accordance with this, modification
+      methods now return their (modified) arguments invisibly.  [CTB]
+    - Most access functions have now been backended; this has improved the
+      performance of many operations by as much as two orders of magnitude [CTB]
+    - get.edges and get.edgeIDs now treat all undirected networks as if
+      called with neighborhood=="combined" [CTB]
+    - as.matrix.network.incidence now handles undirected edges in a more
+      conventional way [CTB]
+    - network.adjacency will now ignore diagonal entries if has.loops=FALSE 
+      [CTB]
+  Bug Fixes:
+    - as.network.edgelist and as.network.incidence were producing spurious edge
+      attributes [CTB]
+    - list.edge.attributes generated failed under certain conditions (submitted
+      by Matthew Wiener) [CTB]
+    - set.edge.attribute was able to write attributes into non-existent (NULL)
+      edges [CTB]
+    - set.edge.value could exhibit strange behavior when carelessly chosen
+      edge subsets were selected [CTB]
+    
+v0.5-4 New Facilities for Bipartite, New Features, Changes, and Bug Fixes
   New Functions:
     - network.bipartite to store an explicit bipartite network.
       Modified network.initialize, etc, to accept "bipartite" argument. [MSH]

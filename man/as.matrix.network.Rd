@@ -22,6 +22,8 @@ as.matrix.network.incidence(x,attrname=NULL)
 }
 \details{
   If no matrix type is specified, \code{\link{which.matrix.type}} will be used to make an educated guess based on the shape of \code{x}.  Where edge values are not specified, a dichotomous matrix will be assumed.
+  
+  Note that adjacency matrices may also be obtained using the extraction operator.  See the relevant man page for details.
 }
 \value{
 An adjacency, incidence, or edgelist matrix
@@ -32,7 +34,7 @@ An adjacency, incidence, or edgelist matrix
 %
 % ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link{which.matrix.type}}, \code{\link{network}} }
+\seealso{ \code{\link{which.matrix.type}}, \code{\link{network}}, \code{\link{network.extraction}}}
 \examples{
 #Create a random network
 m <- matrix(rbinom(25,1,0.5),5,5)
@@ -43,6 +45,10 @@ g <- network(m)
 as.matrix.network(g,matrix.type="adjacency")
 as.matrix.network(g,matrix.type="incidence")
 as.matrix.network(g,matrix.type="edgelist")
+
+#Can also use the extraction operator
+g[,]                            #Get entire adjacency matrix
+g[1:5,6:10]                     #Obtain a submatrix
 }
 \keyword{ classes }% at least one, from doc/KEYWORDS
 \keyword{ graphs }% __ONLY ONE__ keyword per line

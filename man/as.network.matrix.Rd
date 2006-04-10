@@ -8,9 +8,10 @@
 }
 \usage{
 as.network.default(x, ...)
-as.network.matrix(x, matrix.type = NULL, directed = TRUE, hyper = FALSE,
-    loops = FALSE, multiple = FALSE, bipartite = FALSE, ignore.eval = TRUE, names.eval = NULL,
-    na.rm = FALSE, edge.check = FALSE, ...)
+as.network.matrix(x, matrix.type = NULL, directed = TRUE, 
+    hyper = FALSE, loops = FALSE, multiple = FALSE, bipartite = FALSE,
+    ignore.eval = TRUE, names.eval = NULL, na.rm = FALSE, 
+    edge.check = FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -20,7 +21,7 @@ as.network.matrix(x, matrix.type = NULL, directed = TRUE, hyper = FALSE,
   \item{hyper}{logical; are hyperedges allowed?}
   \item{loops}{logical; should loops be allowed?}
   \item{multiple}{logical; are multiplex edges allowed?}
-  \item{bipartite}{count; should the network be interpreted as bipartite? If present (i.e., non-NULL) it is the count of the number of actors in the bipartite network. In this case, the number of nodes is equal to the number of actors plus the number of events (with all actors preceeding all events). The edges are then interpreted as nondirected.}
+  \item{bipartite}{count; should the network be interpreted as bipartite? If present (i.e., non-NULL) it is the count of the number of actors in the bipartite network. In this case, the number of nodes is equal to the number of actors plus the number of events (with all actors preceding all events). The edges are then interpreted as nondirected.}
   \item{ignore.eval}{ logical; ignore edge values? }
   \item{names.eval}{ optionally, the name of the attribute in which edge values should be stored }
   \item{na.rm}{ logical; ignore missing entries when constructing the network? }

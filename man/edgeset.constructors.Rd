@@ -24,10 +24,12 @@ network.bipartite(x, g, ignore.eval = TRUE, names.eval = NULL, ...)
   \item{\dots}{ additional arguments to \code{\link{add.edge}} }
 }
 \details{
-  Each of the above functions takes a \code{network} and a matrix as input, and returns a \code{network} object whose edgeset reflects the given information.  \code{network.adjacency} takes \code{x} to be an adjacency matrix; \code{code.edgelist} takes \code{x} to be an edgelist matrix; and \code{network.incidence} takes \code{x} to be an incidence matrix.  \code{network.bipartite} takes \code{x} to be an adjacency matrix where the rows are thge actors and the columns are the events; If \code{ignore.eval==FALSE}, (non-zero) edge values are stored as edgewise attributes with name \code{names.eval}.  Any additional command line parameters are passed to \code{\link{add.edge}}.
+  Each of the above functions takes a \code{network} and a matrix as input, and modifies the supplied \code{network} object by adding the appropriate edges.  \code{network.adjacency} takes \code{x} to be an adjacency matrix; \code{code.edgelist} takes \code{x} to be an edgelist matrix; and \code{network.incidence} takes \code{x} to be an incidence matrix.  \code{network.bipartite} takes \code{x} to be a two-mode adjacency matrix where rows and columns reflect each respective mode (conventionally, actors and events); If \code{ignore.eval==FALSE}, (non-zero) edge values are stored as edgewise attributes with name \code{names.eval}.  Any additional command line parameters are passed to \code{\link{add.edge}}.
+
+  Results similar to network.adjacency can also be obtained by means of extraction/replacement operators.  See the associated man page for details.
 }
 \value{
- An object of class \code{network}
+ Invisibly, an object of class \code{network}; these functions modify their argument in place.
 }
 \references{ Butts, C.T.  2002.  ``Memory Structures for Relational Data in R: Classes and Interfaces''  Working Paper. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} and David Hunter \email{dhunter@stat.psu.edu} }
@@ -35,14 +37,18 @@ network.bipartite(x, g, ignore.eval = TRUE, names.eval = NULL, ...)
 
 % ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link{network}}, \code{\link{network.initialize}}, \code{\link{add.edge}} }
+\seealso{ \code{\link{network}}, \code{\link{network.initialize}}, \code{\link{add.edge}}, \code{\link{network.extraction}}}
 \examples{
 #Create an arbitrary adjacency matrix
 m<-matrix(rbinom(25,1,0.5),5,5)
 diag(m)<-0
 
 g<-network.initialize(5)    #Initialize the network
-g<-network.adjacency(m,g)   #Import the edge data
+network.adjacency(m,g)      #Import the edge data
+
+#Do the same thing, using replacement operators
+g<-network.initialize(5)
+g[,]<-m
 }
 \keyword{ classes }% at least one, from doc/KEYWORDS
 \keyword{ graphs }% __ONLY ONE__ keyword per line

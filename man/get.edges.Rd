@@ -7,8 +7,8 @@
   \code{get.edges} retrieves a list of edges incident on a given vertex; \code{get.edgeIDs} returns the internal identifiers for those edges, instead.  Both allow edges to be selected based on vertex neighborhood and (optionally) an additional endpoint.
 }
 \usage{
-get.edges(x, v, alter = NULL, neighborhood = c("out", "in", "combined"), 
-    na.omit = TRUE)
+get.edges(x, v, alter = NULL, neighborhood = c("out", "in",
+    "combined"), na.omit = TRUE)
 get.edgeIDs(x, v, alter=NULL, neighborhood=c("out","in","combined"),
     na.omit=TRUE)
 }

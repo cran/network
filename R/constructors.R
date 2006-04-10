@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 8/12/05
+# Last Modified 4/10/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -18,6 +18,7 @@
 #
 #   network
 #   network.adjacency
+#   network.copy
 #   network.edgelist
 #   network.incidence
 #   network.initialize
@@ -68,6 +69,10 @@ network.bipartite<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
   nactors <- dim(x)[1]
   nevents <- dim(x)[2]
   n <- nactors + nevents
+  #Add names if available
+  if(!is.null(colnames(x)) & !is.null(rownames(x))){
+    g <- set.vertex.attribute(g,"vertex.names",c(rownames(x),colnames(x)))
+  }
   X <- matrix(0,ncol=n,nrow=n)
 # diag(X) <- 0
   X[1:nactors, nactors+(1:nevents)] <- x
@@ -87,12 +92,6 @@ network.bipartite<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
     ev<-as.list(x[x!=0])
     en<-replicate(length(ev),list(names.eval))
   }
-  # Add names if available
-  if(!is.null(colnames(x))){
-   g <- set.vertex.attribute(g,"vertex.names", colnames(x))
-  }else{if(!is.null(rownames(x))){
-   g <- set.vertex.attribute(g,"vertex.names", rownames(x))
-  }}
   if(any(design.missing)){
    g <- set.network.attribute(g,"design", 
          network(design.missing, directed=is.directed(g)))
@@ -121,6 +120,9 @@ network.adjacency<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
     design.missing <- is.na(x)
     x[design.missing] <- 0
   }
+  if(!has.loops(g)){
+    diag(x)<-0
+  }
   x<-as.vector(x)
   n<-network.size(g)
   e<-(0:(n*n-1))[x!=0] 
@@ -134,9 +136,11 @@ network.adjacency<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
   # Add names if available
   if(!is.null(colnames(x))){
    g <- set.vertex.attribute(g,"vertex.names", colnames(x))
-  }else{if(!is.null(rownames(x))){
-   g <- set.vertex.attribute(g,"vertex.names", rownames(x))
-  }}
+  }else{
+    if(!is.null(rownames(x))){
+      g <- set.vertex.attribute(g,"vertex.names", rownames(x))
+    }
+  }
   if(any(design.missing)){
    g <- set.network.attribute(g,"design", 
          network(design.missing, directed=is.directed(g)))
@@ -149,17 +153,28 @@ network.adjacency<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
 }
 
 
+# Construct and a return a network object which is a copy of x
+#
+network.copy<-function(x){
+  #Verify that this is a network object
+  if(!is.network(x))
+    error("network.copy requires an argument of class network.\n")
+  #Duplicate and return
+  .Call("copyNetwork_R",x,PACKAGE="network")
+}
+
+
 # Construct a network's edge set, using an edgelist matrix as input.
 #
 network.edgelist<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
   l<-dim(x)[2]
   #Traverse the edgelist matrix, adding edges as we go.
   if((l>2)&&(!ignore.eval)){		#Use values if present...
-    for(i in 1:dim(x)[1])
-      g<-add.edge(g,x[i,1],x[i,2],names.eval,x[i,3:l],...)
+    edge.check<-list(...)$edge.check      
+    g<-add.edges(g,as.list(x[,1]),as.list(x[,2]),as.list(rep(names.eval, length=NROW(x))),apply(x[,3:l,drop=FALSE],1,list),edge.check=edge.check)
   }else{				#...otherwise, don't.
-    for(i in 1:dim(x)[1])
-      g<-add.edge(g,x[i,1],x[i,2],...)
+    edge.check<-list(...)$edge.check      
+    g<-add.edges(g,as.list(x[,1]),as.list(x[,2]),edge.check=edge.check)
   }
   #Return the network
   g
@@ -170,27 +185,35 @@ network.edgelist<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
 #
 network.incidence<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
   n<-network.size(g)
+  edge.check<-list(...)$edge.check      
   #Traverse the incidence matrix, adding edges as we go.
   for(i in 1:dim(x)[2]){
     #Construct the head and tail sets
     if(is.directed(g)){
       head<-(1:n)[x[,i]>0]
-      tail<-(1:n)[x[,i]>0]
+      tail<-(1:n)[x[,i]<0]
     }else{
       head<-(1:n)[x[,i]!=0]
       tail<-head
     }
+    if(length(head)*length(tail)==0)
+      error("Supplied incidence matrix has empty head/tail lists. (Did you get the directedness right?)")
     #Get edge values, if needed
-    if(ignore.eval)
+    if(ignore.eval){
+      en<-NULL
       ev<-NULL
-    else{
+    }else{
       if(!is.directed(g))
-        ev<-x[x[,i]!=0,i][1]
+        ev<-as.list(x[x[,i]!=0,i][1])
       else
-        ev<-abs(x[x[,i]!=0,i][1])
+        ev<-as.list(abs(x[x[,i]!=0,i][1]))
+      if(is.null(names.eval))
+        en<-NULL
+      else
+        en<-as.list(names.eval)
     }
     #Add the edge to the graph      
-    g<-add.edge(g,head,tail,names.eval=list(names.eval),vals.eval=list(ev),...)
+    g<-add.edge(g,tail,head,names.eval=en,vals.eval=ev,edge.check=edge.check)
   }
   #Return the graph
   g
@@ -214,8 +237,8 @@ network.initialize<-function(n,directed=TRUE,hyper=FALSE,loops=FALSE,multiple=FA
   g$gal$bipartite<-bipartite
   #Populate the vertex attribute lists, endpoint lists, etc.
   g$val<-replicate(n,list())
-  g$iel<-replicate(n,vector(mode="numeric"))
-  g$oel<-replicate(n,vector(mode="numeric"))
+  g$iel<-replicate(n,vector(mode="integer"))
+  g$oel<-replicate(n,vector(mode="integer"))
   #Set the class
   class(g)<-"network"
   #Set the required vertex attribute

@@ -21,21 +21,27 @@ add.edges(x, tail, head, names.eval=NULL, vals.eval=NULL, ...)
 }
 \details{
 The edge checking procedure is very slow, but should always be employed when debugging; without it, one cannot guarantee that the network state is consistent with network level variables (see \code{\link{network.indicators}}).
+
+Edges can also be added/removed via the extraction/replacement operators.  See the associated man page for details.
 }
 \value{
-\code{add.edges} returns the network object with the edges added.
+    Invisibly, \code{add.edge} and \code{add.edges} return pointers to their modified arguments; both functions modify their arguments in place..
 }
 \author{ Carter T. Butts \email{buttsc@uci.edu}}
 \references{ Butts, C.T.  2002.  ``Memory Structures for Relational Data in R: Classes and Interfaces''  Working Paper. }
-\note{ As with many routines in the network class, the iterative nature of these procedures makes them very slow within R.  Eventually, such things will be handled via C backends. }
-\seealso{\code{\link{network}}, \code{\link{add.vertices}}}
+%\note{ }
+\seealso{\code{\link{network}}, \code{\link{add.vertices}}, \code{\link{network.extraction}}}
 \examples{
 #Initialize a small, empty network
 g<-network.initialize(3)
 
 #Add an edge
-g<-add.edge(g,1,2)
+add.edge(g,1,2)
 g
+
+#Can also add edges using the extraction/replacement operators
+g[,3]<-1
+g[,]
 }
 \keyword{classes}
 \keyword{graphs}

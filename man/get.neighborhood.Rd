@@ -6,13 +6,15 @@
   \code{get.neighborhood} returns the IDs of all vertices belonging to the in, out, or combined neighborhoods of \code{v} within network \code{x}.
 }
 \usage{
-get.neighborhood(x, v, type = c("out", "in", "combined"))
+get.neighborhood(x, v, type = c("out", "in", "combined"),
+    na.omit=TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{ an object of class \code{network} }
   \item{v}{ a vertex ID }
   \item{type}{ the neighborhood to be computed }
+  \item{na.omit}{ logical; should missing edges be ignored when obtaining vertex neighborhoods? }
 }
 \details{
 Note that the combined neighborhood is the union of the in and out neighborhoods -- as such, no vertex will appear twice.

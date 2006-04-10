@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 8/18/05
+# Last Modified 4/10/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -32,6 +32,7 @@
 #   get.vertex.attribute
 #   has.loops
 #   is.adjacent
+#   is.bipartite
 #   is.directed
 #   is.hyper
 #   is.multiplex
@@ -39,6 +40,7 @@
 #   list.edge.attributes
 #   list.network.attributes
 #   list.vertex.attributes
+#   network.dyadcount
 #   network.edgecount
 #   network.size
 #   network.vertex.names
@@ -54,79 +56,11 @@
 #Add a single edge to a network object.
 #
 add.edge<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, edge.check=FALSE, ...){
-  #Define a useful list equality function, for edge checks
-  leq<-function(a,b){
-    if(length(a)!=length(b))
-      FALSE
-    else
-      all(a==b)
-  }
-  #Define some constants, for convenience
-  n<-network.size(x)
-  #Verify the integrity of the edge information (at some 
-  #performance cost)
-  if(edge.check){
-    if(length(tail)*length(head)==0)	#Both sets must be nonempty
-      stop("Empty head/tail list in add.edge.  Exiting.\n")
-    if(any(head<1,tail<1,head>n,tail>n))  #Only allow legal vertices 
-      stop("Illegal vertex reference in add.edge.  Exiting.\n")
-    if(!is.hyper(x))			#Hyperedge check
-      if((max(length(tail),length(head))>1))
-        stop("Attempted to add hyperedge where hyper==FALSE in add.edge.  Exiting.")
-    if((!is.multiplex(x))&&(length(x$mel)>0))
-      if(is.directed(x)){
-        if(any(sapply(lapply(x$mel,"[[","outl"),leq,tail)&
-	sapply(lapply(x$mel,"[[","inl"),leq,head)))
-          stop("Attempted to add multiplex edge where multiple==FALSE in add.edge.  Exiting.")
-      }else{
-        if(any((sapply(lapply(x$mel,"[[","outl"),leq,tail)&
-	sapply(lapply(x$mel,"[[","inl"),leq,head))|
-	(sapply(lapply(x$mel,"[[","outl"),leq,head)&
-	sapply(lapply(x$mel,"[[","inl"),leq,tail))))
-          stop("Attempted to add multiplex edge where multiple==FALSE in add.edge.  Exiting.")
-      }
-  }
-  #Set up the edge attribute list
-  atl<-as.list(vals.eval)
-  if(!is.null(vals.eval)){
-    if(length(names.eval)>length(vals.eval)){              #Too many labels!
-      warning(paste("Too many labels in add.edge: wanted ",
-      length(vals.eval)," got ",length(names.eval),". Truncating name list.\n",collapse=""))
-      names(atl)<-names.eval[1:length(atl)]
-    }else if(length(names.eval)<length(vals.eval)){	    #Too few labels!
-      warning(paste("Too few labels in add.edge: wanted ",
-      length(vals.eval)," got ",length(names.eval),".  Naming numerically.\n",collapse=""))
-      names(atl)<-c(names.eval,
-      (length(names.eval)+1):length(vals.eval))
-    }else{                                           #Just the right number.
-      names(atl)<-names.eval
-    }
-  }
-  if(!("na"%in%names(atl)))		#Add the na attrib, if not present
-    atl$na<-FALSE
-  #Add the edge to the master edge list
-  x$mel[[x$gal$mnext]]<-list(inl=as.vector(head), outl=as.vector(tail),atl=atl)
-  #Add the edge pointer to the incoming/outgoing edge lists
-  tf<-tail[[1]]
-  hf<-head[[1]]
-  for(i in tail){
-    if(length(x$oel[[i]])>0){
-      ihf<-sapply(lapply(x$mel[x$oel[[i]]],"[[","inl"),"[",1)
-      x$oel[[i]]<-c(x$oel[[i]][ihf<hf],x$gal$mnext, x$oel[[i]][ihf>=hf])
-    }else
-      x$oel[[i]]<-x$gal$mnext
-  }
-  for(i in head){
-    if(length(x$iel[[i]])>0){
-      itf<-sapply(lapply(x$mel[x$iel[[i]]],"[[","outl"),"[",1)
-      x$iel[[i]]<-c(x$iel[[i]][itf<tf],x$gal$mnext, x$iel[[i]][itf>=tf])
-    }else
-      x$iel[[i]]<-x$gal$mnext
-  }
-  #Increment the edge counter
-  x$gal$mnext<-x$gal$mnext+1
-  #Return the network
-  x
+  #Check to be sure we were called with a network
+  if(!is.network(x))
+    stop("add.edge requires an argument of class network.")
+  #Do the deed
+  invisible(.Call("addEdge_R",x,tail,head,names.eval,vals.eval,edge.check, PACKAGE="network"))
 }
 
 
@@ -135,10 +69,29 @@ add.edge<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, edge.check=FA
 # are provided, they must be given similarly as lists of lists.
 #
 add.edges<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, ...){
-  for(i in 1:length(tail))
-    x<-add.edge(x,tail[[i]],head[[i]],names.eval[[i]],vals.eval[[i]],...)
-  #Return the updated network
-  x
+  #Check to be sure we were called with a network
+  if(!is.network(x))
+    stop("add.edges requires an argument of class network.")
+  #Ensure that the inputs are set up appropriately 
+  if(!is.list(tail))
+    tail<-as.list(tail)
+  if(!is.list(head))
+    head<-as.list(rep(head,length=length(tail)))
+  if(is.null(names.eval))
+    names.eval<-replicate(length(tail),NULL)
+  else if(!is.list(names.eval))
+    names.eval<-as.list(rep(names.eval,length=length(tail)))
+  if(is.null(vals.eval))
+    vals.eval<-replicate(length(tail),NULL)
+  else if(!is.list(vals.eval))
+    vals.eval<-as.list(rep(vals.eval,length=length(names.eval)))
+  if(length(unique(c(length(tail),length(head),length(names.eval), length(vals.eval))))>1)
+    error("head, tail, and value lists passed to add.edges must be of the same length!\n")
+  edge.check<-list(...)$edge.check
+  if(is.null(edge.check))
+    edge.check<-FALSE
+  #Pass the inputs to the C side
+  invisible(.Call("addEdges_R",x,tail,head,names.eval,vals.eval,edge.check, PACKAGE="network"))
 }
 
 
@@ -147,29 +100,25 @@ add.edges<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, ...){
 # nv elements, each of which is equal to the desired val[i] entry.
 #
 add.vertices<-function(x, nv, vattr=NULL){
-  #Set the size attribute
-  x<-set.network.attribute(x,"n",network.size(x)+nv)
-  #Add entries to the outgoing/incoming edge lists
-  x$oel<-c(x$oel,replicate(nv,vector(mode="numeric")))
-  x$iel<-c(x$iel,replicate(nv,vector(mode="numeric")))
-  #Set up the vertex attributes
-  if(is.null(vattr))
-    vattr<-replicate(nv,list())
-  nona<-sapply(lapply(vattr,"[[","na"),is.null)
-  if(any(nona))
-    vattr[nona]<-lapply(vattr[nona],function(a){a$na<-FALSE})
-  #Add vertex attributes to the vertex attribute list
-  x$val<-c(x$val,vattr)
-  #Return the updated network
-  x
+  #Check to be sure we were called with a network
+  if(!is.network(x))
+    stop("add.vertices requires an argument of class network.\n")
+  #Perform the addition
+  if(nv>0)
+    invisible(.Call("addVertices_R",x,nv,vattr, PACKAGE="network"))
+  else
+    invisible(x)
 }
 
 
-# Remove all instances of the specified attribute from the edge set
+# Remove all instances of the specified attribute(s) from the edge set
 #
 delete.edge.attribute<-function(x,attrname){
-  #Set the attribute to NULL, thereby deleting it.
-  set.edge.attribute(x,attrname,NULL)
+  #Check to be sure we were called with a network
+  if(!is.network(x))
+    stop("delete.edge.attribute requires an argument of class network.")
+  #Remove the edges
+  invisible(.Call("deleteEdgeAttribute_R",x,attrname, PACKAGE="network"))
 }
  
  
@@ -179,37 +128,37 @@ delete.edges<-function(x,eid){
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("delete.edges requires an argument of class network.")
-  #Step through the edges, one by one
-  for(i in eid){
-    #Identify those in the head and tail
-    head<-x$mel[[i]]$inl
-    tail<-x$mel[[i]]$outl
-    #Remove the edge from the respective lists
-    for(j in head)
-      x$iel[[j]]<-x$iel[[j]][x$iel[[j]]!=i]
-    for(j in tail)
-      x$oel[[j]]<-x$oel[[j]][x$oel[[j]]!=i]
-    #Remove the edge itself
-    x$mel[i]<-list(NULL)
-  }
-  #Return the network
-  x
+  #Perform a sanity check
+  if((min(eid)<1)|(max(eid)>length(x$mel)))
+    stop("Illegal edge in delete.edges.\n")
+  #Remove the edges
+  invisible(.Call("deleteEdges_R",x,eid, PACKAGE="network"))
 }
 
 
-# Remove the specified network-level attribute
+# Remove the specified network-level attribute(s)
 #
 delete.network.attribute<-function(x,attrname){
-  #Set the attribute to NULL, thereby deleting it.
-  set.network.attribute(x,attrname,NULL)
+  #Check to be sure we were called with a network
+  if(!is.network(x))
+    stop("delete.network.attribute requires an argument of class network.")
+  #Remove the edges
+  invisible(.Call("deleteNetworkAttribute_R",x,attrname, PACKAGE="network"))
 }
 
 
-# Remove all instances of the specified attribute from the vertex set
+# Remove all instances of the specified attribute(s) from the vertex set
 #
 delete.vertex.attribute<-function(x,attrname){
   #Set the attribute to NULL, thereby deleting it.
   set.vertex.attribute(x,attrname,NULL)
+}
+delete.vertex.attribute<-function(x,attrname){
+  #Check to be sure we were called with a network
+  if(!is.network(x))
+    stop("delete.vertex.attribute requires an argument of class network.")
+  #Remove the edges
+  invisible(.Call("deleteVertexAttribute_R",x,attrname, PACKAGE="network"))
 }
 
 
@@ -219,30 +168,13 @@ delete.vertices<-function(x,vid){
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("delete.vertices requires an argument of class network.")
-  n<-network.size(x)
-  #Perform some sanity checks
-  if(any((vid>n)|(vid<1)))
-    stop("Vertex ID does not correspond to actual vertex in delete.vertices.")
-  vid<-unique(vid)  #Get rid of duplicates, if any
-  #Collect the list of edges having any vid vertex as an endpoint
-  eid<-vector()
-  for(i in vid){
-    eid<-c(eid,get.edgeIDs(x,i,neighborhood="combined",na.omit=FALSE))
-  }
-  eid<-unique(eid)
-  #Remove the edges
-  x<-delete.edges(x,eid)
-  #Permute the vid vertices to the end of the graph
-  nord<-c((1:n)[-vid],vid)
-  x<-permute.vertexIDs(x,nord)
-  newn<-n-length(vid)
-  #Now, get rid of the vertices
-  x$val<-x$val[1:newn]
-  x$iel<-x$iel[1:newn]
-  x$oel<-x$oel[1:newn]
-  x<-set.network.attribute(x,"n",newn)
-  #Return the result
-  x
+  #Remove any vids which are out of bounds
+  vid<-vid[(vid>0)&(vid<=network.size(x))]
+  #Do the deed, if still needed
+  if(length(vid)>0)
+    invisible(.Call("deleteVertices_R",x,vid, PACKAGE="network"))
+  else
+    invisible(x)
 }
 
 
@@ -273,31 +205,19 @@ get.edgeIDs<-function(x, v, alter=NULL, neighborhood=c("out","in","combined"), n
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("get.edgeIDs requires an argument of class network.")
-  #Extract the edge IDs associated with the given neighborhood
-  eid<-switch(match.arg(neighborhood),
-    out=x$oel[[v]],
-    "in"=x$iel[[v]],
-    combined=c(x$oel[[v]],x$iel[[v]])
-  )
-  eid<-unique(eid)  #Remove duplicates
-  el<-x$mel[eid]  #Get the edges themselves
-  #If a specified alter is given, remove all edges not containing alter
-  if(!is.null(alter))
-    elalt<-switch(match.arg(neighborhood),
-      out=sapply(el,function(a){alter%in%a$inl}),
-      "in"=sapply(el,function(a){alter%in%a$outl}),
-      combined=sapply(el,function(a){(alter%in%a$inl)||(alter%in%a$outl)})
-    )
+  #Do some reality checking
+  n<-network.size(x)
+  if((v<1)||(v>n))
+    return(numeric(0))
+  if((!is.null(alter))&&((alter<1)||(alter>n)))
+    return(numeric(0))
+  #Retrieve the edges
+  if(!is.directed(x))
+    neighborhood="combined"       #If undirected, out==in==combined
   else
-    elalt<-rep(TRUE,length(el)) 
-  eid<-eid[elalt]
-  el<-el[elalt]
-  #If needed, remove missing edges
-  if((length(el)>0)&&(na.omit)){
-    eid<-eid[!get.edge.attribute(el,"na",unlist=TRUE)]
-  }
-  #Return the result
-  eid
+    neighborhood=match.arg(neighborhood)
+  #Do the deed
+  .Call("getEdgeIDs_R",x,v,alter,neighborhood,na.omit, PACKAGE="network")
 }
 
 
@@ -310,24 +230,19 @@ get.edges<-function(x, v, alter=NULL, neighborhood=c("out","in","combined"), na.
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("get.edges requires an argument of class network.")
-  #Extract the edges associated with the given neighborhood
-  el<-switch(match.arg(neighborhood),
-    out=x$mel[x$oel[[v]]],
-    "in"=x$mel[x$iel[[v]]],
-    combined=x$mel[[unique(c(x$oel[[v]],x$iel[[v]]))]]
-  )
-  #If a specified alter is given, remove all edges not containing alter
-  if(!is.null(alter))
-    el<-switch(match.arg(neighborhood),
-      out=el[sapply(el,function(a){alter%in%a$inl})],
-      "in"=el[sapply(el,function(a){alter%in%a$outl})],
-      combined=el[sapply(el,function(a){(alter%in%a$inl)||(alter%in%a$outl)})]
-    )
-  #If needed, remove missing edges
-  if((length(el)>0)&&(na.omit))
-    el<-el[!get.edge.attribute(el,"na",unlist=TRUE)]
-  #Return the result
-  el
+  #Do some reality checking
+  n<-network.size(x)
+  if((v<1)||(v>n))
+    return(list())
+  if((!is.null(alter))&&((alter<1)||(alter>n)))
+    return(list())
+  #Retrieve the edges
+  if(!is.directed(x))
+    neighborhood="combined"       #If undirected, out==in==combined
+  else
+    neighborhood=match.arg(neighborhood)
+  #Do the deed
+  .Call("getEdges_R",x,v,alter,neighborhood,na.omit, PACKAGE="network")
 }
 
 
@@ -344,27 +259,21 @@ get.network.attribute<-function(x,attrname,unlist=FALSE){
 # type, the neighborhood in question may be in, out, or the union of the two.
 # The return value for the function is a vector containing vertex IDs.
 #
-get.neighborhood<-function(x,v,type=c("out","in","combined")){
+get.neighborhood<-function(x, v, type=c("out","in","combined"), na.omit=TRUE){
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("get.neighborhood requires an argument of class network.")
-  #Get requested edges
-  if((!is.directed(x))||(match.arg(type)=="combined"))
-    el<-c(get.edges(x,v,neighborhood="out",na.omit=TRUE),get.edges(x,v,neighborhood="in",na.omit=TRUE))
+  #Do some reality checking
+  n<-network.size(x)
+  if((v<1)||(v>n))
+    return(numeric(0))
+  #Retrieve the edges
+  if(!is.directed(x))
+    type="combined"       #If undirected, out==in==combined
   else
-    el<-switch(match.arg(type),
-      out=get.edges(x,v,neighborhood="out",na.omit=TRUE),
-      "in"=get.edges(x,v,neighborhood="in",na.omit=TRUE)
-    )
-  #Extract the neighborhoods
-  raw<-switch(match.arg(type),
-    out=unlist(lapply(el,"[[","inl")),
-    "in"=unlist(lapply(el,"[[","outl")),
-    combined=c(unlist(lapply(el,"[[","inl")),unlist(lapply(el,"[[","outl")))
-  )
-  #Return the unique members
-  neigh<-unique(raw)
-  neigh[neigh!=v]
+    type=match.arg(type)
+  #Do the deed
+  .Call("getNeighborhood_R",x,v,type,na.omit, PACKAGE="network")
 }
 
 
@@ -405,44 +314,29 @@ has.loops<-function(x){
 # as missing are ignored.
 #
 is.adjacent<-function(x,vi,vj,na.omit=TRUE){
-  #Check to be sure we were called with a network
   if(!is.network(x))
-    stop("is.adjacent requires an argument of class network.")
-  #Get the outedges associated with vi
-  ol<-get.edges(x,vi,neighborhood="out",na.omit=FALSE)
-  #Determine which edges are missing
-  olna<-unlist(get.edge.attribute(ol,"na"))
-  #See if any edges match
-  olmatch<-sapply(lapply(ol,"[[","inl"),function(y){vj%in%y})
-  #Return now, if we can
-  if(length(ol)>0){
-    if(any(olmatch*(!olna)))                #Actual match
-      return(TRUE)
-    else if(is.directed(x)){
-      if(any(olmatch*olna)&&(!na.omit))     #Matches only on NA
-        return(NA)
-      else                                  #No valid matches
-        return(FALSE)
-    }
-  }else
-    if(is.directed(x))                      #Degenerate case
-      return(FALSE)  
-  #If we're still here, this must be an undirected graph.  Let's
-  #look at vi's inedges
-  il<-get.edges(x,vi,neighborhood="in",na.omit=FALSE)
-  #Determine which edges are missing
-  ilna<-unlist(get.edge.attribute(il,"na"))
-  #See if any edges match
-  ilmatch<-sapply(lapply(il,"[[","outl"),function(y){vj%in%y})
-  #Return as needed
-  if(length(il)==0)                       #Degenerate case
-    return(FALSE)
-  if(any(ilmatch*(!ilna)))                #Actual match
-    return(TRUE)
-  else if((!na.omit)&&(any(olmatch*olna,ilmatch*ilna)))  #Only NA
-    return(NA)
+    stop("is.adjacent requires an argument of class network.\n")
+  if(length(vi)!=length(vj)){
+    vi<-rep(vi,length=max(length(vi),length(vj)))
+    vj<-rep(vj,length=max(length(vi),length(vj)))
+  }
+  #Do the deed
+ .Call("isAdjacent_R",x,vi,vj,na.omit, PACKAGE="network")
+}
+
+
+# Return TRUE iff network x is bipartite
+#
+is.bipartite<-function(x){
+  if(!is.network(x))
+    stop("is.bipartite requires an argument of class network.")
   else
-    return(FALSE)
+    bip <- get.network.attribute(x,"bipartite")
+  if(is.null(bip)){
+   FALSE
+  }else{
+   bip>0
+  }
 }
 
 
@@ -450,7 +344,7 @@ is.adjacent<-function(x,vi,vj,na.omit=TRUE){
 #
 is.directed<-function(x){
   if(!is.network(x))
-    stop("is.directed requires an argument of class network.")
+    stop("is.directed requires an argument of class network.\n")
   else
     get.network.attribute(x,"directed")
 }
@@ -460,7 +354,7 @@ is.directed<-function(x){
 #
 is.hyper<-function(x){
   if(!is.network(x))
-    stop("is.hyper requires an argument of class network.")
+    stop("is.hyper requires an argument of class network.\n")
   else
     get.network.attribute(x,"hyper")
 }
@@ -470,7 +364,7 @@ is.hyper<-function(x){
 #
 is.multiplex<-function(x){
   if(!is.network(x))
-    stop("is.multiplex requires an argument of class network.")
+    stop("is.multiplex requires an argument of class network.\n")
   else
     get.network.attribute(x,"multiple")
 }
@@ -488,11 +382,11 @@ is.network<-function(x){
 list.edge.attributes<-function(x){
   #First, check to see that this is a graph object
   if(!is.network(x))
-    stop("list.network.attributes requires an argument of class network.")
+    stop("list.network.attributes requires an argument of class network.\n")
   #Accumulate names
-  allnam<-sapply(lapply(x$mel,"[[","atl"),names)
+  allnam<-sapply(lapply(x$mel[!is.null(x$mel)],"[[","atl"),names)
   #Return the sorted, unique attribute names
-  sort(unique(as.vector(allnam)))
+  sort(unique(as.vector(unlist(allnam))))
 }
 
 
@@ -501,7 +395,7 @@ list.edge.attributes<-function(x){
 list.network.attributes<-function(x){
   #First, check to see that this is a graph object
   if(!is.network(x))
-    stop("list.network.attributes requires an argument of class network.")
+    stop("list.network.attributes requires an argument of class network.\n")
   #Return the attribute names
   sort(names(x$gal))
 }
@@ -512,7 +406,7 @@ list.network.attributes<-function(x){
 list.vertex.attributes<-function(x){
   #First, check to see that this is a graph object
   if(!is.network(x))
-    stop("list.network.attributes requires an argument of class network.")
+    stop("list.network.attributes requires an argument of class network.\n")
   #Accumulate names
   allnam<-sapply(x$val,names)
   #Return the sorted, unique attribute names
@@ -520,22 +414,49 @@ list.vertex.attributes<-function(x){
 }
 
 
+# Retrieve the number of free dyads (i.e., number of non-missing) of network x.
+#
+network.dyadcount<-function(x,na.omit=TRUE){
+  if(!is.network(x))
+    stop("network.dyadcount requires an argument of class network.")
+
+  nodes <- network.size(x)
+  if(is.directed(x)){
+     dyads <- nodes * (nodes-1)
+  }else{
+   if(is.bipartite(x)){
+    nactor <- get.network.attribute(x,"bipartite")
+    nevent <- nodes - nactor
+    dyads <- nactor * nevent
+   }else{
+    dyads <- nodes * (nodes-1)/2
+   }
+  }
+  if(na.omit){
+#
+#  Adjust for missing
+#
+   design <- get.network.attribute(x,"design")
+   if(!is.null(design)){
+    dyads <- dyads - network.edgecount(design)
+   }else{
+    design <- get.network.attribute(x,"mClist.design")
+    if(!is.null(design)){
+     dyads <- dyads - design$nedges
+    }
+   }
+  }
+  dyads
+}
+
 #Retrieve the number of edges in network x.
 #
 network.edgecount<-function(x,na.omit=TRUE){
-  #First, check to see if we can get out immediately
-  if(get.network.attribute(x,"mnext")==1)
-    return(0)
-  #Determine null edges, and possibly missing edges as well
-  enull<-sapply(x$mel,is.null)
-  if(na.omit){
-    ena<-get.edge.attribute(x$mel,"na",unlist=FALSE)
-    ena[sapply(ena,is.null)]<-TRUE
-    ena<-as.logical(unlist(ena))
-  }else
-    ena<-rep(FALSE,length(x$mel))
-  #Return the edgecount
-  sum((!enull)*(!ena))
+  #First, check to see that this is a graph object
+  if(!is.network(x))
+    stop("network.edgecount requires an argument of class network.\n")
+  #Return the edge count
+  .Call("networkEdgecount_R",x,na.omit, PACKAGE="network")
 }
 
 
@@ -543,7 +464,7 @@ network.edgecount<-function(x,na.omit=TRUE){
 #
 network.size<-function(x){
   if(!is.network(x))
-    stop("network.size requires an argument of class network.")
+    stop("network.size requires an argument of class network.\n")
   else
     get.network.attribute(x,"n")
 }
@@ -567,63 +488,62 @@ network.vertex.names<-function(x){
 
 # Permute the internal IDs (ordering) of the vertex set
 permute.vertexIDs<-function(x,vids){
-  #Check to be sure we were called with a network
+  #First, check to see that this is a graph object
   if(!is.network(x))
-    stop("permute.vertexIDs requires an argument of class network.")
+    stop("permute.vertexIDs requires an argument of class network.\n")
   #Sanity check: is this a permutation vector?
   n<-network.size(x)
-  if(length(unique(vids))!=n)
+  if((length(unique(vids))!=n)||(range(vids)!=c(1,n)))
     stop("Invalid permutation vector in permute.vertexIDs.")
-  #First, determine which vertices need to change
-  oord<-1:n
-  cvids<-vids[vids!=oord]
-  cnpos<-oord[vids!=oord]
-  #Now, determine which edges need to change  
-  eid<-vector()
-  for(i in cvids)
-    eid<-c(eid,get.edgeIDs(x,i,neighborhood="combined"))
-  eid<-unique(eid)
-  #For each such edge, change vertex IDs as needed
-  for(i in eid){
-    tofix<-x$mel[[i]]$inl%in%cvids
-    x$mel[[i]]$inl[tofix]<-cnpos[match(x$mel[[i]]$inl[tofix],cvids)]
-    tofix<-x$mel[[i]]$outl%in%cvids
-    x$mel[[i]]$outl[tofix]<-cnpos[match(x$mel[[i]]$outl[tofix],cvids)]
-  }
-  #Now, reorder the vertex properties
-  x$val<-x$val[vids]
-  x$iel<-x$iel[vids]
-  x$oel<-x$oel[vids]
-  #Return the result
-  x
+  #Return the permuted graph
+  invisible(.Call("permuteVertexIDs_R",x,vids, PACKAGE="network"))
 }
 
 
 # Set an edge attribute for network x.
 #
 set.edge.attribute<-function(x,attrname,value,e=1:length(x$mel)){
-  for(i in 1:length(e))
-    x$mel[[e[i]]]$atl[[attrname]]<-value[[i]]
-  x
+  #Check to be sure we were called with a network
+  if(!is.network(x))
+    stop("set.edge.attribute requires an argument of class network.")
+  #Make sure that value is appropriate, coercing if needed
+  if(!is.list(value)){
+    if(!is.vector(value))
+      stop("Inappropriate edge value given in set.edge.attribute.\n")
+    else
+      value<-as.list(rep(value,length=length(e)))
+  }else
+    if(length(value)!=length(e))
+      value<-rep(value,length=length(e))
+  if((min(e)<1)|(max(e)>length(x$mel)))
+    stop("Illegal edge in set.edge.attribute.\n")
+  #Do the deed
+  invisible(.Call("setEdgeAttribute_R",x,attrname,value,e, PACKAGE="network"))
 }
 
 
 # Set an edge value for network x.
 #
 set.edge.value<-function(x,attrname,value,e=1:length(x$mel)){
-  xmat <- as.matrix.network(x,matrix.type="adjacency")==1
-  if(is.directed(x)){
-   value <- value[xmat]
-  }else{
-   value[row(xmat)<col(xmat)] <- NA
-   value <- value[xmat]
-   value <- value[!is.na(value)]  
+  #Check to be sure we were called with a network
+  if(!is.network(x))
+    stop("set.edge.value requires an argument of class network.\n")
+  #Check to ensure that this is not a hypergraph
+  if(is.hyper(x))
+    stop("Hypergraphs not currently supported in set.edge.value.\n")
+  #Make sure that value is appropriate, coercing if needed
+  n<-network.size(x)
+  if(!is.matrix(value)){
+    if(is.vector(value))
+      value<-matrix(rep(value,length=n*n),n,n)
+    else
+      value<-matrix(value,n,n)
   }
-  names(value) <- NULL
-  for(i in 1:length(e)){
-    x$mel[[e[i]]]$atl[[attrname]]<-value[i]
-  }
-  x
+  #Perform additional sanity checks
+  if((min(e)<1)|(max(e)>length(x$mel)))
+    stop("Illegal edge in set.edge.value.\n")
+  #Do the deed
+  invisible(.Call("setEdgeValue_R",x,attrname,value,e, PACKAGE="network"))
 }
 
 
@@ -633,13 +553,45 @@ set.network.attribute<-function(x,attrname,value){
   x$gal[[attrname]]<-value
   x
 }
+set.network.attribute<-function(x,attrname,value){
+  #Check to be sure we were called with a network
+  if(!is.network(x))
+    stop("set.network.attribute requires an argument of class network.")
+  #Make sure the values are consistent
+  if(length(attrname)==1){
+    value<-list(value)
+  }else{
+    if(is.list(value)){
+      value<-rep(value,length=length(attrname))
+    }else if(is.vector(value)){
+      value<-as.list(rep(value,length=length(attrname)))
+    }else
+      stop("Non-replicable value with multiple attribute names in set.network.attribute.\n")
+  }
+  #Do the deed
+  invisible(.Call("setNetworkAttribute_R",x,attrname,value,PACKAGE="network"))
+}
 
 
 # Set a vertex attribute for network x.
 #
 set.vertex.attribute<-function(x,attrname,value,v=1:network.size(x)){
-  for(i in 1:length(v))
-    x$val[[v[i]]][[attrname]]<-value[[i]]
-  x
+  #Check to be sure we were called with a network
+  if(!is.network(x))
+    stop("set.vertex.attribute requires an argument of class network.")
+  #Perform some sanity checks
+  if(any((v>network.size(x))|(v<1)))
+    stop("Vertex ID does not correspond to actual vertex in set.vertex.attribute.\n")
+  #Make sure that value is appropriate, coercing if needed
+  if(!is.list(value)){
+    if(!is.vector(value))
+      stop("Inappropriate value given in set.vertex.attribute.\n")
+    else
+      value<-as.list(rep(value,length=length(v)))
+  }else
+    if(length(value)!=length(e))
+      value<-rep(value,length=length(v))
+  #Do the deed
+  invisible(.Call("setVertexAttribute_R",x,attrname,value,v, PACKAGE="network"))
 }
 

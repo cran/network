@@ -1,12 +1,12 @@
-\name{network.edgecount}
-\alias{network.edgecount}
+\name{network.dyadcount}
+\alias{network.dyadcount}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Return the Number of Edges in a Network Object }
 \description{
-  \code{network.edgecount} returns the number of edges within a \code{network}, removing those flagged as missing if desired.
+  \code{network.dyadcount} returns the number of dyads within a \code{network}, removing those flagged as missing if desired.
 }
 \usage{
-network.edgecount(x, na.omit = TRUE)
+network.dyadcount(x, na.omit = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -14,13 +14,13 @@ network.edgecount(x, na.omit = TRUE)
   \item{na.omit}{ logical; omit edges with \code{na==TRUE} from the count? }
 }
 \details{
-  The return value \code{network.edgecount} is equal to \code{x\%n\%"mnext"-1}, minus the number of \code{NULL} edges (and missing edges, if \code{na.omit==TRUE}).  Note that \code{g\%n\%"mnext"-1} cannot, by itself, be counted upon to be an accurate count of the number of edges!
+  The return value \code{network.dyadcount} is equal to the number of dyads, minus the number of \code{NULL} edges (and missing edges, if \code{na.omit==TRUE}).
 }
 \value{
-  The number of edges
+  The number of dyads in the network
 }
 \references{ Butts, C.T.  2002.  ``Memory Structures for Relational Data in R: Classes and Interfaces''  Working Paper. }
-\author{ Carter T. Butts \email{buttsc@uci.edu} }
+\author{ Mark S. Handcock \email{handcock@stat.washington.edu} }
 %\note{ ~~further notes~~ }
 %
 % ~Make other sections like Warning with \section{Warning }{....} ~
@@ -31,7 +31,9 @@ network.edgecount(x, na.omit = TRUE)
 m<-matrix(0,3,3)
 m[1,2]<-1; m[2,3]<-1; m[3,1]<-1
 g<-network(m)
-network.edgecount(g)==3   #Verify the edgecount
+network.dyadcount(g)==6                         #Verify the dyad count
+g<-network(m|t(m),directed=FALSE)
+network.dyadcount(g)==3                         #nC2 in undirected case
 }
 \keyword{ classes }% at least one, from doc/KEYWORDS
 \keyword{ graphs }% __ONLY ONE__ keyword per line

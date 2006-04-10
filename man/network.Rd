@@ -5,6 +5,7 @@
 \alias{is.network}
 \alias{print.network}
 \alias{summary.network}
+\alias{network.copy}
 \alias{print.summary.network}
 \title{Networks}
 \description{
@@ -13,6 +14,7 @@
 \usage{
 network(x, vertex.attr=NULL, vertex.attrnames=NULL, directed=TRUE, 
      hyper=FALSE, loops=FALSE, multiple=FALSE, bipartite = FALSE, ...)
+network.copy(x)
 as.network(x, ...)
 is.network(x)
 print.network(x, matrix.type=which.matrix.type(x),
@@ -39,6 +41,8 @@ summary.network(object, na.omit=TRUE, mixingmatrices=FALSE, ...)
 \details{
   \code{network} constructs a \code{network} class object from a matrix representation.
 
+  \code{network.copy} creates a new \code{network} object which duplicates its supplied argument.
+
   \code{as.network} tries to coerce its argument to a network, using the \code{network} function if necessary.
 
   \code{is.network} tests whether its argument is a network (in the sense that it has class \code{network}).
@@ -57,6 +61,10 @@ summary.network(object, na.omit=TRUE, mixingmatrices=FALSE, ...)
 m <- matrix(rbinom(25,1,.4),5,5)
 diag(m) <- 0
 g <- network(m, directed=FALSE)
+summary(g)
+
+h <- network.copy(g)       #Note: h<-g will not have the same effect!
+summary(h)
 }
 \keyword{classes}
 \keyword{graphs}

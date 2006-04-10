@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 8/12/05
+# Last Modified 4/10/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -20,7 +20,6 @@
 #   is.discrete
 #   is.discrete.character
 #   is.discrete.numeric
-#   is.bipartite
 #   which.matrix.type
 #
 ######################################################################
@@ -55,21 +54,6 @@ is.discrete<-function(x){
  (is.numeric(x)|is.logical(x)|is.character(x)) && mean(duplicated(x)) > 0.8
 }
 
-
-#
-# Return TRUE iff network x is bipartite
-#
-is.bipartite<-function(x){
-  if(!is.network(x))
-    stop("is.bipartite requires an argument of class network.")
-  else
-    bip <- get.network.attribute(x,"bipartite")
-  if(is.null(bip)){
-   FALSE
-  }else{
-   bip
-  }
-}
 
 which.matrix.type<-function(x)
 {

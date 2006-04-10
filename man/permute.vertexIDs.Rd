@@ -17,7 +17,7 @@ permute.vertexIDs(x, vids)
   \code{permute.vertexIDs} alters the internal ordering of vertices within a \code{\link{network}}.  For most practical applications, this should not be necessary -- de facto permutation can be accomplished by altering the appropriate vertex attributes.  \code{permute.vertexIDs} is needed for certain other routines (such as \code{\link{delete.vertices}}), where it is used in various arcane and ineffable ways.
 }
 \value{
-  The permuted network.
+  Invisibly, a pointer to the permuted network.  \code{permute.vertexIDs} modifies its argument in place.
 }
 \references{ Wasserman, S. and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications}.  Cambridge: Cambridge University Press. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
@@ -30,7 +30,7 @@ permute.vertexIDs(x, vids)
 data(flo)                     #Load the Florentine Families data
 nflo<-network(flo)                      #Create a network object
 n<-network.size(nflo)                #Get the number of vertices
-nflo<-permute.vertexIDs(nflo,n:1)          #Reverse the vertices
+permute.vertexIDs(nflo,n:1)                #Reverse the vertices
 all(flo[n:1,n:1]==as.sociomatrix(nflo))          #Should be TRUE
 }
 \keyword{ manip }% at least one, from doc/KEYWORDS

@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 8/18/05
+# Last Modified 4/10/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -89,6 +89,12 @@ as.matrix.network.adjacency<-function(x,attrname=NULL){
   #Set row/colnames to vertex names
   xnames <- network.vertex.names(x)
   dimnames(m) <- list(xnames, xnames)
+  #If bipartite extract only it
+  if(is.bipartite(x)){
+    nactors <- get.network.attribute(x, "bipartite")
+    nevents <- network.size(x) - nactors
+    m <- m[1:nactors, nactors+(1:nevents)]
+  }
   #Return the result
   m
 }
@@ -118,11 +124,6 @@ as.matrix.network.edgelist<-function(x,attrname=NULL){
 # values.
 #
 as.matrix.network.incidence<-function(x,attrname=NULL){
-  #Check to make sure this is a supported network type
-  if(has.loops(x))
-    warning("Treatment of loops is unorthodox in as.matrix.network.incidence. Forging ahead.")
-  if(!is.directed(x))
-    warning("Treatment of undirected edges is unorthodox in as.matrix.network.incidence. Forging ahead.")
   #Perform preprocessing
   n<-network.size(x)
   inl<-lapply(x$mel,"[[","inl")
@@ -136,6 +137,8 @@ as.matrix.network.incidence<-function(x,attrname=NULL){
   dir<-is.directed(x)
   f<-function(a,m,k){y<-rep(0,m); y[a]<-k; y}
   im<-sapply(inl,f,n,1)+sapply(outl,f,n,ifelse(dir,-1,1))
+  if(!dir)
+    im<-pmin(im,1)
   im<-sweep(im,2,evals,"*")              #Fill in edge values
   im[sapply(ena,rep,n)*(im!=0)]<-NA      #Add NAs, if needed
   #Return the result
@@ -171,16 +174,24 @@ as.network.matrix<-function(x, matrix.type=NULL,
                                          "bipartite"))
   # Add names if available
   unames <- NULL
-  if(matrix.type=="edgelist" && is.character(x<-as.matrix(x[,1:2]))){
-    unames <- sort(unique(as.vector(x)))
-    x <- cbind(match(x[,1],unames),match(x[,2],unames))
+  if(matrix.type=="edgelist"){
+    if(dim(x)[2]>2)
+      vals<-x[,-(1:2)]
+    else
+      vals<-NULL
+    if(is.character(x<-as.matrix(x[,1:2,drop=FALSE]))){
+      unames <- sort(unique(as.vector(x)))
+      x <- cbind(match(x[,1],unames),match(x[,2],unames))
+    }
+    if(!is.null(vals))
+      x<-cbind(x,vals)
   }
   if(matrix.type=="adjacency" && !is.null(colnames(x))){
     unames <- colnames(x)
   }
   if(matrix.type=="bipartite"){
    directed <- FALSE
-   bipartite <- dim(x)[2]
+   bipartite <- dim(x)[1]
    unames <- 1:sum(dim(x))
    if(!is.null(rownames(x))){
      unames[1:(dim(x)[1])] <- rownames(x)

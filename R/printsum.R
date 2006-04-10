@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 8/12/05
+# Last Modified 4/09/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -73,7 +73,7 @@ print.network<-function(x, matrix.type=which.matrix.type(x),
      cat("   ",vna,"\n")
     }
     cat("\n",matrix.type,"matrix:\n")    
-    if(length(x$mel)>0)
+    if(network.edgecount(x)>0)
       print(as.matrix.network(x,matrix.type=matrix.type))
     else
       cat("Empty Graph\n")

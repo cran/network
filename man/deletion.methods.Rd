@@ -19,9 +19,11 @@ delete.vertices(x, vid)
 }
 \details{
   Note that an edge's ID number corresponds to its order within \code{x$mel}.  To determine edge IDs, see \code{\link{get.edgeIDs}}.  Likewise, vertex ID numbers reflect the order with which vertices are listed internally (e.g., the order of \code{x$oel} and \code{x$iel}, or that used by \code{as.matrix.network.adjacency}).  When vertices are removed from a network, all edges having those vertices as endpoints are removed as well.  
+  
+Edges can also be added/removed via the extraction/replacement operators.  See the associated man page for details.
 }
 \value{
-  The updated network
+  Invisibly, a pointer to the updated network; these functions modify their arguments in place.
 }
 \references{ Butts, C.T.  2002.  ``Memory Structures for Relational Data in R: Classes and Interfaces''  Working Paper. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
@@ -29,7 +31,7 @@ delete.vertices(x, vid)
 %
 % ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link{get.edgeIDs}} }
+\seealso{ \code{\link{get.edgeIDs}}, \code{\link{network.extraction}}}
 \examples{
 #Create a network with three edges
 m<-matrix(0,3,3)
@@ -37,10 +39,17 @@ m[1,2]<-1; m[2,3]<-1; m[3,1]<-1
 g<-network(m)
 
 as.matrix.network(g)
-gn<-delete.edges(g,2)      #Remove an edge
-as.matrix.network(gn)
-gn<-delete.vertices(g,2)   #Remove a vertex
-as.matrix.network(gn)
+delete.edges(g,2)              #Remove an edge
+as.matrix.network(g)
+delete.vertices(g,2)           #Remove a vertex
+as.matrix.network(g)
+
+#Can also remove edges using extraction/replacement operators
+g<-network(m)
+g[1,2]<-0                      #Remove an edge
+g[,]
+g[,]<-0                        #Remove all edges
+g[,]
 }
 \keyword{ classes }% at least one, from doc/KEYWORDS
 \keyword{ graphs }% __ONLY ONE__ keyword per line
