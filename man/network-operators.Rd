@@ -6,8 +6,8 @@
 \alias{!.network}
 \alias{|.network}
 \alias{&.network}
-\alias{\%c\%.network}
 \alias{\%c\%}
+\alias{\%c\%.network}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Network Operators }
 \description{
@@ -70,7 +70,7 @@ g<-network(m)
 plot(g)
 
 #Compose g with its transpose
-gcgt<-g\%c\%network(t(m))
+gcgt<-g \%c\% (network(t(m)))
 plot(gcgt)
 gcgt
 

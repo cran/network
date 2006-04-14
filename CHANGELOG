@@ -1,5 +1,13 @@
 CHANGELOG:
 
+v1.0-1 Minor Bug Fixes, Changes
+  Bug Fixes:
+    - Various warnings were removed (apparently, these only appeared in 
+      R<2.1) [CTB]
+    - plot.network was failing on networks where is.bipartite==TRUE [CTB]
+  Changes:
+    - The generic form of %c% was temporarily removed, to avoid namespace
+      issues with sna.  (This will be rectified in future releases.) [CTB]
 v1.0 New Functions, New Features, Changes, and Bug Fixes
   New Functions:
     - Operator overloading for +, -, *, |, &, and ! have been added, as has the

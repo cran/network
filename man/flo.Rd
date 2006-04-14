@@ -14,4 +14,11 @@ Wasserman, S. and Faust, K. (1994) \emph{Social Network Analysis: Methods and
 Applications}, Cambridge: Cambridge University Press.
 }
 \seealso{\code{\link{network}}}
+\examples{
+data(flo)
+nflo<-network(flo,directed=FALSE)    #Convert to network object form
+all(nflo[,]==flo)                    #Trust, but verify
+                                     #A fancy display:
+plot(nflo,displaylabels=TRUE,boxed.labels=FALSE,label.cex=0.75)
+}
 \keyword{datasets}

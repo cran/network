@@ -4,7 +4,7 @@
 # access.c
 #
 # Written by Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/9/06
+# Last Modified 4/14/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -260,7 +260,7 @@ SEXP getNeighborhood(SEXP x, int v, char *type, int naOmit)
 SEXP getNetworkAttribute(SEXP x, char *str)
 /*Returns a pointer to the network attribute of x named by str, or else R_NilValue.*/
 {
-  getListElement(getListElement(x,"gal"),str);
+  return getListElement(getListElement(x,"gal"),str);
 }
 
 
@@ -958,6 +958,7 @@ SEXP isAdjacent_R(SEXP x, SEXP vi, SEXP vj, SEXP naOmit)
   PROTECT(vj = coerceVector(vj, INTSXP)); pc++;
   PROTECT(naOmit = coerceVector(naOmit, LGLSXP)); pc++;
   PROTECT(ans = allocVector(LGLSXP,length(vi))); pc++;
+  n=networkSize(x);
   /*Rprintf("Checking adjacency for pair (%d,%d), na.omit=%d\n",INTEGER(vi)[0], INTEGER(vj)[0],INTEGER(naOmit)[0]);*/
 
   /*Call the internal version of isAdjacent*/
@@ -1101,7 +1102,7 @@ SEXP setEdgeValue_R(SEXP x, SEXP attrname, SEXP value, SEXP e)
 {
   int i,pc=0,type,h,t,n;
   char *anam;
-  SEXP mel,el,atl,newval;
+  SEXP mel,el,atl,newval=R_NilValue;
   
   /*Set things up*/
   mel=getListElement(x,"mel");
@@ -1165,7 +1166,6 @@ SEXP setNetworkAttribute_R(SEXP x, SEXP attrname, SEXP value)
 /*Set the attribute whose name is given by attrname in x to be equal to value.*/
 {
   int i,pc=0;
-  SEXP gal;
   
   /*Coerce the attribute names*/
   PROTECT(attrname=coerceVector(attrname,STRSXP)); pc++;

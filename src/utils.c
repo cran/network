@@ -4,7 +4,7 @@
 # utils.c
 #
 # Written by Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/1/06
+# Last Modified 4/12/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -129,7 +129,7 @@ SEXP enlargeList(SEXP list, int n)
 /*Return a pointer to an enlarged version of list, where the length is increased by n steps.*/
 {
   int i,pc=0;
-  SEXP newlist, names, newnames;
+  SEXP newlist=R_NilValue, names, newnames;
   
   /*Rprintf("\t\tenlargeList entered, extending length %d by %d\n",length(list),n);*/
   if(n>0){
@@ -221,7 +221,7 @@ SEXP contractList(SEXP list, int n)
 /*Return a pointer to a contracted version of list, where only the first n items are selected.  If n>=length(list), then list is returned.*/
 {
   int i,pc=0;
-  SEXP newlist, names, newnames;
+  SEXP newlist=R_NilValue, names, newnames;
   
   /*Rprintf("\t\tcontractList entered, changing length from %d to %d\n",length(list),n);*/
   if(n<length(list)){
@@ -442,6 +442,8 @@ int vecEq(SEXP a, SEXP b)
     default:
       UNIMPLEMENTED_TYPE("vecEq",type);
   }
+  /*Should never get here!*/
+  return -1;
 }
 
 
@@ -529,7 +531,7 @@ SEXP vecAppend(SEXP a, SEXP b)
 /*Create and return a vector which is the concatenation of a and b.*/
 {
   int i,type,pc=0;
-  SEXP v;
+  SEXP v=R_NilValue;
   
   /*Check types*/
   type=TYPEOF(a);
@@ -587,7 +589,7 @@ SEXP vecRemove(SEXP v, double e)
 /*Removes all instances of e from v.  Although passed as a double, e is recast appropriately for v's data type (to the extent possible).*/
 {
   int type,i,count=0,nl,pc=0;
-  SEXP newvec;
+  SEXP newvec=R_NilValue;
 
   /*Determine type, and proceed accordingly*/
   type=TYPEOF(v);
@@ -666,7 +668,7 @@ SEXP vecUnion(SEXP a, SEXP b)
 SEXP vecUnique(SEXP a)
 {
   int pc=0,*dup,dcount=0,i,j;
-  SEXP newv;
+  SEXP newv=R_NilValue;
 
   /*Proceed by type*/
   switch(TYPEOF(a)){

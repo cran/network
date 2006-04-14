@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 8/12/05
+# Last Modified 9/14/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -279,6 +279,15 @@ layout.par=NULL,
      }
      if(length(label)==network.size(x))  #Fix labels, if needed
        label<-c(label,paste("e",1:(n-network.size(x)),sep=""))
+   }else if(is.bipartite(x)){
+     n<-network.size(x)
+     temp<-as.matrix.network(x,matrix.type="adjacency",attrname=attrname)
+     d<-matrix(0,n,n)
+     d[1:NROW(temp),(NROW(temp)+1):NCOL(d)]<-temp
+     d[(NROW(temp)+1):NCOL(d),1:NROW(temp)]<-t(temp)
+     colnames(d)<-c(rownames(temp),colnames(temp))
+     rownames(d)<-c(rownames(temp),colnames(temp))
+     usearrows<-FALSE
    }else{
      n<-network.size(x)
      d<-as.matrix.network(x,matrix.type="adjacency",attrname=attrname)
