@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 4/10/06
+# Last Modified 8/25/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -103,6 +103,13 @@ add.vertices<-function(x, nv, vattr=NULL){
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("add.vertices requires an argument of class network.\n")
+  #Check the vertex attributes, to be sure that they are legal
+  if(!is.null(vattr)){
+    if(is.list(vattr))
+      vattr<-rep(vattr,length=nv)
+    else
+      vattr<-as.list(rep(vattr,length=nv))
+  }
   #Perform the addition
   if(nv>0)
     invisible(.Call("addVertices_R",x,nv,vattr, PACKAGE="network"))
@@ -128,11 +135,14 @@ delete.edges<-function(x,eid){
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("delete.edges requires an argument of class network.")
-  #Perform a sanity check
-  if((min(eid)<1)|(max(eid)>length(x$mel)))
-    stop("Illegal edge in delete.edges.\n")
-  #Remove the edges
-  invisible(.Call("deleteEdges_R",x,eid, PACKAGE="network"))
+  if(length(eid)>0){
+    #Perform a sanity check
+    if((min(eid)<1)|(max(eid)>length(x$mel)))
+      stop("Illegal edge in delete.edges.\n")
+    #Remove the edges
+    invisible(.Call("deleteEdges_R",x,eid, PACKAGE="network"))
+  }else
+    invisible(x)
 }
 
 
@@ -171,9 +181,13 @@ delete.vertices<-function(x,vid){
   #Remove any vids which are out of bounds
   vid<-vid[(vid>0)&(vid<=network.size(x))]
   #Do the deed, if still needed
-  if(length(vid)>0)
+  if(length(vid)>0){
+    if(is.bipartite(x)){  #If bipartite, might need to adjust mode 1 count
+      m1v<-get.network.attribute(x,"bipartite")  #How many mode 1 verts?
+      set.network.attribute(x,"bipartite",m1v-sum(vid<=m1v))
+    }
     invisible(.Call("deleteVertices_R",x,vid, PACKAGE="network"))
-  else
+  }else
     invisible(x)
 }
 
@@ -288,7 +302,7 @@ get.vertex.attribute<-function(x,attrname,na.omit=FALSE,null.na=TRUE,
   va<-lapply(x$val,"[[",attrname)
   #If needed, figure out who's missing
   if(na.omit)
-    vna<-lapply(x$val,"[[","na")
+    vna<-unlist(lapply(x$val,"[[","na"))
   else
     vna<-rep(FALSE,length(va))
   #Replace NULL values with NAs, if requested
@@ -495,6 +509,11 @@ permute.vertexIDs<-function(x,vids){
   n<-network.size(x)
   if((length(unique(vids))!=n)||(range(vids)!=c(1,n)))
     stop("Invalid permutation vector in permute.vertexIDs.")
+  if(is.bipartite(x)){  #If bipartite, enforce partitioning
+    bpc<-get.network.attribute(x,"bipartite")
+    if(any(vids[1:bpc]>bpc)||(vids[(bpc+1):n]<=bpc))
+      warn("Performing a cross-mode permutation in permute.vertexIDs.  I hope you know what you're doing....")
+  }
   #Return the permuted graph
   invisible(.Call("permuteVertexIDs_R",x,vids, PACKAGE="network"))
 }
@@ -515,10 +534,13 @@ set.edge.attribute<-function(x,attrname,value,e=1:length(x$mel)){
   }else
     if(length(value)!=length(e))
       value<-rep(value,length=length(e))
-  if((min(e)<1)|(max(e)>length(x$mel)))
-    stop("Illegal edge in set.edge.attribute.\n")
-  #Do the deed
-  invisible(.Call("setEdgeAttribute_R",x,attrname,value,e, PACKAGE="network"))
+  if(length(e)>0){
+    if((min(e)<1)|(max(e)>length(x$mel)))
+      stop("Illegal edge in set.edge.attribute.\n")
+    #Do the deed
+    invisible(.Call("setEdgeAttribute_R",x,attrname,value,e, PACKAGE="network"))
+  }else
+    invisible(x)
 }
 
 
@@ -589,7 +611,7 @@ set.vertex.attribute<-function(x,attrname,value,v=1:network.size(x)){
     else
       value<-as.list(rep(value,length=length(v)))
   }else
-    if(length(value)!=length(e))
+    if(length(value)!=length(v))
       value<-rep(value,length=length(v))
   #Do the deed
   invisible(.Call("setVertexAttribute_R",x,attrname,value,v, PACKAGE="network"))

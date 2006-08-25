@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 4/10/06
+# Last Modified 8/25/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -194,7 +194,12 @@ network.incidence<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
       tail<-(1:n)[x[,i]<0]
     }else{
       head<-(1:n)[x[,i]!=0]
-      tail<-head
+      if(is.hyper(g))
+        tail<-head
+      else{                 #If dyadic, use only the first two nonzero entries
+        tail<-head[1]
+        head<-head[2]
+      }
     }
     if(length(head)*length(tail)==0)
       error("Supplied incidence matrix has empty head/tail lists. (Did you get the directedness right?)")

@@ -1,5 +1,42 @@
 CHANGELOG:
 
+v1.1 New Features, Bug Fixes, Changes
+  New Features:
+    - [.network and [<-.network now allow the use of vertex names (where
+      present) for selection of vertices [CTB]
+  Bug Fixes:
+    - add.vertices did not verify the integrity of vattr, and could generate
+      a segfault if incorrectly called with a non-null, non-list value [CTB;
+      reported by Skye Bender-deMoll]
+    - as.network (and friends) could segfault if matrix.type was forced
+      to adjacency while bipartite>0; new behavior essentially forces the
+      use of the bipartite matrix method in this case [CTB]
+    - delete.edges and set.edge.attribute returned an annoying (but harmless)
+      warning when called with zero-length eid [CTB; reported by David Hunter]
+    - delete.vertices did not adjust bipartite attribute (where present) to
+      account for loss of mode 1 vertices [CTB]
+    - get.vertex.attribute generated an error when called with na.omit=TRUE
+      in some cases [CTB]
+    - network.incidence could not be used to construct undirected dyadic
+      networks [CTB]
+    - set.vertex.attribute generated an error if called with attribute lists
+      of length != network.size [CTB; reported by Skye Bender-deMoll]
+  Changes:
+    - Added a new overview man page (network-package) with information on how
+      to get started with network [CTB]
+    - [<-.network will now remove edges with zero values if both names.eval and
+      add.edges are set, and will not add edges for those cells.  Previously,
+      the standard behavior was to add edges for all cells [CTB]
+    - Added delete.edges to the "see also" for add.edges [CTB; suggested by
+      Skye Bender-deMoll]
+    - permute.vertexIDs now throws a warning when called with a cross-mode
+      vertex exchange on a bipartite graph [CTB]
+    - Default matrix type for as.matrix.network is now "adjacency," rather than
+      the output of which.matrix.type().  Coercion methods should not have
+      variable behavior depending on features such as network size, even if
+      it is convenient for some purposes!  The old behavior can be easily
+      obtained via setting matrix.type=which.matrix.type(x), for those who
+      want it [CTB]
 v1.0-1 Minor Bug Fixes, Changes
   Bug Fixes:
     - Various warnings were removed (apparently, these only appeared in 

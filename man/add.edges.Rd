@@ -30,7 +30,7 @@ Edges can also be added/removed via the extraction/replacement operators.  See t
 \author{ Carter T. Butts \email{buttsc@uci.edu}}
 \references{ Butts, C.T.  2002.  ``Memory Structures for Relational Data in R: Classes and Interfaces''  Working Paper. }
 %\note{ }
-\seealso{\code{\link{network}}, \code{\link{add.vertices}}, \code{\link{network.extraction}}}
+\seealso{\code{\link{network}}, \code{\link{add.vertices}}, \code{\link{network.extraction}}, \code{\link{delete.edges}}}
 \examples{
 #Initialize a small, empty network
 g<-network.initialize(3)
