@@ -4,7 +4,7 @@
 # access.h
 #
 # Written by Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/9/06
+# Last Modified 9/16/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -64,6 +64,8 @@ int networkEdgecount(SEXP x, int naOmit);
 int networkSize(SEXP x);
 
 SEXP setNetworkAttribute(SEXP x, char *attrname, SEXP value);
+
+SEXP setVertexAttribute(SEXP x, char *attrname, SEXP value, int v);
 
 
 /*R-CALLABLE ROUTINES-------------------------------------------------------*/

@@ -1,5 +1,23 @@
 CHANGELOG:
 
+v1.1-1 New Functions, Changes
+  New Functions:
+    - The internal function setVertexAttribute has been added.  This has
+      no immediate user-level effect, but the new function is supported
+      in the C API [CTB]
+  Changes:
+    - Use of the protection stack has been changed, so as to avoid racking up
+      huge stacks when creating very large networks.  This is expected to have
+      a minimal impact on performance, but will avoid protection stack overflow
+      issues in some cases  [CTB]
+    - A change in R 2.4.0 has apparently made it impossible for generic 
+      two-argument Ops (e.g., +,-,*) to dispatch to functions with more than
+      two arguments.  A side effect of this is that "+.network" and friends
+      must be called with the full function name (as opposed to simply "+") 
+      when the optional attrname argument is being used.  Note that this is
+      not a change in the network package (although the test code has been
+      updated to reflect it), but a regression due to R.  Go complain to the
+      R team  [CTB]
 v1.1 New Features, Bug Fixes, Changes
   New Features:
     - [.network and [<-.network now allow the use of vertex names (where

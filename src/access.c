@@ -4,7 +4,7 @@
 # access.c
 #
 # Written by Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/14/06
+# Last Modified 9/16/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -422,9 +422,10 @@ int networkEdgecount(SEXP x, int naOmit)
   if(naOmit){                                   /*Omit missing edges*/
     for(i=0;i<length(mel);i++)
       if(VECTOR_ELT(mel,i)!=R_NilValue){
-        PROTECT(na=coerceVector(getEdgeAttribute(x,i+1,"na"),LGLSXP)); pc++;
+        PROTECT(na=coerceVector(getEdgeAttribute(x,i+1,"na"),LGLSXP));
         if(!INTEGER(na)[0])
          ecount++;
+        UNPROTECT(1);
       }
   }else{                                       /*Count all edges*/
     for(i=0;i<length(mel);i++)
@@ -458,6 +459,25 @@ SEXP setNetworkAttribute(SEXP x, char *attrname, SEXP value)
   PROTECT(gal=setListElement(gal,attrname,value)); pc++;   /*Set attribute*/
   x=setListElement(x,"gal",gal);                    /*Write new gal into x*/
 
+  UNPROTECT(pc);
+  return x;
+}
+
+
+SEXP setVertexAttribute(SEXP x, char *attrname, SEXP value, int v)
+/*Sets the attribute in attrname to value, for vertex v.  Existing attribute entries are overwritten by this routine, where present; new attributes are added, if they do not exist.*/
+{
+  int pc=0;
+  SEXP val,vl;
+  
+  /*Get the vertex attribute list*/
+  val=getListElement(x,"val");
+
+  /*Update the attribute list*/
+  PROTECT(vl=setListElement(VECTOR_ELT(val,v-1),attrname,value)); pc++;
+  SET_VECTOR_ELT(val,v-1,vl);
+
+  /*Unprotect and return*/
   UNPROTECT(pc);
   return x;
 }
@@ -1079,7 +1099,7 @@ SEXP setEdgeAttribute_R(SEXP x, SEXP attrname, SEXP value, SEXP e)
     el=VECTOR_ELT(mel,INTEGER(e)[i]-1);   /*Get the edge*/
     if(el!=R_NilValue){                   /*Only proceed if edge exists*/
       atl=getListElement(el,"atl");         /*Get attr list*/
-      PROTECT(atl=setListElement(atl,CHAR(STRING_ELT(attrname,0)), VECTOR_ELT(value,i))); pc++;                /*Add/alter attribute*/
+      PROTECT(atl=setListElement(atl,CHAR(STRING_ELT(attrname,0)), VECTOR_ELT(value,i)));                      /*Add/alter attribute*/
       /*Note: b/c atl might have been extended, we have to re-write it into*/
       /*the edge object.  The same is not true for the edge itself, b/c we*/
       /*know that every edge must contain the element "atl"; the return*/
@@ -1088,6 +1108,7 @@ SEXP setEdgeAttribute_R(SEXP x, SEXP attrname, SEXP value, SEXP e)
       /*line will no longer work as-is, and an additional line resetting el*/
       /*within mel will be required!  You have been warned!*/
       el=setListElement(el,"atl",atl);
+      UNPROTECT(1);
     }
   }
     
@@ -1191,8 +1212,9 @@ SEXP setVertexAttribute_R(SEXP x, SEXP attrname, SEXP value, SEXP v)
 
   /*Update the attribute lists*/
   for(i=0;i<length(v);i++){
-    PROTECT(vl=setListElement(VECTOR_ELT(val,INTEGER(v)[i]-1), CHAR(STRING_ELT(attrname,0)),VECTOR_ELT(value,i))); pc++;
+    PROTECT(vl=setListElement(VECTOR_ELT(val,INTEGER(v)[i]-1), CHAR(STRING_ELT(attrname,0)),VECTOR_ELT(value,i))); /*Protect temporarily*/
     SET_VECTOR_ELT(val,INTEGER(v)[i]-1,vl);
+    UNPROTECT(1);  /*Remove protection to avoid stack overflow*/
   }
 
   /*Unprotect and return*/
