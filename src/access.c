@@ -4,7 +4,7 @@
 # access.c
 #
 # Written by Carter T. Butts <buttsc@uci.edu>
-# Last Modified 9/16/06
+# Last Modified 11/11/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -93,13 +93,15 @@ SEXP getEdgeIDs(SEXP x, int v, int alter, char *neighborhood, int naOmit)
 /*Retrieve the IDs of all edges incident on v, in network x.  Outgoing or incoming edges are specified by neighborhood, while na.omit indicates whether or not missing edges should be omitted.  If alter>0, only edges whose alternate endpoints contain alter are returned.  The return value is a vector of edge IDs.*/
 {
   SEXP eids,newids,mel,ilist,olist,eplist;
-  int i,j,pc=0,ecount,*keep;
+  int i,j,pc=0,ecount,*keep,dir;
   
+  /*Enforce "combined" behavior unless x is directed*/
+  dir=isDirected(x);
   /*Rprintf("getEdgeIDs: v=%d, a=%d, neighborhood=%s\n",v,alter,neighborhood);*/
   /*Begin by getting all edge IDs for the neighborhood in question*/
-  if(strcmp(neighborhood,"out")==0){
+  if(dir&&(strcmp(neighborhood,"out")==0)){
     PROTECT(eids=coerceVector(VECTOR_ELT(getListElement(x,"oel"),v-1),INTSXP)); pc++;
-  }else if(strcmp(neighborhood,"in")==0){
+  }else if(dir&&(strcmp(neighborhood,"in")==0)){
     PROTECT(eids=coerceVector(VECTOR_ELT(getListElement(x,"iel"),v-1),INTSXP)); pc++;
   }else{
     PROTECT(ilist=coerceVector(VECTOR_ELT(getListElement(x,"oel"),v-1), INTSXP)); pc++;
@@ -122,9 +124,9 @@ SEXP getEdgeIDs(SEXP x, int v, int alter, char *neighborhood, int naOmit)
     keep[i]=1;
     if(alter>0){                     /*Remove edges not containing alter?*/
       /*Get the relevant endpoints of the edge in question*/
-      if(strcmp(neighborhood,"out")==0){
+      if(dir&&(strcmp(neighborhood,"out")==0)){
         PROTECT(eplist=coerceVector(getListElement(VECTOR_ELT(mel, INTEGER(eids)[i]-1),"inl"),INTSXP)); pc++;
-      }else if(strcmp(neighborhood,"in")==0){
+      }else if(dir&&(strcmp(neighborhood,"in")==0)){
         PROTECT(eplist=coerceVector(getListElement(VECTOR_ELT(mel, INTEGER(eids)[i]-1),"outl"),INTSXP)); pc++;
       }else{
         PROTECT(ilist=coerceVector(getListElement(VECTOR_ELT(mel, INTEGER(eids)[i]-1),"inl"),INTSXP)); pc++;
@@ -166,13 +168,15 @@ SEXP getEdges(SEXP x, int v, int alter, char *neighborhood, int naOmit)
 /*Retrieve all edges incident on v, in network x.  Outgoing or incoming edges are specified by neighborhood, while na.omit indicates whether or not missing edges should be omitted.  If alter>0, only edges whose alternate endpoints contain alter are returned.  The return value is a list of edges.*/
 {
   SEXP eids,el,mel,eplist;
-  int i,j,pc=0,ecount,*keep;
+  int i,j,pc=0,ecount,*keep,dir;
   
+  /*If x is undirected, enforce "combined" behavior*/
+  dir=isDirected(x);
   /*Rprintf("getEdges: v=%d, a=%d, neighborhood=%s\n",v,alter,neighborhood);*/
   /*Begin by getting all edge IDs for the neighborhood in question*/
-  if(strcmp(neighborhood,"out")==0){
+  if(dir&&(strcmp(neighborhood,"out")==0)){
     PROTECT(eids=coerceVector(VECTOR_ELT(getListElement(x,"oel"),v-1),INTSXP)); pc++;
-  }else if(strcmp(neighborhood,"in")==0){
+  }else if(dir&&(strcmp(neighborhood,"in")==0)){
     PROTECT(eids=coerceVector(VECTOR_ELT(getListElement(x,"iel"),v-1),INTSXP)); pc++;
   }else{
     PROTECT(eids=vecUnion(coerceVector(VECTOR_ELT(getListElement(x,"oel"),v-1), INTSXP), coerceVector(VECTOR_ELT(getListElement(x,"iel"),v-1),INTSXP))); pc++;
@@ -187,9 +191,9 @@ SEXP getEdges(SEXP x, int v, int alter, char *neighborhood, int naOmit)
     keep[i]=1;
     if(alter>0){                     /*Remove edges not containing alter?*/
       /*Get the relevant endpoints of the edge in question*/
-      if(strcmp(neighborhood,"out")==0){
+      if(dir&&(strcmp(neighborhood,"out")==0)){
         PROTECT(eplist=coerceVector(getListElement(VECTOR_ELT(mel, INTEGER(eids)[i]-1),"inl"),INTSXP)); pc++;
-      }else if(strcmp(neighborhood,"in")==0){
+      }else if(dir&&(strcmp(neighborhood,"in")==0)){
         PROTECT(eplist=coerceVector(getListElement(VECTOR_ELT(mel, INTEGER(eids)[i]-1),"outl"),INTSXP)); pc++;
       }else{
         PROTECT(eplist=vecAppend(coerceVector(getListElement(VECTOR_ELT(mel, INTEGER(eids)[i]-1),"inl"),INTSXP),coerceVector(getListElement(VECTOR_ELT(mel, INTEGER(eids)[i]-1),"outl"),INTSXP))); pc++;
@@ -222,18 +226,20 @@ SEXP getEdges(SEXP x, int v, int alter, char *neighborhood, int naOmit)
 SEXP getNeighborhood(SEXP x, int v, char *type, int naOmit)
 /*Return a vector containing the first-order vertex neighborhood of v in x, as specified by type.  If naOmit>0, missing edges are discarded; otherwise, they are employed as well.*/
 {
-  int pc=0,i;
+  int pc=0,i,dir;
   SEXP el,eps;
   
+  /*Check for directedness of x*/
+  dir=isDirected(x);
   /*Accumulate endpoints from the edge list*/
   PROTECT(eps=allocVector(INTSXP,0)); pc++;
-  if(strcmp(type,"in")==0){                       /*In => get tail list*/
-    PROTECT(el = getEdges(x,v,0,type,naOmit)); pc++;
+  if(dir&&(strcmp(type,"in")==0)){                /*In => get tail list*/
+    PROTECT(el = getEdges(x,v,0,"in",naOmit)); pc++;
     for(i=0;i<length(el);i++){
       PROTECT(eps=vecAppend(eps,coerceVector(getListElement(VECTOR_ELT(el,i), "outl"),INTSXP))); pc++;
     }
-  }else if(strcmp(type,"out")==0){                /*Out => get head list*/
-    PROTECT(el = getEdges(x,v,0,type,naOmit)); pc++;
+  }else if(dir&&(strcmp(type,"out")==0)){        /*Out => get head list*/
+    PROTECT(el = getEdges(x,v,0,"out",naOmit)); pc++;
     for(i=0;i<length(el);i++){
       PROTECT(eps=vecAppend(eps,coerceVector(getListElement(VECTOR_ELT(el,i), "inl"),INTSXP))); pc++;
     }
@@ -958,6 +964,7 @@ SEXP getNeighborhood_R(SEXP x, SEXP v, SEXP type, SEXP naOmit)
     naval=INTEGER(naOmit)[0];
 
   /*Unprotect and return*/
+  Rprintf("getNeighborhood_R: type=%s\n",CHAR(STRING_ELT(type,0)));
   UNPROTECT(pc);
   return getNeighborhood(x,INTEGER(v)[0],CHAR(STRING_ELT(type,0)),naval);
 }

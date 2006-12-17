@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 8/25/06
+# Last Modified 10/19/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -158,7 +158,7 @@ network.adjacency<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
 network.copy<-function(x){
   #Verify that this is a network object
   if(!is.network(x))
-    error("network.copy requires an argument of class network.\n")
+    stop("network.copy requires an argument of class network.\n")
   #Duplicate and return
   .Call("copyNetwork_R",x,PACKAGE="network")
 }
@@ -202,7 +202,7 @@ network.incidence<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
       }
     }
     if(length(head)*length(tail)==0)
-      error("Supplied incidence matrix has empty head/tail lists. (Did you get the directedness right?)")
+      stop("Supplied incidence matrix has empty head/tail lists. (Did you get the directedness right?)")
     #Get edge values, if needed
     if(ignore.eval){
       en<-NULL

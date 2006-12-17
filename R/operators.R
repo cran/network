@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 8/25/06
+# Last Modified 10/19/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -90,7 +90,7 @@
 "[<-.network"<-function(x,i,j,names.eval=NULL,add.edges=FALSE,value){
   #Check for hypergraphicity
   if(is.hyper(x))
-    error("Assignment operator overloading does not currently support hypergraphic networks.");
+    stop("Assignment operator overloading does not currently support hypergraphic networks.");
   #Set up the edge list to change
   n<-network.size(x)
   xnames <- network.vertex.names(x)

@@ -1,5 +1,16 @@
 CHANGELOG:
-
+v1.1-2 Changes, Bug Fixes
+  Changes:
+    - getNeighborhood, getEdges, and getEdgeIDs (internal) now force
+      type="combined" behavior on undirected networks; this was done at the R
+      level before, but is now enforced in C as well.  This is not generally
+      user-level transparent, but affects the experimental network API [CTB]
+  Bug Fixes:
+    - as.network.matrix was not setting the bipartite attribute of the returned
+      network properly, when called with a non-FALSE bipartite argument [MSH]
+    - An error was present in some error return functions, causing errors on
+      errors (which, happily, were only relevant when an error occurred)
+      [CTB; Submitted by Skye Bender-deMoll]
 v1.1-1 New Functions, Changes
   New Functions:
     - The internal function setVertexAttribute has been added.  This has

@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 8/25/06
+# Last Modified 12/17/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -172,6 +172,8 @@ as.network.matrix<-function(x, matrix.type=NULL,
   else
     matrix.type<-match.arg(matrix.type,c("adjacency","incidence","edgelist",
                                          "bipartite"))
+  if(is.logical(bipartite)&&bipartite)
+    matrix.type<-"bipartite"
   if((bipartite>0)&&(matrix.type=="adjacency")&&(NROW(x)==bipartite))  #Patch adj->bipartite case
     matrix.type<-"bipartite"
   # Add names if available
