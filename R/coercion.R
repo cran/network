@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 12/17/06
+# Last Modified 07/30/07
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -35,7 +35,7 @@
 # attrname!=NULL, an edge attribute of name attrname is used to supply
 # edge values.  Otherwise, edges are assumed to be unvalued.
 #
-as.matrix.network<-function(x,matrix.type=NULL,attrname=NULL){
+as.matrix.network<-function(x,matrix.type=NULL,attrname=NULL,...){
   #Get the matrix type
   if(is.null(matrix.type))
     matrix.type<-"adjacency"
@@ -43,9 +43,9 @@ as.matrix.network<-function(x,matrix.type=NULL,attrname=NULL){
     matrix.type<-match.arg(matrix.type,c("adjacency","incidence","edgelist"))
   #Dispatch as needed
   switch(matrix.type,
-    adjacency=as.matrix.network.adjacency(x=x,attrname=attrname),
-    incidence=as.matrix.network.incidence(x=x,attrname=attrname),
-    edgelist=as.matrix.network.edgelist(x=x,attrname=attrname)
+    adjacency=as.matrix.network.adjacency(x=x,attrname=attrname,...),
+    incidence=as.matrix.network.incidence(x=x,attrname=attrname,...),
+    edgelist=as.matrix.network.edgelist(x=x,attrname=attrname,...)
   )
 }
 
@@ -54,7 +54,7 @@ as.matrix.network<-function(x,matrix.type=NULL,attrname=NULL){
 # provided, attrname is used to identify an attribute to use for edge
 # values.
 #
-as.matrix.network.adjacency<-function(x,attrname=NULL){
+as.matrix.network.adjacency<-function(x,attrname=NULL,...){
   #Check to make sure this is a supported network type
   if(is.hyper(x))
     stop("Hypergraphs not currently supported in as.matrix.network.adjacency.  Exiting.\n")
@@ -103,7 +103,7 @@ as.matrix.network.adjacency<-function(x,attrname=NULL){
 # Coerce a network object to an edgelist matrix.  If provided, attrname is 
 # used to identify an attribute to use for edge values.
 #
-as.matrix.network.edgelist<-function(x,attrname=NULL){
+as.matrix.network.edgelist<-function(x,attrname=NULL,...){
   #Check to make sure this is a supported network type
   if(is.hyper(x))
     stop("Hypergraphs not currently supported in as.matrix.network.edgelist.  Exiting.\n")
@@ -123,7 +123,7 @@ as.matrix.network.edgelist<-function(x,attrname=NULL){
 # provided, attrname is used to identify an attribute to use for edge
 # values.
 #
-as.matrix.network.incidence<-function(x,attrname=NULL){
+as.matrix.network.incidence<-function(x,attrname=NULL,...){
   #Perform preprocessing
   n<-network.size(x)
   inl<-lapply(x$mel,"[[","inl")
@@ -235,9 +235,9 @@ as.network.matrix<-function(x, matrix.type=NULL,
 #Force the input into sociomatrix form.  This is a shortcut to 
 #as.matrix.network.adjacency, which ensures that a raw matrix is
 #passed through as-is.
-as.sociomatrix<-function(x, attrname=NULL, simplify=TRUE){
+as.sociomatrix<-function(x, attrname=NULL, simplify=TRUE,...){
   if(is.network(x)){ #If network, coerce to adjacency matrix
-    g<-as.matrix.network.adjacency(x,attrname=attrname)
+    g<-as.matrix.network.adjacency(x,attrname=attrname,...)
   }else if(is.matrix(x)||is.array(x)){ #If an array/matrix, use as-is
     g<-x
   }else if(is.list(x)){  #If a list, recurse on list elements

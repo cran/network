@@ -16,11 +16,11 @@ Basic information on the creation of \code{network} objects can be found by typi
 
 \tabular{ll}{
 Package: \tab network\cr
-Version: \tab 1.1\cr
-Date: \tab August 25, 2006\cr
-Depends: \tab R (>= 2.0.0)\cr
+Version: \tab 1.2\cr
+Date: \tab July 31, 2007\cr
+Depends: \tab R (>= 2.0.0), utils\cr
 Suggests: \tab sna\cr
-License: \tab GPL version 2 (June, 1991)\cr
+License: \tab GPL version 2 (June, 1991) or later\cr
 }
 
 Index:
@@ -53,13 +53,16 @@ network.initialize      Initialize a Network Class Object
 network.layout          Vertex Layout Functions for plot.network
 network.loop            Add Loops to a Plot
 network.operators       Network Operators
+network-package         Classes for Relational Data
 network.size            Return the Size of a Network
 network.vertex          Add Vertices to a Plot
 permute.vertexIDs       Permute (Relabel) the Vertices Within a Network
 plot.network.default    Two-Dimensional Visualization for Network
                         Objects
+prod.network            Combine Networks by Edge Value Multiplication
 read.paj                Read a Pajek Project or Network File and
                         Convert to an R 'Network' Object
+sum.network             Combine Networks by Edge Value Addition
 which.matrix.type       Heuristic Determination of Matrix Types for
                         Network Storage
 }

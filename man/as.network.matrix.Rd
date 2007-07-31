@@ -7,8 +7,8 @@
   \code{as.network.matrix} attempts to coerce its first argument to an object of class \code{network}.
 }
 \usage{
-as.network.default(x, ...)
-as.network.matrix(x, matrix.type = NULL, directed = TRUE, 
+\method{as.network}{default}(x, ...)
+\method{as.network}{matrix}(x, matrix.type = NULL, directed = TRUE, 
     hyper = FALSE, loops = FALSE, multiple = FALSE, bipartite = FALSE,
     ignore.eval = TRUE, names.eval = NULL, na.rm = FALSE, 
     edge.check = FALSE, ...)

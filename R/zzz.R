@@ -16,7 +16,7 @@
 ######################################################################
 
 .First.lib <- function(lib, pkg){
-   library.dynam("network", pkg, lib)
+    library.dynam("network", pkg, lib)
     if(R.version$major=="1"){
      ehelp <- help(package="network")$info[[2]][[2]]
      cat(paste("'",ehelp[4],"'\n",

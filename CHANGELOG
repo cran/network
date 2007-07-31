@@ -1,4 +1,36 @@
 CHANGELOG:
+
+v1.2 New Functions, Changes, Bug Fixes
+  New Functions:
+    - $<-.network: replacement method for network objects.  [CTB]
+    - sum.network, prod.network: sums and products of multiple network 
+      objects.  [CTB]
+  Changes:
+    - Direct assignments with network objects on the right-hand side now copy
+      their right-hand argument (per standard R semantics).  Originally, a 
+      pointer to the right-hand argument was copied (and network.copy was 
+      required for direct assignment).  The direct use of network.copy is now
+      unnecessary for most purposes, and should be avoided.  [CTB]
+    - network.density now allows explicit control of missing data behavior,
+      support for ignoring "structural zeros" (per bipartite), and supports
+      a wider range of hypergraphic cases.  [CTB]
+    - Some adjustments have been made to the overloading of network arithmetic
+      operators, to ensure compatibility with future versions of R.  Most
+      importantly, the passing of an attrname argument to arithmetic operators
+      is now defunct (since it violates the S3 generics).  The addition of
+      more general sum and prod methods hopefully make up for this 
+      regression.  [CTB]
+    - The network extraction and assignment operators now behave more like 
+      conventional matrices.  In particular, single vectors are assumed to 
+      contain lists of cell indices (when given in isolation), and one-row,
+      two-column matrices are treated as other two-column matrices.  [CTB]
+    - Various minor documentation and test file updates.  [CTB]
+  Bug Fixes:
+    - as.matrix arguments have been modified to harmonize with the new R (2.5)
+      generics definitions.  [CTB]
+    - Annoying but harmless tracer messages have been removed.  [CTB]
+    - Protection stack could overflow when large numbers of edges were deleted
+      in a single call.  [CTB; Submitted by Pavel Krivitsky]
 v1.1-2 Changes, Bug Fixes
   Changes:
     - getNeighborhood, getEdges, and getEdgeIDs (internal) now force

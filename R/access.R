@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 10/19/06
+# Last Modified 07/30/07
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -512,7 +512,7 @@ permute.vertexIDs<-function(x,vids){
   if(is.bipartite(x)){  #If bipartite, enforce partitioning
     bpc<-get.network.attribute(x,"bipartite")
     if(any(vids[1:bpc]>bpc)||(vids[(bpc+1):n]<=bpc))
-      warn("Performing a cross-mode permutation in permute.vertexIDs.  I hope you know what you're doing....")
+      warning("Performing a cross-mode permutation in permute.vertexIDs.  I hope you know what you're doing....")
   }
   #Return the permuted graph
   invisible(.Call("permuteVertexIDs_R",x,vids, PACKAGE="network"))

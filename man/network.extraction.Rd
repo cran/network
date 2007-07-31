@@ -20,8 +20,8 @@
 Various operators which allow extraction or replacement of various components of a \code{network} object.
 }
 \usage{
-\S3method{[}{network}(x, i, j, na.omit = TRUE)
-\S3method{[}{network}(x, i, j, names.eval=NULL, add.edges=FALSE) <- value
+\method{[}{network}(x, i, j, na.omit = TRUE)
+\method{[}{network}(x, i, j, names.eval=NULL, add.edges=FALSE) <- value
 x \%e\% attrname
 x \%e\% attrname <- value
 x \%eattr\% attrname

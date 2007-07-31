@@ -7,9 +7,9 @@
    \code{plot.network} produces a simple two-dimensional plot of network \code{x}, using optional attribute \code{attrname} to set edge values.  A variety of options are available to control vertex placement, display details, color, etc.
 }
 \usage{
-plot.network(x, \dots)
+\method{plot}{network}(x, \dots)
 
-plot.network.default(x, attrname = NULL, 
+\method{plot.network}{default}(x, attrname = NULL, 
     label = network.vertex.names(x), coord = NULL, jitter = TRUE,
     thresh = 0, usearrows = TRUE, mode = "fruchtermanreingold", 
     displayisolates = TRUE, interactive = FALSE, xlab = NULL, 

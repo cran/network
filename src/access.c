@@ -4,7 +4,7 @@
 # access.c
 #
 # Written by Carter T. Butts <buttsc@uci.edu>
-# Last Modified 11/11/06
+# Last Modified 07/12/07
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -764,7 +764,7 @@ SEXP deleteEdgeAttribute_R(SEXP x, SEXP attrname)
 SEXP deleteEdges_R(SEXP x, SEXP eid)
 /*Removes the edges contained in vector eid from the specified network object.*/
 {
-  int pc=0,i,j,e;
+  int pc=0,i,j,e,opc;
   SEXP mel,el,head,tail,oel,iel,newvec;
 
   /*Rprintf("deleteEdges; removing %d edges\n",length(eid));*/
@@ -784,6 +784,7 @@ SEXP deleteEdges_R(SEXP x, SEXP eid)
     if(el!=R_NilValue){                  /*Only delete if present!*/
       /*Rprintf("\t\tRemoving from iel/oel\n");*/
       /*Obtain head and tail lists*/
+      opc=pc;
       PROTECT(head=coerceVector(getListElement(el,"inl"),INTSXP)); pc++;
       PROTECT(tail=coerceVector(getListElement(el,"outl"),INTSXP)); pc++;
       /*For each endpoint, remove edge from incoming/outgoing lists*/
@@ -799,6 +800,11 @@ SEXP deleteEdges_R(SEXP x, SEXP eid)
       }
       /*Remove edge from mel (garbage collection will recover memory)*/
       SET_VECTOR_ELT(mel,e-1,R_NilValue);
+      /*Undo protection stack additions*/
+      if(pc>opc){
+        UNPROTECT(pc-opc);
+        pc=opc;
+      }
     }
   }
   /*Rprintf("\tdone!\n");*/
@@ -964,7 +970,7 @@ SEXP getNeighborhood_R(SEXP x, SEXP v, SEXP type, SEXP naOmit)
     naval=INTEGER(naOmit)[0];
 
   /*Unprotect and return*/
-  Rprintf("getNeighborhood_R: type=%s\n",CHAR(STRING_ELT(type,0)));
+  /*Rprintf("getNeighborhood_R: type=%s\n",CHAR(STRING_ELT(type,0)));*/
   UNPROTECT(pc);
   return getNeighborhood(x,INTEGER(v)[0],CHAR(STRING_ELT(type,0)),naval);
 }

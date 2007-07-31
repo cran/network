@@ -32,7 +32,9 @@ network.vertex          Add Vertices to a Plot
 permute.vertexIDs       Permute (Relabel) the Vertices Within a Network
 plot.network.default    Two-Dimensional Visualization for Network
                         Objects
+prod.network            Combine Networks by Edge Value Multiplication
 read.paj                Read a Pajek Project or Network File and
                         Convert to an R 'Network' Object
+sum.network             Combine Networks by Edge Value Addition
 which.matrix.type       Heuristic Determination of Matrix Types for
                         Network Storage

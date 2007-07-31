@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 4/10/06
+# Last Modified 07/30/07
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -28,13 +28,27 @@
 # Return the density of the given network.  (This probably won't stay in
 # this package....
 #
-network.density<-function(x){
-  ec<-network.edgecount(x,na.omit=TRUE)
+network.density<-function(x,na.omit=TRUE,discount.bipartite=FALSE){
+  if(is.multiplex(x))
+    warning("Network is multiplex - no general way to define density.  Returning value for a non-multiplex network (hope that's what you wanted).\n")
+  ec<-network.edgecount(x,na.omit=na.omit)
   n<-network.size(x)
+  bip<-x%n%"bipartite"
   if(is.hyper(x)){
-    pe<-sum(choose(n,1:n))^(1+is.directed(x))
+    if((bip>0)&&(discount.bipartite)){
+      pe<-choose(bip,1:bip)*choose(n-bip,1:(n-bip))*(1+is.directed(x))
+    }else{
+      if(has.loops(x))
+        pe<-sum(choose(n,1:n))^(1+is.directed(x))
+      else
+        pe<-sum(choose(n,1:n))/(1+!is.directed(x))
+    }
   }else{
-    pe<-n*(n-1)/(1+!is.directed(x))+(has.loops(x)*network.size(x))
+    if((bip>0)&&(discount.bipartite)){
+      pe<-bip*(n-bip)*(1+is.directed(x))
+    }else{
+      pe<-n*(n-1)/(1+!is.directed(x))+(has.loops(x)*network.size(x))
+    }
   }  
   ec/pe
 }

@@ -5,6 +5,12 @@
 \alias{is.discrete}
 \alias{is.discrete.character}
 \alias{is.discrete.numeric}
+\alias{+}
+\alias{-}
+\alias{*}
+\alias{+.default}
+\alias{-.default}
+\alias{*.default}
 
 \description{
   Internal network functions.
