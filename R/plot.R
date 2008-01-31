@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 9/14/06
+# Last Modified 1/31/08
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -193,15 +193,9 @@ network.vertex<-function(x,y,radius=1,sides=4,border=1,col=2,lty=NULL,rot=0,...)
 }
 
 
-#Generic plot.network method.  May need to change....
+#Generic plot.network method. 
 plot.network <- function(x, ...){
- if("statnet"  %in% .packages() |
-    "statnetval"  %in% .packages()
-    ){
-  plot.network.ergm(x, ...)
- }else{
   plot.network.default(x, ...)
- }         
 }
 
 
@@ -344,48 +338,54 @@ layout.par=NULL,
      plot(0,0,xlim=xlim,ylim=ylim,type="n",xlab=xlab,ylab=ylab,asp=1, axes=!suppress.axes,...)
    }
    #Fill out vertex vectors; assume we're using attributes if chars used
-   if(is.character(vertex.cex)){
+   if(is.character(vertex.cex)&&(length(vertex.cex==1))){
+     temp<-vertex.cex
      vertex.cex <- rep(get.vertex.attribute(x,vertex.cex),length=n)
-     if(any(is.na(vertex.cex)))
-       stop("Attribute",vertex.cex,"had illegal missing values or was not present in plot.graph.default.")
+     if(all(is.na(vertex.cex)))
+       stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
    }else
      vertex.cex <- rep(vertex.cex,length=n)
    vertex.radius<-rep(baserad*vertex.cex,length=n)   #Create vertex radii
-   if(is.character(vertex.sides)){
+   if(is.character(vertex.sides)&&(length(vertex.sides==1))){
+     temp<-vertex.sides
      vertex.sides <- rep(get.vertex.attribute(x,vertex.sides),length=n)
-     if(any(is.na(vertex.sides)))
-       stop("Attribute",vertex.sides,"had illegal missing values or was not present in plot.graph.default.")
+     if(all(is.na(vertex.sides)))
+       stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
    }else
      vertex.sides <- rep(vertex.sides,length=n)
-   if(is.character(vertex.border)){
+   if(is.character(vertex.border)&&(length(vertex.border)==1)){
+     temp<-vertex.border
      vertex.border <- rep(get.vertex.attribute(x,vertex.border),length=n)
-     if(any(is.na(vertex.border)))
-       stop("Attribute",vertex.border,"had illegal missing values or was not present in plot.graph.default.")
+     if(all(is.na(vertex.border)))
+       stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
    }else
      vertex.border <- rep(vertex.border,length=n)
    if(is.character(vertex.col)&&(length(vertex.col)==1)){
      temp<-vertex.col
      vertex.col <- rep(get.vertex.attribute(x,vertex.col),length=n)
-     if(any(is.na(vertex.col)))
+     if(all(is.na(vertex.col)))
        vertex.col <- rep(temp,length=n) #Assume it was a color word
    }else
      vertex.col <- rep(vertex.col,length=n)
-   if(is.character(vertex.lty)){
+   if(is.character(vertex.lty)&&(length(vertex.lty)==1)){
+     temp<-vertex.lty
      vertex.lty <- rep(get.vertex.attribute(x,vertex.lty),length=n)
-     if(any(is.na(vertex.lty)))
-       stop("Attribute",vertex.lty,"had illegal missing values or was not present in plot.graph.default.")
+     if(all(is.na(vertex.lty)))
+       stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
    }else
      vertex.lty <- rep(vertex.lty,length=n)
-   if(is.character(vertex.rot)){
+   if(is.character(vertex.rot)&&(length(vertex.rot)==1)){
+     temp<-vertex.rot
      vertex.rot <- rep(get.vertex.attribute(x,vertex.rot),length=n)
-     if(any(is.na(vertex.rot)))
-       stop("Attribute",vertex.rot,"had illegal missing values or was not present in plot.graph.default.")
+     if(all(is.na(vertex.rot)))
+       stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
    }else
      vertex.rot <- rep(vertex.rot,length=n)
-   if(is.character(loop.cex)){
+   if(is.character(loop.cex)&&(length(loop.cex)==1)){
+     temp<-loop.cex
      loop.cex <- rep(get.vertex.attribute(x,loop.cex),length=n)
-     if(any(is.na(loop.cex)))
-       stop("Attribute",loop.cex,"had illegal missing values or was not present in plot.graph.default.")
+     if(all(is.na(loop.cex)))
+       stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
    }else
      loop.cex <- rep(loop.cex,length=n)
    #Plot vertices now, if desired
@@ -408,23 +408,26 @@ layout.par=NULL,
    if(is.character(edge.col)&&(length(edge.col)==1)){
      temp<-edge.col
      edge.col <- as.matrix.network.adjacency(x,attrname=edge.col)
-     if(any(is.na(edge.col)))
+     if(all(is.na(edge.col)))
        edge.col<-temp  #Assume things were OK, and put it back
    }
-   if(is.character(edge.lty)){
+   if(is.character(edge.lty)&&(length(edge.lty)==1)){
+     temp<-edge.lty
      edge.lty <- as.matrix.network.adjacency(x,attrname=edge.lty)
-     if(any(is.na(edge.lty)))
-       stop("Attribute",edge.lty,"had illegal missing values or was not present in plot.graph.default.")
+     if(all(is.na(edge.lty)))
+       stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
    }
-   if(is.character(edge.lwd)){
+   if(is.character(edge.lwd)&&(length(edge.lwd)==1)){
+     temp<-edge.lwd
      edge.lwd <- as.matrix.network.adjacency(x,attrname=edge.lwd)
-     if(any(is.na(edge.lwd)))
-       stop("Attribute",edge.lwd,"had illegal missing values or was not present in plot.graph.default.")
+     if(all(is.na(edge.lwd)))
+       stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
    }
-   if(is.character(edge.curve)){
+   if(is.character(edge.curve)&&(length(edge.curve)==1)){
+     temp<-edge.curve
      edge.curve <- as.matrix.network.adjacency(x,attrname=edge.curve)
-     if(any(is.na(edge.curve)))
-       stop("Attribute",edge.curve,"had illegal missing values or was not present in plot.graph.default.")
+     if(all(is.na(edge.curve)))
+       stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
    }
    #Coerce edge properties to appropriate forms
    if(!is.array(edge.col))   #Coerce edge.col/lty/lwd/curve to array form

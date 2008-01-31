@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 4/09/06
+# Last Modified 1/31/08
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -45,19 +45,29 @@ print.network<-function(x, matrix.type=which.matrix.type(x),
         }else{
          cat("  ",attributeName,":\n",sep="")
          if(is.discrete(attributeName)){
-          assign(paste("  ",attributeName,attrvalue))
+          assign(paste("  ",attributeName,attributeValue))
           print(table(get(paste("  ",attributeName))))
           if(mixingmatrices){
            cat("\n","mixing matrix for ",attributeName,":\n",sep="")
            print(mixingmatrix(x,attributeName))
           }
          }else{
-          print(summary(attributeName))
+          print(summary(attributeValue))
          }
         }
       }else{
         if(attributeName!="mnext"){
-         cat("  ",attributeName,"=",attributeValue,"\n")
+          if(is.discrete(attributeName)){
+           assign(paste("  ",attributeName,attributeValue))
+           print(table(get(paste("  ",attributeName))))
+          }else{
+           if(length(attributeValue) < 10){
+             cat("  ",attributeName,"=",attributeValue,"\n")
+           }else{
+             cat("   ",attributeName,":\n", sep="")
+             print(summary(attributeValue))
+           }
+          }
         }
       }
     }
@@ -67,9 +77,9 @@ print.network<-function(x, matrix.type=which.matrix.type(x),
      vna<-vna[vna!="na"]
     }
     if(length(vna)==0){
-     cat("\n","No nodal attributes","\n",sep="")
+     cat("\n","No vertex attributes","\n",sep="")
     }else{
-     cat("\n","Nodal attribute names:","\n")
+     cat("\n","Vertex attribute names:","\n")
      cat("   ",vna,"\n")
     }
     cat("\n",matrix.type,"matrix:\n")    
@@ -82,7 +92,7 @@ print.network<-function(x, matrix.type=which.matrix.type(x),
 
 
 print.summary.network<-function(x, ...)
-    print.network(structure(g,class="network"), ...)
+    print.network(structure(x,class="network"), ...)
 
 
 # Summaries of network objects
@@ -97,29 +107,32 @@ summary.network<-function(object, na.omit=TRUE, mixingmatrices=FALSE, ...){
           attributeName<-names(object$gal)[i]
           attributeValue<-object$gal[[i]]
       }
-      if(is.network(attributeValue)){
-        if(attributeName=="design"){
-         cat("  ",attributeName,"=\n")
-         cat("       total missing =",network.edgecount(attributeValue),"\n")
-         cat("     percent missing =",network.density(attributeValue),"\n")
-        }else{
-         if(attributeName!="vertex.names"){
-          cat("  ",attributeName,":\n", sep="")
-          if(is.discrete(attributeValue)){
-           assign(paste("  ",attributeName),attributeValue)
-           print(table(get(paste("  ",attributeName))))
-           if(mixingmatrices){
-            cat("\n","mixing matrix for ",attributeName,":\n",sep="")
-            print(mixingmatrix(object,attributeName))
-           }
+      if(attributeName!="mnext"){
+        if(is.network(attributeValue)){
+          if(attributeName=="design"){
+            cat("  ",attributeName,"=\n")
+            cat("       total missing =",network.edgecount(attributeValue),"\n")
+            cat("     percent missing =",network.density(attributeValue),"\n")
           }else{
-           print(summary(attributeValue))
+            cat("  ",attributeName,"=\n")
+            print(attributeValue)
           }
-         }
-        }
-      }else{
-        if(attributeName!="mnext"){
-         cat("  ",attributeName,"=",attributeValue,"\n")
+        }else{
+          if(attributeName=="vertices"){
+            cat("  ",attributeName,": ",attributeValue,"\n",sep="") 
+          }else if(attributeName!="vertex.names"){
+            cat("  ",attributeName,":\n", sep="")
+            if(is.discrete(attributeValue)){
+              assign(paste("  ",attributeName),attributeValue)
+              print(table(get(paste("  ",attributeName))))
+              if(mixingmatrices){
+                cat("\n","mixing matrix for ",attributeName,":\n",sep="")
+                print(mixingmatrix(object,attributeName))
+              }
+            }else{
+              print(summary(attributeValue))
+            }
+          }
         }
       }
     }
@@ -142,9 +155,9 @@ summary.network<-function(object, na.omit=TRUE, mixingmatrices=FALSE, ...){
      }
     }
     if(length(vna)==0){
-     cat("\n","No nodal attributes","\n",sep="")
+     cat("\n","No vertex attributes","\n",sep="")
     }else{
-     cat("\n","Nodal attributes:","\n")
+     cat("\n","Vertex attributes:","\n")
      for (i in (1:length(vna))){ 
       attrvalue <- unlist(get.vertex.attribute(object, vna[i]))
       if(vna[i]=="respondent"){

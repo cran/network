@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 07/30/07
+# Last Modified 01/31/08
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -50,11 +50,19 @@
 # 
 ######################################################################
 
-
-"$<-.network"<-function(x,i,value){
-  cl<-OldClass(x)
+"<-.network"<-function(x,i,value){
+  cl<-oldClass(x)
   class(x)<-NULL
   x[[i]]<-network.copy(value)
+  class(x)<-cl
+  return(x)
+}
+
+
+"$<-.network"<-function(x,i,value){
+  cl<-oldClass(x)
+  class(x)<-NULL
+  x[[i]]<-value
   class(x)<-cl
   return(x)
 }

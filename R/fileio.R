@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 8/18/05
+# Last Modified 1/31/08
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -36,13 +36,13 @@ read.paj <- function(file,verbose=FALSE,debug=FALSE,
    
     if (is.character(file)) {
         file <- file(file, "rt")
-        on.exit(close(file),new=TRUE)
+        on.exit(close(file))
     }
     if (!inherits(file, "connection")) 
         stop("argument 'file' must be a character string or connection")
     if (!isOpen(file)) {
         open(file, "rt")
-        on.exit(close(file),new=TRUE)
+        on.exit(close(file))
     }
     
 
@@ -353,7 +353,9 @@ read.paj <- function(file,verbose=FALSE,debug=FALSE,
           if(verbose) print("edge end out of range, skipping network creation")
           if(verbose) print("first dyad list (arcs?), is too short to be a full network, skipping to next dyad list (edges?)")
         }else{
-          temp <- network(x=dyads[,1:2],directed=directed)#arcsLinePresent)#dschruth added
+          temp <- network.initialize(n=nvertex, directed=directed)
+          add.edges(temp,head=dyads[,1],tail=dyads[,2])
+#          temp <- network(x=dyads[,1:2],directed=directed)#arcsLinePresent)#dschruth added
 #         temp <- set.edge.value(temp,"FALSE",NULL) #dschruth is this necessary??   should i comment out?
 #         temp <- set.edge.value(temp,"NULL",NULL)  #dschruth is this necessary??   should i comment out?
           if(dim(dyads)[2]>2){  #only try to set the edge value if there is a third column

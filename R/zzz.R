@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 8/12/05
+# Last Modified 1/31/08
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -33,5 +33,6 @@
 "                    Mark S. Handcock, University of Washington\n",
 "                    David R. Hunter, Penn State University\n",
 "                    Martina Morris, University of Washington\n",sep=""))
-    cat('Type help(package="network") to get started.\n')
+    cat('For citation information, type citation("network").\n')
+    cat('Type help(package="network-package") to get started.\n')
 }

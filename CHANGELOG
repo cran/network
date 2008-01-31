@@ -1,5 +1,41 @@
 CHANGELOG:
 
+v1.3 New Functions, New Features, Changes, and Bug Fixes
+  New Functions:
+    - network.vertex.names<-: simplified assignment for vertex names.  [CTB]
+  New Features:
+    - A CITATION file has now been added to the package, to encourage good
+      behavior.  The initial on-load announcements have been tweaked
+      accordingly.  [CTB]
+  Changes:
+    - add.edges (via the backend routine add_edges_R) now adds edges in a
+      more efficient way; substantial performance gains should be observed
+      when adding multiple edges at one time, versus previous package
+      versions.  [CTB]
+    - network print and summary methods now consistently refer to "vertex 
+      attributes" instead of "nodal attributes."  [CTB]
+    - network constructors now set vertex names by default; this brings the
+      actual behavior of the package in line with its apparent behavior (since
+      network.vertex names and similar routines will "fake" vertex names if 
+      none are present, thus producing results which are inconsistent with
+      get.vertex.attribute in the latter case).  [CTB]
+    - The DESCRIPTION file has been tweaked to be a bit more professional, and
+      to add the statnet web site.  [CTB]
+  Bug Fixes:
+    - Fixed "virtual subsetting" for network objects when a single vector of
+      virtual cell numbers is provided, or when a one-row, two-column matrix is
+      given.  In both cases, network was treating the numbers as if they were
+      first-column selectors.  [CTB]
+    - Direct assignment to internal components of network objects was failing
+      in certain cases. This has been fixed, although users should note that
+      this behavior is both unsupported and generally a Bad Idea (TM).  Please
+      use interface methods instead!  [CTB; Submitted by Skye Bender-deMoll]
+    - Fixed bug in read.paj.  [MSH]
+    - Fixed display of attribute information in summary.network.  [MSH]
+    - plot.network is now compatible with the updated ergm package.  [CTB]
+    - Previously implemented functionality in plot.network allowing one-word
+      specification of vertex or edge attributes for display parameters was
+      not working uniformly.  [CTB]
 v1.2 New Functions, Changes, Bug Fixes
   New Functions:
     - $<-.network: replacement method for network objects.  [CTB]

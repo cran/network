@@ -8,6 +8,7 @@
 \alias{network.copy}
 \alias{print.summary.network}
 \alias{$<-.network}
+\alias{<-.network}
 \title{Networks}
 \description{
   Construct, coerce to, test for and print \code{network} objects.
@@ -16,7 +17,6 @@
 network(x, vertex.attr=NULL, vertex.attrnames=NULL, directed=TRUE, 
      hyper=FALSE, loops=FALSE, multiple=FALSE, bipartite = FALSE, ...)
 network.copy(x)
-x[[i]] <- value
 as.network(x, ...)
 is.network(x)
 \method{print}{network}(x, matrix.type=which.matrix.type(x),
@@ -34,8 +34,6 @@ is.network(x)
   \item{loops}{logical; should loops be allowed?}
   \item{multiple}{logical; are multiplex edges allowed?}
   \item{bipartite}{count; should the network be interpreted as bipartite? If present (i.e., non-NULL) it is the count of the number of actors in the bipartite network. In this case, the number of nodes is equal to the number of actors plus the number of events (with all actors preceeding all events). The edges are then interpreted as nondirected.}
-  \item{i}{ index specifying an element to replace.  (May be tacit during direct assignment.)}
-  \item{value}{ a \code{network} object to be set/copied.}
   \item{matrix.type}{one of \code{"adjacency"}, \code{"edgelist"}, \code{"incidence"}.}
   \item{object}{an object of class \code{network}.}
   \item{na.omit}{logical; omit summarization of missing attributes in \code{network}?}

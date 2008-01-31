@@ -11,6 +11,7 @@
 \alias{list.network.attributes}
 \alias{list.vertex.attributes}
 \alias{network.vertex.names}
+\alias{network.vertex.names<-}
 \alias{set.edge.attribute}
 \alias{set.edge.value}
 \alias{set.network.attribute}
@@ -40,6 +41,7 @@ set.edge.attribute(x, attrname, value, e=1:length(x$mel))
 set.edge.value(x, attrname, value, e=1:length(x$mel))
 set.network.attribute(x, attrname, value)
 set.vertex.attribute(x, attrname, value, v=1:network.size(x))
+network.vertex.names(x) <- value
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -58,7 +60,7 @@ The \code{list.attributes} functions return the names of all edge, network, or v
 
 The \code{get.attribute} functions look for an edge, network, or vertex attribute (respectively) with the name \code{attrname}, returning its values.  Note that, to retrieve an edge attribute from all edges within a network \code{x}, \code{x$mel} should be used as the first argument to \code{get.edge.attribute}; \code{get.edge.value} is a convenience function which does this automatically.  \code{network.vertex.names} is a convenience function to extract the \code{"vertex.names"} attribute from all vertices.
 
-The \code{set.attribute} functions allow one to set the values of edge, network, or vertex attributes.  \code{set.edge.value} is a convenience function which allows edge attributes to be given in adjacency matrix form.  The \code{delete.attribute} functions, by contrast, remove the named attribute from the network, from all edges, or from all vertices (as appropriate).  If \code{attrname} is a vector of attribute names, each will be removed in turn.  These functions modify their arguments in place, although a pointer to the modified object is also (invisibly) returned.
+The \code{set.attribute} functions allow one to set the values of edge, network, or vertex attributes.  \code{set.edge.value} is a convenience function which allows edge attributes to be given in adjacency matrix form, and the assignment form of \code{network.attribute.names} is likewise a convenient front-end to \code{set.vertex.attribute} for vertex names.  The \code{delete.attribute} functions, by contrast, remove the named attribute from the network, from all edges, or from all vertices (as appropriate).  If \code{attrname} is a vector of attribute names, each will be removed in turn.  These functions modify their arguments in place, although a pointer to the modified object is also (invisibly) returned.
 
 Note that some attribute assignment/extraction can be performed through the various extraction/replacement operators.  See the associated man page for details.
 }
@@ -87,6 +89,7 @@ set.edge.attribute(g,"myeval",3:5)
 set.edge.value(g,"myeval2",mm)
 set.network.attribute(g,"mygval","boo")
 set.vertex.attribute(g,"myvval",letters[1:3])
+network.vertex.names(g) <- LETTERS[1:10]
 
 #List the attributes
 list.edge.attributes(g)
@@ -99,6 +102,7 @@ get.edge.value(g,"myeval")          #Another way to do this
 get.edge.attribute(g$mel,"myeval2") 
 get.network.attribute(g,"mygval")
 get.vertex.attribute(g,"myvval")
+network.vertex.names(g)
 
 #Purge the attributes
 delete.edge.attribute(g,"myeval")

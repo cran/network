@@ -29,7 +29,7 @@
 /*INTERNAL ROUTINES----------------------------------------------------*/
 
 
-SEXP deleteEdgeAttribute(SEXP x, int e, char *attrname)
+SEXP deleteEdgeAttribute(SEXP x, int e, const char *attrname)
 /*Deletes the attribute named by attrname from edge with ID e.*/
 {
   int pc=0;
@@ -44,7 +44,7 @@ SEXP deleteEdgeAttribute(SEXP x, int e, char *attrname)
 }
 
 
-SEXP deleteNetworkAttribute(SEXP x, char *attrname)
+SEXP deleteNetworkAttribute(SEXP x, const char *attrname)
 /*Deletes the network attribute named by attrname.*/
 {
   int pc=0;
@@ -58,7 +58,7 @@ SEXP deleteNetworkAttribute(SEXP x, char *attrname)
 }
 
 
-SEXP deleteVertexAttribute(SEXP x, int v, char *attrname)
+SEXP deleteVertexAttribute(SEXP x, int v, const char *attrname)
 /*Deletes the attribute named by attrname from vertex with ID v.*/
 {
   int pc=0;
@@ -73,7 +73,7 @@ SEXP deleteVertexAttribute(SEXP x, int v, char *attrname)
 }
 
 
-SEXP getEdgeAttribute(SEXP x, int e, char *str)
+SEXP getEdgeAttribute(SEXP x, int e, const char *str)
 /*Returns a pointer to the attribute of edge e named by str, or else R_NilValue (if the edge and/or attribute is missing).*/
 {
   SEXP el;
@@ -89,7 +89,7 @@ SEXP getEdgeAttribute(SEXP x, int e, char *str)
 }
 
 
-SEXP getEdgeIDs(SEXP x, int v, int alter, char *neighborhood, int naOmit)
+SEXP getEdgeIDs(SEXP x, int v, int alter, const char *neighborhood, int naOmit)
 /*Retrieve the IDs of all edges incident on v, in network x.  Outgoing or incoming edges are specified by neighborhood, while na.omit indicates whether or not missing edges should be omitted.  If alter>0, only edges whose alternate endpoints contain alter are returned.  The return value is a vector of edge IDs.*/
 {
   SEXP eids,newids,mel,ilist,olist,eplist;
@@ -164,7 +164,7 @@ SEXP getEdgeIDs(SEXP x, int v, int alter, char *neighborhood, int naOmit)
 }
 
 
-SEXP getEdges(SEXP x, int v, int alter, char *neighborhood, int naOmit)
+SEXP getEdges(SEXP x, int v, int alter, const char *neighborhood, int naOmit)
 /*Retrieve all edges incident on v, in network x.  Outgoing or incoming edges are specified by neighborhood, while na.omit indicates whether or not missing edges should be omitted.  If alter>0, only edges whose alternate endpoints contain alter are returned.  The return value is a list of edges.*/
 {
   SEXP eids,el,mel,eplist;
@@ -223,7 +223,7 @@ SEXP getEdges(SEXP x, int v, int alter, char *neighborhood, int naOmit)
 }
 
 
-SEXP getNeighborhood(SEXP x, int v, char *type, int naOmit)
+SEXP getNeighborhood(SEXP x, int v, const char *type, int naOmit)
 /*Return a vector containing the first-order vertex neighborhood of v in x, as specified by type.  If naOmit>0, missing edges are discarded; otherwise, they are employed as well.*/
 {
   int pc=0,i,dir;
@@ -263,7 +263,7 @@ SEXP getNeighborhood(SEXP x, int v, char *type, int naOmit)
 }
 
 
-SEXP getNetworkAttribute(SEXP x, char *str)
+SEXP getNetworkAttribute(SEXP x, const char *str)
 /*Returns a pointer to the network attribute of x named by str, or else R_NilValue.*/
 {
   return getListElement(getListElement(x,"gal"),str);
@@ -455,7 +455,7 @@ int networkSize(SEXP x)
 }
 
 
-SEXP setNetworkAttribute(SEXP x, char *attrname, SEXP value)
+SEXP setNetworkAttribute(SEXP x, const char *attrname, SEXP value)
 /*Set the attribute whose name is pointed to by attrname in x to be equal to value.*/
 {
   int pc=0;
@@ -470,7 +470,7 @@ SEXP setNetworkAttribute(SEXP x, char *attrname, SEXP value)
 }
 
 
-SEXP setVertexAttribute(SEXP x, char *attrname, SEXP value, int v)
+SEXP setVertexAttribute(SEXP x, const char *attrname, SEXP value, int v)
 /*Sets the attribute in attrname to value, for vertex v.  Existing attribute entries are overwritten by this routine, where present; new attributes are added, if they do not exist.*/
 {
   int pc=0;
@@ -653,6 +653,180 @@ SEXP addEdge_R(SEXP x, SEXP tail, SEXP head, SEXP namesEval, SEXP valsEval, SEXP
 
 
 SEXP addEdges_R(SEXP x, SEXP tail, SEXP head, SEXP namesEval, SEXP valsEval, SEXP edgeCheck)
+/*This version is a temporary fix for the problem of long edge addition times, and will be replaced when the structure of mel is replaced.*/
+/*Adds multiple edges to x.  Note that we assume tail, head, et al. to be lists of identical length.  By contrast, edgeCheck should be a single logical value.*/
+{
+  int pc=0,opc,i,j,mnext,z;
+  SEXP el,atl,atlnam,navec,inl,outl,elnam,mel,newmel,oel,iel,ptr,elem,mnptr,gal;
+  char buf[64];
+  
+  /*Create enlarged master edge list*/
+  PROTECT(mnptr=coerceVector(getListElement(getListElement(x,"gal"), "mnext"),INTSXP)); pc++;
+  if(length(mnptr)==0)
+    mnext=1;
+  else
+    mnext=INTEGER(mnptr)[0];    
+  mel=getListElement(x,"mel");
+  PROTECT(newmel = enlargeList(mel,length(tail))); pc++;
+
+  /*Rprintf("addEdges: adding %d edges\n",length(tail));*/
+  for(z=0;z<length(tail);z++){  /*Add each edge in turn*/
+/*-----------------------*/
+    opc=pc;  /*Save old protection count*/
+    /*Make sure that we can read the head and tail lists*/
+    PROTECT(inl = coerceVector(VECTOR_ELT(head,z), INTSXP)); pc++;
+    PROTECT(outl = coerceVector(VECTOR_ELT(tail,z), INTSXP)); pc++;
+  
+    /*No matter what, ensure that all vertex references are legal; otherwise,*/
+    /*addEdges_R will segfault on an illegal head/tail specification.*/
+    if((vecMin(inl)<1.0)||(vecMin(outl)<1.0)|| (vecMax(inl)>(double)networkSize(x)) ||(vecMax(outl)>(double)networkSize(x)))
+      error("(edge check) Illegal vertex reference in addEdges_R.  Exiting.");
+  
+    /*If necessary, verify that new edge satisfies existing graph requirements*/
+    PROTECT(edgeCheck = coerceVector(edgeCheck, LGLSXP)); pc++;
+    if(INTEGER(edgeCheck)[0]){
+      if(length(inl)*length(outl)==0)
+        error("(edge check) Empty head/tail list in addEdges_R.  Exiting.");
+      if(!isHyper(x))
+        if(MAX(length(inl),length(outl))>1)
+          error("(edge check) Attempted to add hyperedge where hyper==FALSE in addEdges_R.  Exiting.");
+      if(!hasLoops(x))
+        if(isLoop(outl,inl))
+          error("(edge check) Attempted to add loop-like edge where loops==FALSE in addEdges_R.  Exiting.");
+      if((!isMultiplex(x))&&(length(getListElement(x,"mel"))>0)){
+        mel=getListElement(x,"mel");
+        if(isDirected(x)){
+          for(i=0;i<length(mel);i++)
+            if(vecEq(coerceVector(getListElement(VECTOR_ELT(mel,i),"outl"), INTSXP),outl) && vecEq(coerceVector(getListElement(VECTOR_ELT(mel,i),"inl"), INTSXP),inl))
+              error("(edge check) Attempted to add multiplex edge where multiple==FALSE in addEdges_R.  Exiting.");
+        }else{
+          for(i=0;i<length(mel);i++)
+            if((vecEq(coerceVector(getListElement(VECTOR_ELT(mel,i),"outl"), INTSXP),outl) && vecEq(coerceVector(getListElement(VECTOR_ELT(mel,i),"inl"), INTSXP),inl)) || (vecEq(coerceVector(getListElement(VECTOR_ELT(mel,i),"outl"), INTSXP),inl) && vecEq(coerceVector(getListElement(VECTOR_ELT(mel,i),"inl"), INTSXP),outl)))
+              error("(edge check) Attempted to add multiplex edge where multiple==FALSE in addEdges_R.  Exiting.");
+        }
+      }
+    }
+
+    /*Create edge attribute list*/
+    /*Rprintf("Creating edge attribute list (atl)\n");*/
+    PROTECT(atl = coerceVector(VECTOR_ELT(valsEval,z),VECSXP)); pc++;
+    /*Rprintf("\tSurvived coerce\n");*/
+    if(length(atl)>0){       /*Deal with attribute names*/
+      /*Rprintf("\tDealting with atl names\n");*/
+      PROTECT(atlnam = coerceVector(VECTOR_ELT(namesEval,z),STRSXP)); pc++; /*Coerce to str*/
+      /*Rprintf("\t\tSurvived coerce -- now checking length\n");*/
+      if(length(atlnam)>length(atl)){
+        warning("Too many labels in addEdges: wanted %d, got %d.  Truncating name list.\n",length(atl),length(atlnam));
+        PROTECT(atlnam = contractList(atlnam,length(atl))); pc++;
+      }else if(length(atlnam)<length(atl)){
+        warning("Too few labels in addEdges: wanted %d, got %d.  Naming numerically.\n",length(atl),length(atlnam));
+        i=length(atlnam);
+        PROTECT(atlnam = enlargeList(atlnam,length(atl)-i)); pc++;
+        for(j=i;j<length(atl);j++){
+          sprintf(buf,"%d",j);
+          SET_STRING_ELT(atlnam,j,mkChar(buf));
+        }
+      }
+      setAttrib(atl,R_NamesSymbol,atlnam);  /*Write attribute names*/
+    }
+    /*Set the required attribute, na, if not present*/
+    /*Rprintf("\tSetting na attribute\n");*/
+    if(getListElement(atl,"na")==R_NilValue){
+      PROTECT(navec = allocVector(LGLSXP,1)); pc++;
+      LOGICAL(navec)[0]=0;
+      PROTECT(atl=setListElement(atl,"na",navec)); pc++;
+    }
+  
+    /*Allocate memory for the edge list, and generate edge*/
+    /*Rprintf("Creating edge list (el)\n");*/
+    PROTECT(el = allocVector(VECSXP, 3)); pc++;
+  
+    PROTECT(elnam = allocVector(STRSXP, 3)); pc++;
+    SET_STRING_ELT(elnam, 0, mkChar("inl"));
+    SET_STRING_ELT(elnam, 1, mkChar("outl"));
+    SET_STRING_ELT(elnam, 2, mkChar("atl"));
+    SET_VECTOR_ELT(el,0,inl);
+    SET_VECTOR_ELT(el,1,outl);
+    SET_VECTOR_ELT(el,2,atl);
+    setAttrib(el,R_NamesSymbol,elnam);
+  
+    /*PROTECT(el = concatList(3,1,inl,outl,atl,"inl","outl","atl")); pc++;*/
+    /*Add edge to master edge list*/
+    /*Rprintf("Adding el to newmel\n");*/
+    SET_VECTOR_ELT(newmel,mnext-1,el);
+
+    /*Add the edge reference to the outgoing edge lists*/
+    /*Rprintf("Adding el to the oels\n");*/
+    oel = getListElement(x,"oel");
+    for(i=0;i<length(outl);i++){
+      PROTECT(ptr=coerceVector(VECTOR_ELT(oel,INTEGER(outl)[i]-1),INTSXP)); pc++;
+      if(length(ptr)>0){
+        PROTECT(elem = allocVector(INTSXP,length(ptr)+1)); pc++;
+        for(j=0;(j<length(ptr))&& (INTEGER(coerceVector(getListElement(VECTOR_ELT(newmel,INTEGER(ptr)[j]),"inl"),INTSXP))[0]<INTEGER(outl)[0]);j++)
+          INTEGER(elem)[j]=INTEGER(ptr)[j];
+        INTEGER(elem)[j++]=mnext;
+        for(;(j-1<length(ptr));j++)
+          INTEGER(elem)[j]=INTEGER(ptr)[j-1];
+        SET_VECTOR_ELT(oel,INTEGER(outl)[i]-1,elem);
+      }else{
+        PROTECT(elem = allocVector(INTSXP,1)); pc++;
+        INTEGER(elem)[0]=mnext;
+        SET_VECTOR_ELT(oel,INTEGER(outl)[i]-1,elem);
+      }
+    }
+
+    /*Add the edge reference to the incoming edge lists*/
+    /*Rprintf("Adding el to the iels\n");*/
+    iel = getListElement(x,"iel");
+    for(i=0;i<length(inl);i++){
+      PROTECT(ptr=coerceVector(VECTOR_ELT(iel,INTEGER(inl)[i]-1),INTSXP)); pc++;
+      if(length(ptr)>0){
+        PROTECT(elem = allocVector(INTSXP,length(ptr)+1)); pc++;
+        for(j=0;(j<length(ptr))&& (INTEGER(coerceVector(getListElement(VECTOR_ELT(newmel,INTEGER(ptr)[j]),"outl"),INTSXP))[0]<INTEGER(inl)[0]);j++)
+          INTEGER(elem)[j]=INTEGER(ptr)[j];
+        INTEGER(elem)[j++]=mnext;
+        for(;(j-1<length(ptr));j++)
+          INTEGER(elem)[j]=INTEGER(ptr)[j-1];
+        SET_VECTOR_ELT(iel,INTEGER(inl)[i]-1,elem);
+      }else{
+        PROTECT(elem = allocVector(INTSXP,1)); pc++;
+        INTEGER(elem)[0]=mnext;
+        SET_VECTOR_ELT(iel,INTEGER(inl)[i]-1,elem);
+      }
+    }
+    /*Increment the edge counter*/
+    /*Rprintf("Incrementing mnext\n");*/
+    mnptr=getListElement(getListElement(x,"gal"),"mnext");
+    if(mnptr==R_NilValue){               /*Create from scratch, if missing*/
+      PROTECT(mnptr = allocVector(INTSXP,1)); pc++;
+      INTEGER(mnptr)[0]=1;
+      gal=getListElement(x,"gal");
+      PROTECT(gal=setListElement(gal,"mnext",mnptr)); pc++;
+      x=setListElement(x,"gal",gal);
+    }else if(!isInteger(mnptr)){         /*If needed, coerce to integer format*/
+      PROTECT(mnptr = coerceVector(mnptr, INTSXP)); pc++;
+      gal=getListElement(x,"gal");
+      PROTECT(gal=setListElement(gal,"mnext",mnptr)); pc++;
+      x=setListElement(x,"gal",gal);
+    }
+    INTEGER(mnptr)[0]=(++mnext);
+    /*Rprintf("\tCompleted increment.\n");*/
+    UNPROTECT(pc-opc);  /*Unprotect what we can*/
+    pc=opc;
+/*-----------------------*/
+  }
+  
+  /*Update mel*/
+  x=setListElement(x,"mel",newmel);
+
+  /*Unprotect and return*/
+  UNPROTECT(pc);
+  return x;
+}
+
+
+SEXP addEdges_R_old(SEXP x, SEXP tail, SEXP head, SEXP namesEval, SEXP valsEval, SEXP edgeCheck)
+/*This is the original version of addEdges_R, kept temporarily.*/
 /*Adds multiple edges to x.  Note that we assume tail, head, et al. to be lists of identical length.  By contrast, edgeCheck should be a single logical value.*/
 {
   int i,pc=0;
@@ -1135,7 +1309,7 @@ SEXP setEdgeValue_R(SEXP x, SEXP attrname, SEXP value, SEXP e)
 /*Set attribute attrname on the edges of x indexed by e, using the values in (adjacency matrix) value.  Loops and multiplex edges are allowed here, but hypergraphs are not!*/
 {
   int i,pc=0,type,h,t,n;
-  char *anam;
+  const char *anam;
   SEXP mel,el,atl,newval=R_NilValue;
   
   /*Set things up*/

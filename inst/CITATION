@@ -1,0 +1,26 @@
+cat("'network' is a package providing classes for relational data, and is\n") 
+cat("part of the 'statnet' suite of packages for the statistical modeling of\n")
+cat("network data.  (See http://statnetproject.org for more information.)\n\n")
+cat("This version of 'network' is currently licensed under the GNU Public\n") 
+cat("License, v2 or later.\n\n")
+cat("If you are using 'network' for research that will be published,\n")
+cat("we request that you acknowledge this with the following citation:\n\n")
+cat("  Carter T. Butts, Mark S. Handcock, and David R. Hunter.  (2008)\n")
+cat("  network: Classes for Relational Data. R Package Version 1.3,\n")
+cat("  URL http://statnetproject.org.\n\n")
+cat("A BibTeX entry for LaTeX users is\n\n")
+cat("  @Manual{,\n")
+cat("    title = {network: Classes for Relational Data},\n")
+cat("    author = {Carter T. Butts, Mark S. Handcock, and David R. Hunter},\n")
+cat("    year = {2008},\n")
+cat("    note = {R Package Version 1.3},\n")
+cat("    address = {Irvine, CA},\n")
+cat("    url = {http://statnetproject.org},\n")
+cat("  }\n\n")
+cat("To cite other 'statnet' packages use citation(\"<name>\") ,where <name>\n")
+cat("is the package name.\n")
+
+citFooter("'network' and 'statnet' are volunteer efforts.  You can",
+          "help the 'statnet' project by citing relevant packages in",
+          "all papers where they are used.  Your support is greatly",
+          "appreciated!")

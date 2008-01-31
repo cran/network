@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 07/30/07
+# Last Modified 01/31/08
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -44,6 +44,7 @@
 #   network.edgecount
 #   network.size
 #   network.vertex.names
+#   network.vertex.names<-
 #   permute.vertexIDs
 #   set.edge.attribute
 #   set.edge.value
@@ -497,6 +498,13 @@ network.vertex.names<-function(x){
       vnames
     }
   }
+}
+
+
+# Set the vertex names of network x
+#
+"network.vertex.names<-"<-function(x,value){
+  set.vertex.attribute(x,attrname="vertex.names",value=value)
 }
 
 

@@ -16,8 +16,8 @@ Basic information on the creation of \code{network} objects can be found by typi
 
 \tabular{ll}{
 Package: \tab network\cr
-Version: \tab 1.2\cr
-Date: \tab July 31, 2007\cr
+Version: \tab 1.3\cr
+Date: \tab January 31, 2008\cr
 Depends: \tab R (>= 2.0.0), utils\cr
 Suggests: \tab sna\cr
 License: \tab GPL version 2 (June, 1991) or later\cr
