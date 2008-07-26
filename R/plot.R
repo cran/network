@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 1/31/08
+# Last Modified 7/23/08
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -217,7 +217,7 @@ xlim=NULL,
 ylim=NULL,
 pad=0.2,
 label.pad=0.5,
-displaylabels=FALSE,
+displaylabels=!missing(label),
 boxed.labels=TRUE,
 label.pos=0,
 label.bg="white",
@@ -357,7 +357,11 @@ layout.par=NULL,
      temp<-vertex.border
      vertex.border <- rep(get.vertex.attribute(x,vertex.border),length=n)
      if(all(is.na(vertex.border)))
-       stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
+       vertex.border <- rep(temp,length=n) #Assume it was a color word
+     else{
+       if(!all(is.color(vertex.border),na.rm=TRUE))
+         vertex.border<-as.color(vertex.border)
+     }
    }else
      vertex.border <- rep(vertex.border,length=n)
    if(is.character(vertex.col)&&(length(vertex.col)==1)){
@@ -365,6 +369,10 @@ layout.par=NULL,
      vertex.col <- rep(get.vertex.attribute(x,vertex.col),length=n)
      if(all(is.na(vertex.col)))
        vertex.col <- rep(temp,length=n) #Assume it was a color word
+     else{
+       if(!all(is.color(vertex.col),na.rm=TRUE))
+         vertex.col<-as.color(vertex.col)
+     }
    }else
      vertex.col <- rep(vertex.col,length=n)
    if(is.character(vertex.lty)&&(length(vertex.lty)==1)){
@@ -388,6 +396,39 @@ layout.par=NULL,
        stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
    }else
      loop.cex <- rep(loop.cex,length=n)
+   if(is.character(label.col)&&(length(label.col)==1)){
+     temp<-label.col
+     label.col <- rep(get.vertex.attribute(x,label.col),length=n)
+     if(all(is.na(label.col)))
+       label.col <- rep(temp,length=n) #Assume it was a color word
+     else{
+       if(!all(is.color(label.col),na.rm=TRUE))
+         label.col<-as.color(label.col)
+     }
+   }else
+     label.col <- rep(label.col,length=n)
+   if(is.character(label.border)&&(length(label.border)==1)){
+     temp<-label.border
+     label.border <- rep(get.vertex.attribute(x,label.border),length=n)
+     if(all(is.na(label.border)))
+       label.border <- rep(temp,length=n) #Assume it was a color word
+     else{
+       if(!all(is.color(label.border),na.rm=TRUE))
+         label.border<-as.color(label.border)
+     }
+   }else
+     label.border <- rep(label.border,length=n)
+   if(is.character(label.bg)&&(length(label.bg)==1)){
+     temp<-label.bg
+     label.bg <- rep(get.vertex.attribute(x,label.bg),length=n)
+     if(all(is.na(label.bg)))
+       label.bg <- rep(temp,length=n) #Assume it was a color word
+     else{
+       if(!all(is.color(label.bg),na.rm=TRUE))
+         label.bg<-as.color(label.bg)
+     }
+   }else
+     label.bg <- rep(label.bg,length=n)
    #Plot vertices now, if desired
    if(!vertices.last)
      network.vertex(cx[use],cy[use],radius=vertex.radius[use], sides=vertex.sides[use],col=vertex.col[use],border=vertex.border[use],lty=vertex.lty[use],rot=vertex.rot[use])
@@ -406,10 +447,11 @@ layout.par=NULL,
    e.rad<-vector()  #Edge radius (only used for loops)
    #Obtain the correct edge properties (possibly as attributes)
    if(is.character(edge.col)&&(length(edge.col)==1)){
-     temp<-edge.col
-     edge.col <- as.matrix.network.adjacency(x,attrname=edge.col)
-     if(all(is.na(edge.col)))
-       edge.col<-temp  #Assume things were OK, and put it back
+     if(edge.col%in%list.edge.attributes(x)){
+       edge.col <- as.matrix.network.adjacency(x,attrname=edge.col)
+       if(!all(is.color(edge.col),na.rm=TRUE))
+         edge.col<-matrix(as.color(edge.col),NROW(edge.col),NCOL(edge.col))
+     }
    }
    if(is.character(edge.lty)&&(length(edge.lty)==1)){
      temp<-edge.lty

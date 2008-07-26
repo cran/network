@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 07/30/07
+# Last Modified 07/23/08
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -16,13 +16,40 @@
 #
 # Contents:
 #
+#   as.color
 #   network.density
+#   is.color
 #   is.discrete
 #   is.discrete.character
 #   is.discrete.numeric
 #   which.matrix.type
 #
 ######################################################################
+
+
+#Given a vector of non-colors, try to coerce them into some reasonable
+#color format.  This may not work well, but what the hell....
+as.color<-function(x){
+  #Numeric rule: if integer leave as-is, otherwise convert to grayscale
+  if(is.numeric(x)){
+    if(any(x!=round(x),na.rm=TRUE)){
+      return(gray((x-min(x))/(max(x)-min(x))))
+    }else
+      return(x)
+  }
+  #Factor rule: categorical colorings
+  if(is.factor(x)){
+    return(match(levels(x)[x],levels(x)))
+  }
+  #Character rule: if colors, retain as colors; else categorical
+  if(is.character(x)){
+    if(all(is.color(x)))
+      return(x)
+    else{
+      return(match(x,sort(unique(x))))
+    }
+  }
+}
 
 
 # Return the density of the given network.  (This probably won't stay in
@@ -51,6 +78,18 @@ network.density<-function(x,na.omit=TRUE,discount.bipartite=FALSE){
     }
   }  
   ec/pe
+}
+
+
+#Returns TRUE if x is a character in a known color format
+is.color<-function(x){
+  xic<-rep(FALSE,length(x))         #Assume not a color by default
+  xic[is.na(x)]<-NA                 #Missing counts as missing
+  xc<-sapply(x,is.character)        #Must be a character string
+  #For characters, must be a named color or a #RRGGBB/#RRGGBBAA sequence
+  xic[xc]<-(x[xc]%in%colors())| ((nchar(x[xc])%in%c(7,9))&(substr(x[xc],1,1)=="#"))
+  #Return the result
+  xic
 }
 
 

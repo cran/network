@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 01/31/08
+# Last Modified 03/25/08
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -42,6 +42,7 @@
 #   list.vertex.attributes
 #   network.dyadcount
 #   network.edgecount
+#   network.naedgecount
 #   network.size
 #   network.vertex.names
 #   network.vertex.names<-
@@ -328,7 +329,7 @@ has.loops<-function(x){
 # Return TRUE iff (vi,vj) in network x.  Where na.omit==TRUE, edges flagged
 # as missing are ignored.
 #
-is.adjacent<-function(x,vi,vj,na.omit=TRUE){
+is.adjacent<-function(x,vi,vj,na.omit=FALSE){
   if(!is.network(x))
     stop("is.adjacent requires an argument of class network.\n")
   if(length(vi)!=length(vj)){
@@ -385,6 +386,18 @@ is.multiplex<-function(x){
 }
 
 
+# Return a network whose edges are the missing edges of x
+#
+is.na.network<-function(x){
+  #Create an empty network with the same properties as x
+  y<-network.initialize(network.size(x),directed=is.directed(x), hyper=is.hyper(x),loops=has.loops(x),multiple=is.multiplex(x), bipartite=x%n%"bipartite")
+  #Add the missing edges of x to y
+  .Call("isNANetwork_R",x,y,PACKAGE="network")
+  #Return the updated network 
+  y
+}
+
+
 # Return TRUE iff x is a network.
 #
 is.network<-function(x){
@@ -423,7 +436,7 @@ list.vertex.attributes<-function(x){
   if(!is.network(x))
     stop("list.network.attributes requires an argument of class network.\n")
   #Accumulate names
-  allnam<-sapply(x$val,names)
+  allnam<-unlist(sapply(x$val,names))
   #Return the sorted, unique attribute names
   sort(unique(as.vector(allnam)))
 }
@@ -472,6 +485,17 @@ network.edgecount<-function(x,na.omit=TRUE){
     stop("network.edgecount requires an argument of class network.\n")
   #Return the edge count
   .Call("networkEdgecount_R",x,na.omit, PACKAGE="network")
+}
+
+
+#Retrieve the number of missing edges in network x
+#
+network.naedgecount<-function(x){
+  na<-get.edge.attribute(x$mel,"na")
+  if(is.null(na))
+    0
+  else
+    sum(na)
 }
 
 

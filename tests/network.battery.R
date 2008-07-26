@@ -75,7 +75,7 @@ check[33]<-all(as.matrix.network.edgelist(temp,"newval")==cbind(row(g)[g>0],col(
 temp[1:3,1:5,names.eval="newval"]<-matrix(1:15,3,5)
 check[34]<-all(as.sociomatrix(temp,"newval")[1:3,1:5]==g[1:3,1:5]*matrix(1:15,3,5))
 temp[,,"na"]<-TRUE                         #Verify NA filtering
-check[35]<-sum(temp[,])==0
+check[35]<-sum(temp[,,na.omit=TRUE])==0
 check[36]<-sum(is.na(temp[,,na.omit=FALSE]))==sum(g)
 
 #Check assignment, deletion, and adjacency for hypergraphs

@@ -4,7 +4,7 @@
 # access.c
 #
 # Written by Carter T. Butts <buttsc@uci.edu>
-# Last Modified 07/12/07
+# Last Modified 07/23/08
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -227,7 +227,7 @@ SEXP getNeighborhood(SEXP x, int v, const char *type, int naOmit)
 /*Return a vector containing the first-order vertex neighborhood of v in x, as specified by type.  If naOmit>0, missing edges are discarded; otherwise, they are employed as well.*/
 {
   int pc=0,i,dir;
-  SEXP el,eps;
+  SEXP el,eps,val=R_NilValue;
   
   /*Check for directedness of x*/
   dir=isDirected(x);
@@ -244,6 +244,19 @@ SEXP getNeighborhood(SEXP x, int v, const char *type, int naOmit)
       PROTECT(eps=vecAppend(eps,coerceVector(getListElement(VECTOR_ELT(el,i), "inl"),INTSXP))); pc++;
     }
   }else{                                         /*Combined => get both lists*/
+    if(!dir){ /*Annoying kludge to deal with getEdges loop issue, part 1*/
+      /*The issue here is that getEdges (reasonably?) enforces "combined"
+      behavior for undirected graphs, returning any edge with v as an endpoint.
+      This clashes with what we need to do here; as a workaround, we temporarily
+      make x "directed" to change the behavior of getEdges (afterwards changing
+      it back).  This works fine, but involves two unneeded write operations
+      for what should be a read-only function.  As such, it should eventually
+      be patched (probably by creating an option to force the behavior of
+      getEdges).*/
+      PROTECT(val=allocVector(LGLSXP,1)); pc++;
+      LOGICAL(val)[0]=1;
+      x=setNetworkAttribute(x,"directed",val);  /*Temporarily make directed*/
+    }
     PROTECT(el = getEdges(x,v,0,"in",naOmit)); pc++;
     for(i=0;i<length(el);i++){
       PROTECT(eps=vecAppend(eps,coerceVector(getListElement(VECTOR_ELT(el,i), "outl"),INTSXP))); pc++;
@@ -251,6 +264,10 @@ SEXP getNeighborhood(SEXP x, int v, const char *type, int naOmit)
     PROTECT(el = getEdges(x,v,0,"out",naOmit)); pc++;
     for(i=0;i<length(el);i++){
       PROTECT(eps=vecAppend(eps,coerceVector(getListElement(VECTOR_ELT(el,i), "inl"),INTSXP))); pc++;
+    }
+    if(!dir){ /*Annoying kludge to deal with getEdges loop issue, part 2*/
+      LOGICAL(val)[0]=0;
+      x=setNetworkAttribute(x,"directed",val);  /*Restore to undirected*/
     }
   }
 
@@ -1178,6 +1195,47 @@ SEXP isAdjacent_R(SEXP x, SEXP vi, SEXP vj, SEXP naOmit)
   /*Return the result*/
   UNPROTECT(pc);
   return ans;
+}
+
+
+SEXP isNANetwork_R(SEXP x, SEXP y)
+/*Given input network x, create an edge in y for every edge of x having edge attribute na==TRUE.  It is assumed that y is preallocated to be the same size and type as x -- this function just writes the edges into place.*/
+{
+  SEXP hl,tl,nel,vel,mel,edgeCheck;
+  int i,pc=0,count=0;
+  
+  /*Get the master edge list of x*/
+  mel=getListElement(x,"mel");
+  
+  /*Pre-allocate head/tail lists -- we'll shorten later*/
+  PROTECT(hl=allocVector(VECSXP,length(mel))); pc++;
+  PROTECT(tl=allocVector(VECSXP,length(mel))); pc++;
+  
+  /*Move through the edges, copying head/tail lists only when missing*/
+  for(i=0;i<length(mel);i++)
+   if(INTEGER(getListElement(getListElement(VECTOR_ELT(mel,i),"atl"),"na"))[0]){
+     SET_VECTOR_ELT(hl,count,duplicate(getListElement(VECTOR_ELT(mel,i), "inl")));
+     SET_VECTOR_ELT(tl,count++,duplicate(getListElement(VECTOR_ELT(mel,i), "outl")));
+   }
+
+  /*Contract lists, and allocate empty space for namesEval/valsEval*/
+  PROTECT(hl=contractList(hl,count)); pc++;  
+  PROTECT(tl=contractList(tl,count)); pc++;  
+  PROTECT(nel=allocVector(VECSXP,count)); pc++;
+  PROTECT(vel=allocVector(VECSXP,count)); pc++;
+  for(i=0;i<count;i++){
+    SET_VECTOR_ELT(nel,i,R_NilValue);
+    SET_VECTOR_ELT(vel,i,R_NilValue);
+  }  
+
+  /*Write edges into y*/
+  PROTECT(edgeCheck=allocVector(INTSXP,1)); pc++;
+  INTEGER(edgeCheck)[0]=0;
+  y=addEdges_R(y,tl,hl,nel,vel,edgeCheck);
+
+  /*Unprotect and return*/
+  UNPROTECT(pc);
+  return y;
 }
 
 

@@ -16,8 +16,8 @@ Basic information on the creation of \code{network} objects can be found by typi
 
 \tabular{ll}{
 Package: \tab network\cr
-Version: \tab 1.3\cr
-Date: \tab January 31, 2008\cr
+Version: \tab 1.4\cr
+Date: \tab July 26, 2008\cr
 Depends: \tab R (>= 2.0.0), utils\cr
 Suggests: \tab sna\cr
 License: \tab GPL version 2 (June, 1991) or later\cr
@@ -44,7 +44,8 @@ is.adjacent             Determine Whether Two Vertices Are Adjacent
 network                 Networks
 network.arrow           Add Arrows or Segments to a Plot
 network.density         Compute the Density of a Network
-network.dyadcount       Return the Number of Edges in a Network Object
+network.dyadcount       Return the Number of (Possibly Directed) Dyads
+                        in a Network Object
 network.edgecount       Return the Number of Edges in a Network Object
 network.extraction      Extraction and Replacement Operators for
                         Network Objects
@@ -52,6 +53,8 @@ network.indicators      Indicator Functions for Network Properties
 network.initialize      Initialize a Network Class Object
 network.layout          Vertex Layout Functions for plot.network
 network.loop            Add Loops to a Plot
+network.naedgecount     Identifying and Counting Missing Edges in a
+                        Network Object
 network.operators       Network Operators
 network-package         Classes for Relational Data
 network.size            Return the Size of a Network

@@ -56,7 +56,9 @@ is.network(x)
 \value{
 \code{network}, \code{as.network}, and \code{print.network} all return a network class object; \code{is.network} returns TRUE or FALSE.
 }
-\references{ Butts, C.T.  2002.  ``Memory Structures for Relational Data in R: Classes and Interfaces''  Working Paper. }
+\references{ Butts, C. T.  (2008).  \dQuote{network: a Package for Managing Relational Data in R.}  \emph{Journal of Statistical Software}, 24(2).  \url{http://www.jstatsoft.org/v24/i02/}
+
+}
 \author{ Carter T. Butts \email{buttsc@uci.edu} and David Hunter \email{dhunter@stat.psu.edu} }
 \note{
 Between versions 0.5 and 1.2, direct assignment of a network object created a pointer to the original object, rather than a copy.  As of version 1.2, direct assignment behaves in the same manner as \code{network.copy}.  Direct use of the latter is thus superfluous in most situations, and is discouraged.

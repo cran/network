@@ -20,11 +20,13 @@ network.density(x, na.omit=TRUE, discount.bipartite=FALSE)
 \value{
   The network density.
 }
-\references{ Wasserman, S. and Faust, K.  1994.  Social Network Analysis: Methods and Applications.  Cambridge: Cambridge University Press. }
+\references{ Butts, C. T.  (2008).  \dQuote{network: a Package for Managing Relational Data in R.}  \emph{Journal of Statistical Software}, 24(2).  \url{http://www.jstatsoft.org/v24/i02/}
+
+Wasserman, S. and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 %
-% ~Make other sections like Warning with \section{Warning }{....} ~
+\section{Warning }{\code{network.density} relies on network attributes (see \link{network.indicators}) to determine the properties of the underlying network object.  If these are set incorrectly (e.g., multiple edges in a non-multiplex network, network coded with directed edges but set to \dQuote{undirected}, etc.), surprising results may ensue. }
 
 \seealso{ \code{\link{network.edgecount}}, \code{\link{network.size}} }
 \examples{

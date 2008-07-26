@@ -67,7 +67,8 @@ Note that some attribute assignment/extraction can be performed through the vari
 \value{
 For the \code{list.attributes} methods, a vector containing attribute names.  For the \code{get.attribute} methods, a list containing the values of the attribute in question (or simply the value itself, for \code{get.network.attribute}).  For the \code{set.attribute} and \code{delete.attribute} methods, a pointer to the updated \code{network} object.
 }
-\references{ Butts, C.T.  2002.  ``Memory Structures for Relational Data in R: Classes and Interfaces''  Working Paper. }
+\references{ Butts, C. T.  (2008).  \dQuote{network: a Package for Managing Relational Data in R.}  \emph{Journal of Statistical Software}, 24(2).  \url{http://www.jstatsoft.org/v24/i02/}
+}
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{ ~~further notes~~ }
 %

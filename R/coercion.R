@@ -84,7 +84,9 @@ as.matrix.network.adjacency<-function(x,attrname=NULL,...){
   if(!is.directed(x)){
 # changed by MSH to allow non binary values
 #   m<-pmax(m,t(m))
-    m[m==0] <- t(m)[m==0]
+    sel<-m
+    sel[is.na(m)]<-1
+    m[sel==0] <- t(m)[sel==0]
   }
   #Set row/colnames to vertex names
   xnames <- network.vertex.names(x)
@@ -115,7 +117,11 @@ as.matrix.network.edgelist<-function(x,attrname=NULL,...){
   if(!is.null(attrname))
     m<-cbind(m,unlist(get.edge.attribute(x$mel,attrname)))
   #Return the result
-  m[!nal,]
+  m<-m[!nal,,drop=FALSE]
+  if(length(m)==0)
+    matrix(numeric(0),ncol=2)
+  else
+    m
 }
 
 
@@ -126,13 +132,17 @@ as.matrix.network.edgelist<-function(x,attrname=NULL,...){
 as.matrix.network.incidence<-function(x,attrname=NULL,...){
   #Perform preprocessing
   n<-network.size(x)
-  inl<-lapply(x$mel,"[[","inl")
-  outl<-lapply(x$mel,"[[","outl")
+  nulledge<-sapply(x$mel,is.null)
+  inl<-lapply(x$mel,"[[","inl")[!nulledge]
+  outl<-lapply(x$mel,"[[","outl")[!nulledge]
   if(!is.null(attrname))
-    evals<-unlist(get.edge.attribute(x$mel,attrname))
+    evals<-unlist(get.edge.attribute(x$mel,attrname))[!nulledge]
   else
-    evals<-rep(1,length(x$mel))
-  ena<-as.logical(get.edge.attribute(x$mel,"na"))
+    evals<-rep(1,length(x$mel))[!nulledge]
+  ena<-as.logical(get.edge.attribute(x$mel,"na"))[!nulledge]
+  #If called with an empty graph, return a degenerate matrix
+  if(length(ena)==0)
+    return(matrix(numeric(0),nrow=n))
   #Generate the incidence matrix
   dir<-is.directed(x)
   f<-function(a,m,k){y<-rep(0,m); y[a]<-k; y}
@@ -140,7 +150,7 @@ as.matrix.network.incidence<-function(x,attrname=NULL,...){
   if(!dir)
     im<-pmin(im,1)
   im<-sweep(im,2,evals,"*")              #Fill in edge values
-  im[sapply(ena,rep,n)*(im!=0)]<-NA      #Add NAs, if needed
+  im[(sapply(ena,rep,n)*(im!=0))>0]<-NA      #Add NAs, if needed
   #Return the result
   im
 }

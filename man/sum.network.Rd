@@ -22,7 +22,8 @@ Other network attributes in the return value are carried over from the first ele
 \value{
   A \code{\link{network}} object.
 }
-%\references{ ~put references to the literature/web site here ~ }
+\references{ Butts, C. T.  (2008).  \dQuote{network: a Package for Managing Relational Data in R.}  \emph{Journal of Statistical Software}, 24(2).  \url{http://www.jstatsoft.org/v24/i02/}
+}
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{ ~~further notes~~ 
 %

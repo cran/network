@@ -50,7 +50,9 @@ x & y
 \value{
    The resulting graph object.
 }
-\references{ Wasserman, S. and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: University of Cambridge Press. }
+\references{ Butts, C. T.  (2008).  \dQuote{network: a Package for Managing Relational Data in R.}  \emph{Journal of Statistical Software}, 24(2).  \url{http://www.jstatsoft.org/v24/i02/}
+
+Wasserman, S. and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: University of Cambridge Press. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ Currently, there is a naming conflict between the composition operator and the \code{\link[sna]{\%c\%}} operator in the \code{\link[sna]{sna}} package.  This will be resolved in future releases; for the time being, one can determine which version of \code{\%c\%} is in use by varying which package is loaded first.}
 

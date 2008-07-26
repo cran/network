@@ -24,7 +24,8 @@ If \code{attrname} is given, the specified edge attribute is used to extract edg
   One or more adjacency matrices.  If all matrices are of the same dimension and \code{simplify==TRUE}, the matrices are joined into a single array; otherwise, the return value is a list of single adjacency matrices.
 }
 \references{ ~put references to the literature/web site here ~ }
-\author{ Carter T. Butts \email{buttsc@uci.edu} }
+\author{ Butts, C. T.  (2008).  \dQuote{network: a Package for Managing Relational Data in R.}  \emph{Journal of Statistical Software}, 24(2).  \url{http://www.jstatsoft.org/v24/i02/}
+}
 %\note{ ~~further notes~~ }
 
 % ~Make other sections like Warning with \section{Warning }{....} ~

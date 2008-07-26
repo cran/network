@@ -4,7 +4,7 @@
 # access.h
 #
 # Written by Carter T. Butts <buttsc@uci.edu>
-# Last Modified 1/31/08
+# Last Modified 3/25/08
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -93,6 +93,8 @@ SEXP getEdges_R(SEXP x, SEXP v, SEXP alter, SEXP neighborhood, SEXP naOmit);
 SEXP getNeighborhood_R(SEXP x, SEXP v, SEXP type, SEXP naOmit);
 
 SEXP isAdjacent_R(SEXP x, SEXP vi, SEXP vj, SEXP naOmit);
+
+SEXP isNANetwork_R(SEXP x, SEXP y);
 
 SEXP networkEdgecount_R(SEXP x, SEXP naOmit);
 

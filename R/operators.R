@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 01/31/08
+# Last Modified 03/25/08
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -68,7 +68,7 @@
 }
 
 
-"[.network"<-function(x,i,j,na.omit=TRUE){
+"[.network"<-function(x,i,j,na.omit=FALSE){
   narg<-nargs()+missing(na.omit)
   n<-network.size(x)
   xnames <- network.vertex.names(x)
@@ -171,12 +171,21 @@
     val<-rep(as.vector(value),length=NROW(el))
   #Perform the changes
   if(is.null(names.eval)){  #If no names given, don't store values
+    valna<-is.na(val)           #Pull out missing edges
+    val[valna]<-1               #Treat missing as "present" for our purposes
     toadd<-(val!=0)&(has.loops(x)|(el[,1]!=el[,2]))
     torem<-val==0
     if(sum(toadd)>0){           #Check for already extant edges
       toadd[toadd][is.adjacent(x,el[toadd,1],el[toadd,2])]<-FALSE
-      if(sum(toadd)>0)           #Add edges, if still needed
+      if(sum(toadd)>0)          #Add edges, if still needed
         x<-add.edges(x,as.list(el[toadd,1]),as.list(el[toadd,2]))
+      if(sum(valna)>0){         #Mark all relevant edges as missing
+        eid<-vector()
+        for(k in (1:length(valna))[valna]){
+          eid<-c(eid,get.edgeIDs(x,el[k,1],el[k,2],neighborhood="out", na.omit=FALSE))
+        }
+        set.edge.attribute(x,"na",TRUE,eid)
+      }
     }
     if(sum(torem)>0){          #Delete edges, if needed
       eid<-vector()
