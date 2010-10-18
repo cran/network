@@ -52,11 +52,8 @@
 # 
 ######################################################################
 
-"<-.network"<-function(x,i,value){
-  cl<-oldClass(x)
-  class(x)<-NULL
-  x[[i]]<-network.copy(value)
-  class(x)<-cl
+"<-.network"<-function(x,value){
+  x<-network.copy(value)
   return(x)
 }
 

@@ -1,5 +1,17 @@
 CHANGELOG:
 
+v1.5-1 Minor Changes/Bug Fixes
+  Changes:
+    - The mixingmatrix function has been moved from ergm to network (currently
+      as an undocumented internal function).  [CTB, but original function is
+      due to MSH]
+  Bug fixes:
+    - plot.network generated an error in some cases when edge.curv was set.
+      [CTB, submitted by Brian Ripley]
+    - summary.network generated an error if mixingmatrices=TRUE was set and
+      ergm was not loaded.  (The mixingmatrix function has now been moved into
+      the network package.)  [CTB, submitted by Ronggui Huang]
+
 v1.5 New Functions, New Features, Changes, and Bug Fixes
   New Functions:
     - get.inducedSubgraph: return induced subgraphs and edge cuts from a 

@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 07/23/08
+# Last Modified 10/18/10
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -17,11 +17,13 @@
 # Contents:
 #
 #   as.color
+#   mixingmatrix
 #   network.density
 #   is.color
 #   is.discrete
 #   is.discrete.character
 #   is.discrete.numeric
+#   print.mixingmatrix
 #   which.matrix.type
 #
 ######################################################################
@@ -49,6 +51,49 @@ as.color<-function(x){
       return(match(x,sort(unique(x))))
     }
   }
+}
+
+
+#Return the mixing matrix for a network object, on a given attribute.  This
+#is a relocated function from the ergm package; it probably belongs elsewhere,
+#but is needed for the summary.network method (and in that sense is basic
+#enough to include.
+mixingmatrix <- function(nw, attrname) {
+  if(!is.network(nw)){
+    stop("mixingmatrix() requires a network object")
+  }                                                                
+  nodecov <- unlist(get.vertex.attribute(nw, attrname))
+  u<-sort(unique(nodecov))
+  # nodecovnum <- match(nodecov, u)
+  el <- as.matrix.network.edgelist(nw)
+  type <- "directed"
+  if (is.bipartite(nw)) { # must have heads < tails now
+    if (is.directed(nw)) 
+      cat("Warning:  Bipartite networks are currently\n",
+          "automatically treated as undirected\n")
+    type <- "bipartite"
+    rowswitch <- apply(el, 1, function(x) x[1]>x[2])
+    el[rowswitch, 1:2] <- el[rowswitch, 2:1]
+    nb1 <- get.network.attribute(nw,"bipartite")
+    u<-sort(unique(nodecov[1:nb1]))
+    From <- c(u, nodecov[el[,1]])
+    u<-sort(unique(nodecov[(nb1+1):network.size(nw)]))
+    To <- c(u, nodecov[el[,2]])
+  }else{
+    From <- c(u, nodecov[el[,1]])
+    To <- c(u, nodecov[el[,2]])
+  }
+  tabu <- table(From, To)  # Add u,u diagonal to ensure each 
+  # value is represented, then subtract it later
+  diag(tabu) <- diag(tabu) - 1
+  if(!is.directed(nw) && !is.bipartite(nw)){
+    type <- "undirected"
+    tabu <- tabu + t(tabu)
+    diag(tabu) <- diag(tabu)/2
+  }
+  ans <- list(type=type, matrix=tabu)
+  class(ans) <- "mixingmatrix"
+  ans
 }
 
 
@@ -105,6 +150,31 @@ is.discrete.character<-function(x){
 
 is.discrete<-function(x){
  (is.numeric(x)|is.logical(x)|is.character(x)) && mean(duplicated(x)) > 0.8
+}
+
+
+#Print method for mixingmatrix objects
+print.mixingmatrix <- function(x, ...) {
+  m <- x$mat
+  rn <- rownames(m)
+  cn <- colnames(m)  
+  if (x$type == "undirected") {
+    dimnames(m) <- list(rn, cn)
+    cat("Note:  Marginal totals can be misleading\n",
+        "for undirected mixing matrices.\n")
+  } else {
+    total <- apply(m,1,sum)
+    m <- cbind(m,total)
+    total <- apply(m,2,sum)
+    m <- rbind(m,total)
+    rn <- c(rn, "Total")
+    cn <- c(cn, "Total")
+    if (x$type == "bipartite")
+      dimnames(m) <- list(B1 = rn,B2 = cn)
+    else
+      dimnames(m) <- list(From = rn,To = cn)
+  }
+  print(m)
 }
 
 

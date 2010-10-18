@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 09/06/10
+# Last Modified 10/18/10
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -527,8 +527,10 @@ layout.par=NULL,
        if(all(is.na(edge.curve)))
          stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
        e.curv.as.mult<-FALSE
-     }else
+     }else{
        edge.curve<-rep(0,length=NROW(d))
+       e.curv.as.mult<-FALSE
+     }
      #Proceed with edge setup
      dist<-((cx[d[,1]]-cx[d[,2]])^2+(cy[d[,1]]-cy[d[,2]])^2)^0.5  #Get the inter-point distances for curves
      tl<-d.raw*dist   #Get rescaled edge lengths

@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 09/04/10
+# Last Modified 10/18/10
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -207,7 +207,7 @@ print.summary.network<-function(x, ...){
           }
         }else{
           cat("   ",aaclass," valued attribute\n",sep="")
-          cat("   ",length(aaval),"values\n",sep="")
+          cat("   ",length(aaval)," values\n",sep="")
         }
       }
     }
