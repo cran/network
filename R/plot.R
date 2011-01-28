@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 10/18/10
+# Last Modified 01/27/11
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -313,7 +313,7 @@ layout.par=NULL,
    #Make sure that edge values are in place, matrix has right shape, etc.
    if(NCOL(d)==2){
      if(NROW(d)==0)
-       d<-matrix(nr=0,nc=3)
+       d<-matrix(nrow=0,ncol=3)
      else
        d<-cbind(d,rep(1,NROW(d)))
    }
@@ -480,9 +480,14 @@ layout.par=NULL,
      if(length(dim(edge.col))==2)   #Coerce edge.col/edge.lty to vector form
        edge.col<-edge.col[d[,1:2]]
      else if(is.character(edge.col)&&(length(edge.col)==1)){
-       edge.col<-(x%e%edge.col)[edgetouse]
-       if(!all(is.color(edge.col),na.rm=TRUE))
-         edge.col<-as.color(edge.col)
+       temp<-edge.col
+       edge.col<-x%e%edge.col
+       if(!is.null(edge.col)){
+         edge.col<-edge.col[edgetouse]
+         if(!all(is.color(edge.col),na.rm=TRUE))
+           edge.col<-as.color(edge.col)
+       }else
+         edge.col<-rep(temp,length=NROW(d))  #Assume it was a color word
      }else
        edge.col<-rep(edge.col,length=NROW(d))
      #Edge line type

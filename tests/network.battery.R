@@ -141,6 +141,28 @@ check[65]<-all(temp%v%"value"==1:10)
 temp%n%"value"<-"pork!"
 check[66]<-temp%n%"value"=="pork!"
 
+#Check to ensure that in-place modification is not producing side effects
+g<-network.initialize(5); checkg<-g; add.vertices(g,3)
+check[67]<-(network.size(checkg)==5)&&(network.size(g)==8)
+g<-network.initialize(5); checkg<-g; delete.vertices(g,2)
+check[68]<-(network.size(checkg)==5)&&(network.size(g)==4)
+g<-network.initialize(5); checkg<-g; add.edge(g,2,3)
+check[69]<-(sum(checkg[,])==0)&&(sum(g[,])==1)
+g<-network.initialize(5); checkg<-g; add.edges(g,c(2,2,2),c(1,3,4))
+check[70]<-(sum(checkg[,])==0)&&(sum(g[,])==3)
+g<-network.initialize(5); checkg<-g; g%v%"boo"<-1:5
+check[71]<-all(is.na(checkg%v%"boo"))&&all(g%v%"boo"==1:5)
+g<-network.initialize(5); checkg<-g; g%n%"boo"<-1:5
+check[72]<-is.null(checkg%n%"boo")&&all(g%n%"boo"==1:5)
+g<-network.initialize(5); g[1,]<-1; checkg<-g; g%e%"boo"<-col(matrix(0,5,5))
+check[73]<-is.null(checkg%e%"boo")&&all(g%e%"boo"==2:5)
+g<-network.initialize(5); checkg<-g; permute.vertexIDs(g,5:1)
+check[74]<-all(checkg%v%"vertex.names"==1:5)&&all(g%v%"vertex.names"==5:1)
+g<-network.initialize(5); temp<-(function(){add.vertices(g,3); network.size(g)})()
+check[75]<-(network.size(g)==5)&&(temp==8)
+g<-network.initialize(5); (function(){g<-network.initialize(4); add.vertices(g,3)})()
+check[76]<-(network.size(g)==5)
+
 #If everything worked, check is TRUE
 all(check)                                               #Should be TRUE
 

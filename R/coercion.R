@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 10/11/10
+# Last Modified 01/28/11
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -61,7 +61,7 @@ as.matrix.network.adjacency<-function(x,attrname=NULL,expand.bipartite=FALSE,...
   if(is.multiplex(x))
     stop("Multigraphs not currently supported in as.matrix.network.adjacency.  Exiting.\n")
   #Generate the adjacency matrix 
-  m<-matrix(0,nr=network.size(x),nc=network.size(x))
+  m<-matrix(0,nrow=network.size(x),ncol=network.size(x))
   tl<-unlist(sapply(x$mel,"[[","outl")) #Can unlist b/c no hyperedges
   hl<-unlist(sapply(x$mel,"[[","inl"))
   nal<-as.logical(get.edge.attribute(x$mel,"na",unlist=TRUE))

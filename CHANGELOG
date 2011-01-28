@@ -1,5 +1,22 @@
 CHANGELOG:
 
+v1.6 Changes/Bug Fixes
+  Changes:
+    - In-place modification methods now use draconian measures to force 
+      evaluation of their arguments prior to modification, and overwrite
+      non-anonymous arguments in their original frame on exit.  This is a kludge
+      to cope with R's lazy evaluation strategy, which does not play well
+      with in-place modification of arguments.
+  Bug Fixes:
+    - Per the above, semantics for in-place modification of objects should now
+      operate correctly (was conflicting with R's lazy evaluation scheme,
+      sometimes resulting in bizarre behavior).  [CTB, submitted by Ronggui
+      Huang]
+    - plot.network was failing when edge.col was called with single color terms.
+      [CTB, submitted by Philip Leifeld]
+    - network.layout.fruchtermanreingold failed when called with a network
+      having exactly one edge.  [DRH]
+
 v1.5-1 Minor Changes/Bug Fixes
   Changes:
     - The mixingmatrix function has been moved from ergm to network (currently

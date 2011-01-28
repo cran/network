@@ -156,7 +156,8 @@ network.copy<-function(x){
   if(!is.network(x))
     stop("network.copy requires an argument of class network.\n")
   #Duplicate and return
-  .Call("copyNetwork_R",x,PACKAGE="network")
+  y<-.Call("copyNetwork_R",x,PACKAGE="network")  
+  y
 }
 
 

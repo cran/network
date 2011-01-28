@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 10/04/10
+# Last Modified 01/28/11
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -451,8 +451,8 @@
   }else{                        #Dyadic network
     out<-outinf$net
     n<-network.size(out)
-    el<-matrix(nr=0,nc=2)
-    elna<-matrix(nr=0,nc=2)
+    el<-matrix(nrow=0,ncol=2)
+    elna<-matrix(nrow=0,ncol=2)
     if(is.multiplex(out)){        #Multiplex case: add edge for every pair
       allpairs<-unique(rbind(outinf$elx,outinf$elnax,outinf$ely,outinf$elnay))
       allnum<-(allpairs[,1]-1)+n*(allpairs[,2]-1)
@@ -551,7 +551,7 @@
     if(!has.loops(out))
       el<-el[el[,1]!=el[,2],]
     elnum<-(el[,1]-1)+n*(el[,2]-1)
-    elna<-matrix(nr=0,nc=2)
+    elna<-matrix(nrow=0,ncol=2)
     #Remove all sure edges
     elx<-unique(outinf$elx)
     elxnum<-(elx[,1]-1)+n*(elx[,2]-1)
@@ -626,8 +626,8 @@
   }else{                        #Dyadic network
     out<-outinf$net
     n<-network.size(out)
-    el<-matrix(nr=0,nc=2)
-    elna<-matrix(nr=0,nc=2)
+    el<-matrix(nrow=0,ncol=2)
+    elna<-matrix(nrow=0,ncol=2)
     elx<-unique(outinf$elx)
     elnax<-unique(outinf$elnax)
     ely<-unique(outinf$ely)
@@ -746,8 +746,8 @@
   else
     out<-network.initialize(insz1+outsz2,bipartite=insz1, directed=is.directed(net1$net)|is.directed(net2$net),multiple=is.multiplex(net1$net)|is.multiplex(net2$net))
   #Accumulate edges (yeah, could be made more efficient -- cope with it)
-  el<-matrix(nr=0,nc=2)
-  elna<-matrix(nr=0,nc=2)
+  el<-matrix(nrow=0,ncol=2)
+  elna<-matrix(nrow=0,ncol=2)
   bip1<-net1$net%n%"bipartite"
   bip2<-net2$net%n%"bipartite"
   if(!is.directed(net1$net)){  #Double the edges if undirected
