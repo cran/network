@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 9/05/10
+# Last Modified 7/05/11
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -90,9 +90,8 @@ network.bipartite<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
     en<-replicate(length(ev),list("na"))
   }else{
     xv<-x
-    xv[missing]<-NA
-    ev<-apply(cbind(as.list(xv[x!=0]),as.list(as.logical(missing[x!=0]))),1, as.list)
-    en<-replicate(length(ev),list(names.eval,"na"))
+    ev<-apply(cbind(as.list(as.logical(missing[x!=0])),as.list(xv[x!=0])),1, as.list)
+    en<-replicate(length(ev),list("na",names.eval))
   }
   if(sum(x!=0)>0)
     add.edges(g, as.list(1+e%%n), as.list(1+e%/%n),
@@ -130,8 +129,8 @@ network.adjacency<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
   }else{
     xv<-x
     xv[missing]<-NA
-    ev<-apply(cbind(as.list(xv[x!=0]),as.list(as.logical(missing[x!=0]))),1, as.list)
-    en<-replicate(length(ev),list(c(names.eval,"na")))
+    ev<-apply(cbind(as.list(as.logical(missing[x!=0])),as.list(xv[x!=0])),1, as.list)
+    en<-replicate(length(ev),list(c("na",names.eval)))
   }
   # Add names if available
   if(!is.null(colnames(x))){
@@ -211,13 +210,13 @@ network.incidence<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
       ev<-missing
     }else{
       if(!is.directed(g))
-        ev<-as.list(x[x[,i]!=0,i][1],missing)
+        ev<-as.list(missing,x[x[,i]!=0,i][1])
       else
-        ev<-as.list(abs(x[x[,i]!=0,i][1]),missing)
+        ev<-as.list(missing,abs(x[x[,i]!=0,i][1]))
       if(is.null(names.eval))
-        en<-list(NULL,"na")
+        en<-list("na",NULL)
       else
-        en<-as.list(c(names.eval,"na"))
+        en<-as.list(c("na",names.eval))
     }
     #Add the edge to the graph      
     g<-add.edge(g,tail,head,names.eval=en,vals.eval=ev,edge.check=edge.check)

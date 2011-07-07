@@ -1,5 +1,28 @@
 CHANGELOG:
 
+v1.7 New Features/Changes/Bug Fixes
+  New Features:
+    - as.matrix.network.edgelist now supports an argument, as.sna.edgelist,
+      that will return a fully compliant sna edgelist representation of the
+      network.  For sna versions 2.3 and later, this will among other things
+      allow missing data information to be automagically retained when passing
+      network objects to sna functions.  (Previous to this, missing edges were
+      stripped on conversion.)  [CTB]
+  Changes:
+    - print.summary.network no longer dumps excessive information when printing
+      edge lists.  [CTB]
+    - Built-in data objects are now compressed (not that it made much
+      difference, but CRAN was complaining).  This also requires R version
+      2.10 or later (previously required R>=2.0).  [CTB]
+  Bug Fixes:
+    - The network summary and print methods could in some cases fail if called
+      on a network with non-trivial graph-level attributes.  [CTB, submitted by 
+      Zack Almquist; closely related bug fixed by MSH]
+    - If called with ignore.eval=T but no specified names.eval, as.network
+      and friends generated an object with mislabeled edge attributes; note
+      that a warning is still given with such a call, since it is unwise not
+      to specify attribute names.  [CTB, submitted by DH]
+
 v1.6 Changes/Bug Fixes
   Changes:
     - In-place modification methods now use draconian measures to force 
