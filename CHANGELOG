@@ -1,5 +1,14 @@
 CHANGELOG:
 
+v1.7-1 Bug Fixes
+  Bug Fixes:
+    - .onLoad's startup message code caused excitingly bad behavior with recent
+      versions of R. [CTB]
+    - network.adjacency, network.edgelist, etc. were no longer modifying their
+      arguments in place, and have had their correct behavior restored.  [CTB]
+    - delete.vertices was building up too many protection stack calls, which
+      could cause issues in some cases.  [CTB, submitted by Adrian Albert]
+
 v1.7 New Features/Changes/Bug Fixes
   New Features:
     - as.matrix.network.edgelist now supports an argument, as.sna.edgelist,

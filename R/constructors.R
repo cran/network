@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 7/05/11
+# Last Modified 03/01/12
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -64,6 +64,9 @@ network<-function(x, vertex.attr=NULL, vertex.attrnames=NULL,
 # Construct a network's edge set, using an a bipartite adjacency matrix as input.
 #
 network.bipartite<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
+  #Set things up to edit g in place
+  gn<-deparse(substitute(g))
+  gev<-parent.frame()
   #Build head/tail lists; note that these cannot be hypergraphic or
   #multiplex, since our data is drawn from an adjacency matrix
   nactors <- dim(x)[1]
@@ -96,14 +99,19 @@ network.bipartite<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
   if(sum(x!=0)>0)
     add.edges(g, as.list(1+e%%n), as.list(1+e%/%n),
               names.eval=en, vals.eval=ev, ...)
-  else 
-    return(g)
+  #Patch up g on exit for in-place modification
+  if(exists(gn,envir=gev))
+    on.exit(assign(gn,g,pos=gev))
+  invisible(g)
 }
 
 
 # Construct a network's edge set, using an adjacency matrix as input.
 #
 network.adjacency<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
+  #Set things up to edit g in place
+  gn<-deparse(substitute(g))
+  gev<-parent.frame()
   #Build head/tail lists; note that these cannot be hypergraphic or
   #multiplex, since our data is drawn from an adjacency matrix
   if(!is.directed(g)){
@@ -143,8 +151,10 @@ network.adjacency<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
   if(sum(x!=0)>0)
     add.edges(g, as.list(1+e%%n), as.list(1+e%/%n),
               names.eval=en, vals.eval=ev, ...)
-  else 
-    return(g)
+  #Patch up g on exit for in-place modification
+  if(exists(gn,envir=gev))
+    on.exit(assign(gn,g,pos=gev))
+  invisible(g)
 }
 
 
@@ -163,6 +173,9 @@ network.copy<-function(x){
 # Construct a network's edge set, using an edgelist matrix as input.
 #
 network.edgelist<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
+  #Set things up to edit g in place
+  gn<-deparse(substitute(g))
+  gev<-parent.frame()
   l<-dim(x)[2]
   #Traverse the edgelist matrix, adding edges as we go.
   if((l>2)&&(!ignore.eval)){		#Use values if present...
@@ -172,14 +185,20 @@ network.edgelist<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
     edge.check<-list(...)$edge.check      
     g<-add.edges(g,as.list(x[,1]),as.list(x[,2]),edge.check=edge.check)
   }
-  #Return the network
-  g
+  #Patch up g on exit for in-place modification
+  if(exists(gn,envir=gev))
+    on.exit(assign(gn,g,pos=gev))
+  invisible(g)
 }
 
 
 # Construct a network's edge set, using an incidence matrix as input.
 #
 network.incidence<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
+  cat("Entering network.incidence\n")
+  #Set things up to edit g in place
+  gn<-deparse(substitute(g))
+  gev<-parent.frame()
   n<-network.size(g)
   edge.check<-list(...)$edge.check      
   #Traverse the incidence matrix, adding edges as we go.
@@ -210,19 +229,21 @@ network.incidence<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
       ev<-missing
     }else{
       if(!is.directed(g))
-        ev<-as.list(missing,x[x[,i]!=0,i][1])
+        ev<-list(missing,x[x[,i]!=0,i][1])
       else
-        ev<-as.list(missing,abs(x[x[,i]!=0,i][1]))
+        ev<-list(missing,abs(x[x[,i]!=0,i][1]))
       if(is.null(names.eval))
         en<-list("na",NULL)
       else
-        en<-as.list(c("na",names.eval))
+        en<-list("na",names.eval)
     }
-    #Add the edge to the graph      
+    #Add the edge to the graph
     g<-add.edge(g,tail,head,names.eval=en,vals.eval=ev,edge.check=edge.check)
   }
-  #Return the graph
-  g
+  #Patch up g on exit for in-place modification
+  if(exists(gn,envir=gev))
+    on.exit(assign(gn,g,pos=gev))
+  invisible(g)
 }
 
 # Initialize a new network object.
