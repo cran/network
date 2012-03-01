@@ -542,10 +542,10 @@ layout.par=NULL,
      tl.max<-max(tl)  #Get maximum edge length
      for(i in 1:NROW(d))
        if(use[d[i,1]]&&use[d[i,2]]){  #Plot edges for displayed vertices
-         px0<-c(px0,as.real(cx[d[i,1]]))  #Store endpoint coordinates
-         py0<-c(py0,as.real(cy[d[i,1]]))
-         px1<-c(px1,as.real(cx[d[i,2]]))
-         py1<-c(py1,as.real(cy[d[i,2]]))
+         px0<-c(px0,as.double(cx[d[i,1]]))  #Store endpoint coordinates
+         py0<-c(py0,as.double(cy[d[i,1]]))
+         px1<-c(px1,as.double(cx[d[i,2]]))
+         py1<-c(py1,as.double(cy[d[i,2]]))
          e.toff<-c(e.toff,vertex.radius[d[i,1]]) #Store endpoint offsets
          e.hoff<-c(e.hoff,vertex.radius[d[i,2]])
          e.col<-c(e.col,edge.col[i])    #Store other edge attributes
