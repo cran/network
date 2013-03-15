@@ -121,6 +121,7 @@ temp<-set.edge.value(temp,"value",g*matrix(1:100,10,10))
 check[52]<-all(get.edge.value(temp,"value")==(g*matrix(1:100,10,10))[g>0])
 check[53]<-all(as.sociomatrix(temp,"value")==(g*matrix(1:100,10,10)))
 
+
 #Check additional operators
 g<-rgraph(10)
 temp<-network(g,names.eval="value",ignore.eval=FALSE)
@@ -163,6 +164,21 @@ check[75]<-(network.size(g)==5)&&(temp==8)
 g<-network.initialize(5); (function(){g<-network.initialize(4); add.vertices(g,3)})()
 check[76]<-(network.size(g)==5)
 
-#If everything worked, check is TRUE
-all(check)                                               #Should be TRUE
+# tests for specific bugs/edgecases
 
+# ticket #180 (used to throw error if no edges exist)
+set.edge.attribute(network.initialize(3),"test","a")
+
+# check for network of zero size --used to give error ticket #255
+set.vertex.attribute(network.initialize(0),'foo','bar')
+
+# check get edge attribute overloading
+net<-network.initialize(3)
+add.edges(net,c(1,2,3),c(2,3,1))
+set.edge.attribute(net,'test',"a")
+if(!all(get.edge.attribute(net,'test')==c("a","a","a"))){stop("overloading of get.edge.attribute to get.edge.value not working correctly ")}
+
+#If everything worked, check is TRUE
+if(!all(check)){                                               #Should be TRUE
+ stop(paste("network package test failed on test(s):",which(!check)))
+}

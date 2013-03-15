@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 03/01/12
+# Last Modified 02/26/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -195,7 +195,6 @@ network.edgelist<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
 # Construct a network's edge set, using an incidence matrix as input.
 #
 network.incidence<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
-  cat("Entering network.incidence\n")
   #Set things up to edit g in place
   gn<-deparse(substitute(g))
   gev<-parent.frame()
@@ -252,8 +251,8 @@ network.incidence<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
 network.initialize<-function(n,directed=TRUE,hyper=FALSE,loops=FALSE,multiple=FALSE,bipartite=FALSE){
   #If we don't have at least one vertex, we have a problem...
   n<-round(n)
-  if(n<=0)
-    stop("Network objects must have at least one vertex.")
+  if(n<0)
+    stop("Network objects cannot be of negative order.")
   #Create the base-level lists
   g<-list()
   g$mel<-list()
@@ -267,15 +266,23 @@ network.initialize<-function(n,directed=TRUE,hyper=FALSE,loops=FALSE,multiple=FA
   g$gal$multiple<-multiple
   g$gal$bipartite<-bipartite
   #Populate the vertex attribute lists, endpoint lists, etc.
-  g$val<-replicate(n,list())
-  g$iel<-replicate(n,vector(mode="integer"))
-  g$oel<-replicate(n,vector(mode="integer"))
+  if(n>0){
+    g$val<-replicate(n,list())
+    g$iel<-replicate(n,vector(mode="integer"))
+    g$oel<-replicate(n,vector(mode="integer"))
+  }else{
+    g$val<-vector(length=0,mode="list")
+    g$iel<-vector(length=0,mode="list")
+    g$oel<-vector(length=0,mode="list")
+  }
   #Set the class
   class(g)<-"network"
   #Set the required vertex attribute
-  g<-set.vertex.attribute(g,"na",rep(FALSE,n),1:n)
+  if(n>0)
+    g<-set.vertex.attribute(g,"na",rep(FALSE,n),1:n)
   #Create default vertex names
-  network.vertex.names(g)<-1:n
+  if(n>0)
+    network.vertex.names(g)<-1:n
   #Return
   g
 }

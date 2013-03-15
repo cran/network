@@ -4,7 +4,7 @@
 # access.c
 #
 # Written by Carter T. Butts <buttsc@uci.edu>
-# Last Modified 03/01/12
+# Last Modified 04/05/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -1419,7 +1419,7 @@ SEXP setEdgeValue_R(SEXP x, SEXP attrname, SEXP value, SEXP e)
           COMPLEX(newval)[0].i=COMPLEX(value)[t-1+(h-1)*n].i;
           break;
         default:
-          UNIMPLEMENTED_TYPE("setEdgeValue_R",type);
+          SN_UNIMPLEMENTED_TYPE("setEdgeValue_R",type);
       }
       PROTECT(atl=setListElement(atl,anam,newval)); pc++;
       el=setListElement(el,"atl",atl);

@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 10/18/10
+# Last Modified 02/26/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -61,7 +61,17 @@ as.color<-function(x){
 mixingmatrix <- function(nw, attrname) {
   if(!is.network(nw)){
     stop("mixingmatrix() requires a network object")
-  }                                                                
+  }
+  if(network.size(nw)==0){
+    warning("mixing matrices not well-defined for graphs with no vertices.")
+    type<-"directed"
+    if(is.bipartite(nw))
+      type<-"bipartite"
+    tabu<-matrix(nrow=0,ncol=0)
+    ans<-list(type=type,matrix=tabu)
+    class(ans)<-"mixingmatrix"
+    return(ans)
+  }
   nodecov <- unlist(get.vertex.attribute(nw, attrname))
   u<-sort(unique(nodecov))
   # nodecovnum <- match(nodecov, u)
@@ -101,6 +111,12 @@ mixingmatrix <- function(nw, attrname) {
 # this package....
 #
 network.density<-function(x,na.omit=TRUE,discount.bipartite=FALSE){
+  if(!is.network(x))
+    stop("network.density requires a network object.")
+  if(network.size(x)==0){
+    warning("Density is not well-defined for networks of order 0.")
+    return(NaN)
+  }
   if(is.multiplex(x))
     warning("Network is multiplex - no general way to define density.  Returning value for a non-multiplex network (hope that's what you wanted).\n")
   ec<-network.edgecount(x,na.omit=na.omit)

@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 07/05/11
+# Last Modified 02/26/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -62,6 +62,8 @@ as.matrix.network.adjacency<-function(x,attrname=NULL,expand.bipartite=FALSE,...
     stop("Multigraphs not currently supported in as.matrix.network.adjacency.  Exiting.\n")
   #Generate the adjacency matrix 
   m<-matrix(0,nrow=network.size(x),ncol=network.size(x))
+  if(network.size(x)==0)
+    return(m)
   tl<-unlist(sapply(x$mel,"[[","outl")) #Can unlist b/c no hyperedges
   hl<-unlist(sapply(x$mel,"[[","inl"))
   nal<-as.logical(get.edge.attribute(x$mel,"na",unlist=TRUE))
@@ -216,8 +218,10 @@ as.network.matrix<-function(x, matrix.type=NULL,
       unames <- sort(unique(as.vector(x)))
       x <- cbind(match(x[,1],unames),match(x[,2],unames))
     }
-    if(!is.null(vals))
+    if(!is.null(vals)){
       x<-cbind(x,vals)
+      colnames(x)<-NULL  #R creates these, and they are annoying later
+    }
   }
   if(matrix.type=="adjacency" && !is.null(colnames(x))){
     unames <- colnames(x)

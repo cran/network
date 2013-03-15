@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 01/28/11
+# Last Modified 03/4/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -118,6 +118,7 @@ network.layout.kamadakawai<-function(nw,layout.par){
   }else
     kkconst<-layout.par$kkconst
   if(is.null(layout.par$elen)){
+    require(sna)
     elen<-geodist(symmetrize(d),inf.replace=sqrt(n))$gdist
   }else
     elen<-layout.par$elen

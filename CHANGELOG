@@ -1,4 +1,17 @@
 CHANGELOG:
+v1.7.2 New Features/Changes/Bug Fixes
+  New Features:
+    - networks with zero vertices (zero-order networks) are now supported. Some functions now give explicit errors for networks with size zero because behavior is not well defined.
+  Changes
+    - package is now hosted as part of the statnet project
+    - get.edge.attribute will now silently call get.edge.value if accidentally called with a network instead of net$mel.
+    - some minor additions to documentation
+    - original JStatSoftware article included as package vignette
+    - package now requires the sna package, to provide some functions needed for network layouts
+  Bug Fixes
+    - fixed bug in add vertices when adding to second mode of biparite network
+    - fixed deprecation warning for R v2.15.3
+    - Fixed bug where replacement operator can add multiple edges to pair of vertices
 
 v1.7-1 Bug Fixes
   Bug Fixes:

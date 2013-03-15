@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 01/27/11
+# Last Modified 02/26/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -249,6 +249,11 @@ vertices.last=TRUE,
 new=TRUE,
 layout.par=NULL,
 ...){
+   #Check to see that things make sense
+   if(!is.network(x))
+     stop("plot.network requires a network object.")
+   if(network.size(x)==0)
+     stop("plot.network called on a network of order zero - nothing to plot.")
    #Turn the annoying locator bell off, and remove recursion limit
    bellstate<-options()$locatorBell
    expstate<-options()$expression

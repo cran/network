@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 01/27/11
+# Last Modified 02/26/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -136,11 +136,30 @@ add.vertices<-function(x, nv, vattr=NULL, last.mode=TRUE){
         on.exit(assign(xn,x,pos=ev))
       invisible(x)
     }else{
-      .Call("addVertices_R",x,nv,vattr, PACKAGE="network")
-      newid<-c(1:(x%n%"bipartite"),network.size(x),
-        ((x%n%"bipartite"+1)):(network.size(x)-1))
-      permute.vertexIDs(x,vids=newid)
-      x%n%"bipartite"<-x%n%"bipartite"+1
+      
+      nr<-nv
+      nc<-0
+      nnew<-nr+nc
+      nold<-network.size(x)
+      bip<-x%n%"bipartite"
+      .Call("addVertices_R", x, nv, vattr, PACKAGE = "network")
+      
+      if(nr>0){
+        if(bip>0)
+          orow<-1:bip
+        else
+          orow<-NULL
+        if(nold-bip>0)
+          ocol<-(bip+1):nold
+        else
+          ocol<-NULL
+        
+        ncol<-NULL
+        nrow<-(nold+nnew-nr+1):(nold+nnew)
+        permute.vertexIDs(x,c(orow,nrow,ocol,ncol))
+        set.network.attribute(x,"bipartite",bip+nr)
+      }
+      
       if(exists(xn,envir=ev))           #If x not anonymous, set in calling env
         on.exit(assign(xn,x,pos=ev))
       invisible(x)
@@ -210,20 +229,18 @@ delete.network.attribute<-function(x,attrname){
 # Remove all instances of the specified attribute(s) from the vertex set
 #
 delete.vertex.attribute<-function(x,attrname){
-  #Set the attribute to NULL, thereby deleting it.
-  set.vertex.attribute(x,attrname,NULL)
-}
-delete.vertex.attribute<-function(x,attrname){
-  #Check to be sure we were called with a network
+  #Check to be sure we were called with a network, and that it has vertices
   if(!is.network(x))
     stop("delete.vertex.attribute requires an argument of class network.")
-  #Remove the attribute
-  xn<-deparse(substitute(x))
-  ev<-parent.frame()
-  x$RIsTooLazy<-NULL    #Defeat R's pathological evaluation rules
-  x<-.Call("deleteVertexAttribute_R",x,attrname, PACKAGE="network")
-  if(exists(xn,envir=ev))          #If x not anonymous, set in calling env
-    on.exit(assign(xn,x,pos=ev))
+  #Remove the attribute (or do nothing, if there are no vertices)
+  if(network.size(x)>0){
+    xn<-deparse(substitute(x))
+    ev<-parent.frame()
+    x$RIsTooLazy<-NULL    #Defeat R's pathological evaluation rules
+    x<-.Call("deleteVertexAttribute_R",x,attrname, PACKAGE="network")
+    if(exists(xn,envir=ev))          #If x not anonymous, set in calling env
+      on.exit(assign(xn,x,pos=ev))
+  }
   invisible(x)
 }
 
@@ -258,6 +275,10 @@ delete.vertices<-function(x,vid){
 # is returned as a list, regardless of type.
 #
 get.edge.attribute<-function(el, attrname, unlist=TRUE){
+  if (is.network(el)){
+    # call get.edge.value instead
+    return(get.edge.value(el,attrname=attrname,unlist=unlist))
+  } 
   x <- lapply(lapply(el,"[[","atl"),"[[",attrname)
   if(unlist){unlist(x)}else{x}
 }
@@ -410,6 +431,14 @@ get.neighborhood<-function(x, v, type=c("out","in","combined"), na.omit=TRUE){
 # 
 get.vertex.attribute<-function(x,attrname,na.omit=FALSE,null.na=TRUE,
                                unlist=TRUE){
+  #Check to see if there's anything to be done
+  if(!is.network(x))
+    stop("get.vertex.attribute requires an argument of class network.")
+  if(network.size(x)==0){
+    return(NULL)
+  }
+  #if(!(attrname %in% list.vertex.attributes(x))) 
+  #  warning(paste('attribute', attrname,'is not specified for these vertices'))
   #Get the list of attribute values
   va<-lapply(x$val,"[[",attrname)
   #If needed, figure out who's missing
@@ -520,7 +549,9 @@ is.network<-function(x){
 list.edge.attributes<-function(x){
   #First, check to see that this is a graph object
   if(!is.network(x))
-    stop("list.network.attributes requires an argument of class network.\n")
+    stop("list.edge.attributes requires an argument of class network.\n")
+  # no edges in the network
+  if (network.edgecount(x, na.omit=F) == 0) return(character(0))
   #Accumulate names
   allnam<-sapply(lapply(x$mel[!is.null(x$mel)],"[[","atl"),names)
   #Return the sorted, unique attribute names
@@ -544,7 +575,10 @@ list.network.attributes<-function(x){
 list.vertex.attributes<-function(x){
   #First, check to see that this is a graph object
   if(!is.network(x))
-    stop("list.network.attributes requires an argument of class network.\n")
+    stop("list.vertex.attributes requires an argument of class network.\n")
+  if(network.size(x)==0){
+    return(NULL)
+  }
   #Accumulate names
   allnam<-unlist(sapply(x$val,names))
   #Return the sorted, unique attribute names
@@ -628,6 +662,8 @@ network.vertex.names<-function(x){
   if(!is.network(x)){
     stop("network.vertex.names requires an argument of class network.")
   }else{
+    if(network.size(x)==0)
+      return(NULL)
     vnames <- get.vertex.attribute(x,"vertex.names")
     if(is.null(vnames)  | all(is.na(vnames)) ){
       paste(1:network.size(x))
@@ -672,7 +708,7 @@ permute.vertexIDs<-function(x,vids){
 
 # Set an edge attribute for network x.
 #
-set.edge.attribute<-function(x,attrname,value,e=1:length(x$mel)){
+set.edge.attribute<-function(x,attrname,value,e=seq_along(x$mel)){
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("set.edge.attribute requires an argument of class network.")
@@ -703,7 +739,7 @@ set.edge.attribute<-function(x,attrname,value,e=1:length(x$mel)){
 
 # Set an edge value for network x.
 #
-set.edge.value<-function(x,attrname,value,e=1:length(x$mel)){
+set.edge.value<-function(x,attrname,value,e=seq_along(x$mel)){
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("set.edge.value requires an argument of class network.\n")
@@ -735,10 +771,6 @@ set.edge.value<-function(x,attrname,value,e=1:length(x$mel)){
 # Set a network-level attribute for network x.
 #
 set.network.attribute<-function(x,attrname,value){
-  x$gal[[attrname]]<-value
-  x
-}
-set.network.attribute<-function(x,attrname,value){
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("set.network.attribute requires an argument of class network.")
@@ -766,7 +798,7 @@ set.network.attribute<-function(x,attrname,value){
 
 # Set a vertex attribute for network x.
 #
-set.vertex.attribute<-function(x,attrname,value,v=1:network.size(x)){
+set.vertex.attribute<-function(x,attrname,value,v=seq_len(network.size(x))){
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("set.vertex.attribute requires an argument of class network.")

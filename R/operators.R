@@ -170,28 +170,23 @@
     val<-rep(as.vector(value),length=NROW(el))
   #Perform the changes
   if(is.null(names.eval)){  #If no names given, don't store values
-    valna<-is.na(val)           #Pull out missing edges
-    val[valna]<-1               #Treat missing as "present" for our purposes
-    toadd<-(val!=0)&(has.loops(x)|(el[,1]!=el[,2]))
-    torem<-val==0
-    if(sum(toadd)>0){           #Check for already extant edges
-      toadd[toadd][is.adjacent(x,el[toadd,1],el[toadd,2])]<-FALSE
-      if(sum(toadd)>0)          #Add edges, if still needed
-        x<-add.edges(x,as.list(el[toadd,1]),as.list(el[toadd,2]))
-      if(sum(valna)>0){         #Mark all relevant edges as missing
-        eid<-vector()
-        for(k in (1:length(valna))[valna]){
-          eid<-c(eid,get.edgeIDs(x,el[k,1],el[k,2],neighborhood="out", na.omit=FALSE))
+    for (k in seq_along(val)) {
+      eid <- get.edgeIDs(x,el[k,1],el[k,2],neighborhood="out", na.omit=FALSE)
+      if (!is.na(val[k]) & val[k] == 0) {
+        # delete edge
+        if (length(eid) > 0) x<-delete.edges(x,eid)
+      } else {
+        if (length(eid) == 0 & (has.loops(x)|(el[k,1]!=el[k,2]))) {
+          # add edge if needed
+          x<-add.edges(x,as.list(el[k,1]),as.list(el[k,2]))
+          eid <- get.edgeIDs(x,el[k,1],el[k,2],neighborhood="out", na.omit=FALSE)
         }
-        set.edge.attribute(x,"na",TRUE,eid)
+        if (is.na(val[k])) {
+          set.edge.attribute(x,"na",TRUE,eid)   # set to NA
+        } else if (identical(val[k], 1)) {
+          set.edge.attribute(x,"na",FALSE,eid)   # set to 1
+        }
       }
-    }
-    if(sum(torem)>0){          #Delete edges, if needed
-      eid<-vector()
-      for(k in (1:length(torem))[torem]){
-        eid<-c(eid,get.edgeIDs(x,el[k,1],el[k,2],neighborhood="out", na.omit=FALSE))
-      }
-      x<-delete.edges(x,eid)
     }
   }else{                   #An attribute name was given, so store values
     epresent<-vector()

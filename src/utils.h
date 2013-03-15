@@ -4,7 +4,7 @@
 # utils.h
 #
 # Written by Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/12/06
+# Last Modified 04/05/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -32,9 +32,9 @@
 #define MAX(a,b) ((a)<(b) ? (b) : (a))
 
 
-/*ROUTINES FROM OTHER PACKAGES----------------------------------------------*/
+/*ERROR ROUTINES-----------------------------------------------------------*/
 
-void UNIMPLEMENTED_TYPE(char *s, SEXPTYPE t);
+void SN_UNIMPLEMENTED_TYPE(const char *s, SEXPTYPE t);
 
 
 /*LIST ACCESS/MODIFICATION ROUTINES-----------------------------------------*/
