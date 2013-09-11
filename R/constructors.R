@@ -76,6 +76,9 @@ network.bipartite<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
   if(!is.null(colnames(x)) & !is.null(rownames(x))){
     g <- set.vertex.attribute(g,"vertex.names",c(rownames(x),colnames(x)))
   }
+  # convert x into a matrix
+  x<-as.matrix(x)
+  
   X <- matrix(0,ncol=n,nrow=n)
 # diag(X) <- 0
   X[1:nactors, nactors+(1:nevents)] <- x
@@ -94,7 +97,7 @@ network.bipartite<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
   }else{
     xv<-x
     ev<-apply(cbind(as.list(as.logical(missing[x!=0])),as.list(xv[x!=0])),1, as.list)
-    en<-replicate(length(ev),list("na",names.eval))
+    en<-replicate(length(ev),list(list("na",names.eval)))
   }
   if(sum(x!=0)>0)
     add.edges(g, as.list(1+e%%n), as.list(1+e%/%n),
@@ -179,8 +182,19 @@ network.edgelist<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
   l<-dim(x)[2]
   #Traverse the edgelist matrix, adding edges as we go.
   if((l>2)&&(!ignore.eval)){		#Use values if present...
-    edge.check<-list(...)$edge.check      
-    g<-add.edges(g,as.list(x[,1]),as.list(x[,2]),as.list(rep(names.eval, length=NROW(x))),apply(x[,3:l,drop=FALSE],1,list),edge.check=edge.check)
+    #if names not given, try to use the names from data frame
+    if (is.null(names.eval)){
+      names.eval<-names(x)[3:l]
+    }
+    #if it is still null, its going to crash, so throw an informative error
+    if (is.null(names.eval)){
+      stop("unable to add attribute values to edges because names are not provided for each attribute (names.eval=NULL)")
+    }
+    edge.check<-list(...)$edge.check 
+    eattrnames <-lapply(seq_len(NROW(x)),function(r){as.list(names.eval)})
+   # eattrvals <-apply(x[,3:l,drop=FALSE]
+    eattrvals <-lapply(seq_len(NROW(x)),function(r){as.list(x[r,3:l,drop=FALSE])})
+    g<-add.edges(g,as.list(x[,1]),as.list(x[,2]),eattrnames,eattrvals,edge.check=edge.check)
   }else{				#...otherwise, don't.
     edge.check<-list(...)$edge.check      
     g<-add.edges(g,as.list(x[,1]),as.list(x[,2]),edge.check=edge.check)
@@ -249,7 +263,7 @@ network.incidence<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
 # MSH added bipartite
 #
 network.initialize<-function(n,directed=TRUE,hyper=FALSE,loops=FALSE,multiple=FALSE,bipartite=FALSE){
-  #If we don't have at least one vertex, we have a problem...
+  #If we have a negative number of vertices, we have a problem...
   n<-round(n)
   if(n<0)
     stop("Network objects cannot be of negative order.")

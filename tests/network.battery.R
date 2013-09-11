@@ -20,7 +20,7 @@ degree<-function(d,cmode = "freeman")
 }
 #gctorture(TRUE)     #Uncomment to perform a more intensive (SLOW) test
 
-#Check assignment, deletion, and adjacency for dyadic graphs
+# ---- Check assignment, deletion, and adjacency for dyadic graphs ----
 check<-vector()
 temp<-network(matrix(0,5,5))
 temp[1,2]<-1                 #Add edge
@@ -78,7 +78,7 @@ temp[,,"na"]<-TRUE                         #Verify NA filtering
 check[35]<-sum(temp[,,na.omit=TRUE])==0
 check[36]<-sum(is.na(temp[,,na.omit=FALSE]))==sum(g)
 
-#Check assignment, deletion, and adjacency for hypergraphs
+#---- Check assignment, deletion, and adjacency for hypergraphs ----
 temp<-network.initialize(10,directed=F,hyper=T,loops=T)
 check[37]<-sum(temp[,])==0
 temp<-add.edge(temp,1:4,1:4,"value",list(5))
@@ -89,7 +89,7 @@ check[38]<-all(as.matrix.network.incidence(temp)==cbind(c(1,1,1,1,0,0,0,0,0,0),c
 check[39]<-all(as.matrix.network.incidence(temp,"value")==cbind(5*c(1,1,1,1,0,0,0,0,0,0),6*c(0,0,1,1,1,0,0,0,0,0),7*c(0,0,0,1,1,1,1,0,0,0),8*c(0,0,0,0,0,1,1,1,1,1)))
 check[40]<-all(temp[,]==((as.matrix.network.incidence(temp)%*%t(as.matrix.network.incidence(temp)))>0))
 
-#Check coercion and construction methods
+#---- Check coercion and construction methods ----
 g<-rgraph(10)
 temp<-network(g)
 check[41]<-all(temp[,]==g)
@@ -100,7 +100,34 @@ check[43]<-all(as.sociomatrix(temp,"value")==g*matrix(1:100,10,10))
 temp<-as.network.matrix(as.matrix.network.incidence(temp,"value"),matrix.type="incidence",names.eval="value",ignore.eval=FALSE)
 check[44]<-all(as.sociomatrix(temp,"value")==g*matrix(1:100,10,10))
 
-#Check attribute assignment/access
+# check creating of network using dataframe with named cols
+edata <-data.frame(
+  tails=c(1,2,3),
+  heads=c(2,3,1),
+  love=c('yes','no','maybe'),
+  hate=c(3,0,2)
+  )
+
+temp<-as.network(edata,matrix.type="edgelist",ignore.eval=FALSE)
+if(!all(list.edge.attributes(temp)==c('hate','love','na'))){
+  stop("problem with network edgelist coercion from data frame")
+}
+if(!all(temp%e%'hate'==c(3,0,2))){
+  stop("problem with network edgelist coercion from data frame")
+}
+   
+# ditto, but with passed in names for attributes
+temp<-as.network(edata,matrix.type="edgelist",ignore.eval=FALSE,names.eval=c('hello','goodbye'))
+if(!all(list.edge.attributes(temp)==c('goodbye','hello','na'))){
+     stop("problem with network edgelist coercion from data frame")
+}
+if(!all(temp%e%'goodbye'==c(3,0,2))){
+    stop("problem with network edgelist coercion from data frame")
+}   
+
+   
+
+#---- Check attribute assignment/access ----
 g<-rgraph(10)
 temp<-network(g)
 temp<-set.vertex.attribute(temp,"value",1:10)
@@ -122,7 +149,7 @@ check[52]<-all(get.edge.value(temp,"value")==(g*matrix(1:100,10,10))[g>0])
 check[53]<-all(as.sociomatrix(temp,"value")==(g*matrix(1:100,10,10)))
 
 
-#Check additional operators
+#---- Check additional operators ----
 g<-rgraph(10)
 temp<-network(g,names.eval="value",ignore.eval=FALSE)
 temp2<-network(g*2,names.eval="value",ignore.eval=FALSE)
@@ -142,7 +169,7 @@ check[65]<-all(temp%v%"value"==1:10)
 temp%n%"value"<-"pork!"
 check[66]<-temp%n%"value"=="pork!"
 
-#Check to ensure that in-place modification is not producing side effects
+# ---- Check to ensure that in-place modification is not producing side effects ----
 g<-network.initialize(5); checkg<-g; add.vertices(g,3)
 check[67]<-(network.size(checkg)==5)&&(network.size(g)==8)
 g<-network.initialize(5); checkg<-g; delete.vertices(g,2)
@@ -164,13 +191,30 @@ check[75]<-(network.size(g)==5)&&(temp==8)
 g<-network.initialize(5); (function(){g<-network.initialize(4); add.vertices(g,3)})()
 check[76]<-(network.size(g)==5)
 
-# tests for specific bugs/edgecases
+# ---- tests for specific bugs/edgecases -----
 
 # ticket #180 (used to throw error if no edges exist)
 set.edge.attribute(network.initialize(3),"test","a")
 
 # check for network of zero size --used to give error ticket #255
 set.vertex.attribute(network.initialize(0),'foo','bar')
+
+# check for operators with undirected edge error ticket #279
+  # nw1 is assigned tail<head
+  nw1<-network.initialize(3,directed=FALSE)
+  nw1[1,2]<-1
+
+  # nw2 is assigned tail>head
+  nw2<-network.initialize(3,directed=FALSE)
+  nw2[2,1]<-1
+
+# Which, the binary network operators don't take into account:
+check[77]<-network.edgecount(nw1-nw2)==0 # Should have 0, has 1.
+check[78]<-network.edgecount(nw1|nw2)==1 # Should have 1, has 2 (1->2 and 2->1).
+check[79]<-network.edgecount(nw1&nw2)==1 # Should have 1, has 0 (since it treats 1->2 and 2->1 differently).
+check[80]<-network.edgecount(!nw1)==2 # Should have choose(3,2)-1=2, has 3.
+check[81]<-network.edgecount(!nw2)==2 # Should have choose(3,2)-1=2, has 2.
+
 
 # check get edge attribute overloading
 net<-network.initialize(3)

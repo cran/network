@@ -170,7 +170,7 @@ network.loop<-function(x0,y0,length=0.1,angle=10,width=0.01,col=1,border=1,lty=1
 
 
 #Routine to plot vertices, using polygons
-network.vertex<-function(x,y,radius=1,sides=4,border=1,col=2,lty=NULL,rot=0,...){
+network.vertex<-function(x,y,radius=1,sides=4,border=1,col=2,lty=NULL,rot=0,lwd=1,...){
   #Introduce a function to make coordinates for a single polygon
   make.coords<-function(x,y,r,s,rot){
     ang<-(1:s)/s*2*pi+rot*2*pi/360
@@ -184,12 +184,55 @@ network.vertex<-function(x,y,radius=1,sides=4,border=1,col=2,lty=NULL,rot=0,...)
   col<-rep(col,length=n)
   lty<-rep(lty,length=n)
   rot<-rep(rot,length=n)
+  lwd<-rep(lwd,length=n)
   #Obtain the coordinates
   coord<-vector()
-  for(i in 1:length(x))
-    coord<-rbind(coord,make.coords(x[i],y[i],radius[i],sides[i],rot[i]))
+  for(i in 1:length(x)) {
+    coord<-make.coords(x[i],y[i],radius[i],sides[i],rot[i])
+    polygon(coord,border=border[i],col=col[i],lty=lty[i],lwd=lwd[i], ...)
+  }
   #Plot the polygons
-  polygon(coord,border=border,col=col,lty=lty,...)
+  
+}
+
+# draw a label for a network edge
+network.edgelabel<-function(px0,py0,px1,py1,label,directed,loops=FALSE,cex,...){
+  posl<-rep(0,length(label))
+  offsets<-rep(0.1,length(label))
+    if (loops){
+      # assume coordinates are the first pair
+      # math is hard.  For now just draw label near the vertex
+      lpx<-px0
+      lpy<-py0
+      # compute crude offset so that label doesn't land on vertex
+      # todo, this doesn't work well on all edge orientations
+      posl<-rep(0,length(label))
+      posl[(px0>px1) & (py0>py1)]<-4
+      posl[(px0<=px1) & (py0<=py1)]<-2
+      posl[(px0>px1) & (py0<=py1)]<-1
+      posl[(px0<=px1) & (py0>py1)]<-3
+      offsets<-rep(0.5,length(label))
+      
+    } else {
+      if (directed){
+        # draw labels off center of line so won't overlap
+        lpx<-px0+((px1-px0)/3)
+        lpy<-py0+((py1-py0)/3)
+      } else {
+        # draw labels on center of line
+        lpx<-px0+((px1-px0)/2)
+        lpy<-py0+((py1-py0)/2)
+        # assumes that line is straight
+      }
+      # compute crude offset so that label doesn't land on line
+      # todo, this doesn't work well on all edge orientations
+      posl[(px0>px1) & (py0>py1)]<-1
+      posl[(px0<=px1) & (py0<=py1)]<-3
+      posl[(px0>px1) & (py0<=py1)]<-2
+      posl[(px0<=px1) & (py0>py1)]<-4
+      
+  } # end non-loop case. 
+    text(lpx,lpy,labels=label,cex=cex,pos=posl,offset=offsets,...)
 }
 
 
@@ -223,6 +266,7 @@ label.pos=0,
 label.bg="white",
 vertex.sides=50,
 vertex.rot=0,
+vertex.lwd=1,
 arrowhead.cex=1,
 label.cex=1,
 loop.cex=1,
@@ -236,6 +280,9 @@ edge.lty=1,
 label.lty=NULL,
 vertex.lty=1,
 edge.lwd=0,
+edge.label=NULL,
+edge.label.cex=1,
+edge.label.col=1,                               
 label.lwd=par("lwd"),
 edge.len=0.5,
 edge.curve=0.1,
@@ -377,7 +424,7 @@ layout.par=NULL,
      temp<-vertex.cex
      vertex.cex <- rep(get.vertex.attribute(x,vertex.cex),length=n)
      if(all(is.na(vertex.cex)))
-       stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
+       stop("Attribute '",temp,"' had illegal missing values for vertex.cex or was not present in plot.network.default.")
    }else
      vertex.cex <- rep(vertex.cex,length=n)
    vertex.radius<-rep(baserad*vertex.cex,length=n)   #Create vertex radii
@@ -385,7 +432,7 @@ layout.par=NULL,
      temp<-vertex.sides
      vertex.sides <- rep(get.vertex.attribute(x,vertex.sides),length=n)
      if(all(is.na(vertex.sides)))
-       stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
+       stop("Attribute '",temp,"' had illegal missing values for vertex.sides or was not present in plot.network.default.")
    }else
      vertex.sides <- rep(vertex.sides,length=n)
    if(is.character(vertex.border)&&(length(vertex.border)==1)){
@@ -414,21 +461,30 @@ layout.par=NULL,
      temp<-vertex.lty
      vertex.lty <- rep(get.vertex.attribute(x,vertex.lty),length=n)
      if(all(is.na(vertex.lty)))
-       stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
+       stop("Attribute '",temp,"' had illegal missing values for vertex.col or was not present in plot.network.default.")
    }else
      vertex.lty <- rep(vertex.lty,length=n)
    if(is.character(vertex.rot)&&(length(vertex.rot)==1)){
      temp<-vertex.rot
      vertex.rot <- rep(get.vertex.attribute(x,vertex.rot),length=n)
      if(all(is.na(vertex.rot)))
-       stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
+       stop("Attribute '",temp,"' had illegal missing values for vertex.rot or was not present in plot.network.default.")
    }else
      vertex.rot <- rep(vertex.rot,length=n)
+   
+   if(is.character(vertex.lwd)&&(length(vertex.lwd)==1)){
+     temp<-vertex.lwd
+     vertex.lwd <- rep(get.vertex.attribute(x,vertex.lwd),length=n)
+     if(all(is.na(vertex.lwd)))
+       stop("Attribute '",temp,"' had illegal missing values for vertex.lwd or was not present in plot.network.default.")
+   }else
+     vertex.lwd <- rep(vertex.lwd,length=n)
+   
    if(is.character(loop.cex)&&(length(loop.cex)==1)){
      temp<-loop.cex
      loop.cex <- rep(get.vertex.attribute(x,loop.cex),length=n)
      if(all(is.na(loop.cex)))
-       stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
+       stop("Attribute ",temp," had illegal missing values for loop.cex or was not present in plot.network.default.")
    }else
      loop.cex <- rep(loop.cex,length=n)
    if(is.character(label.col)&&(length(label.col)==1)){
@@ -466,7 +522,7 @@ layout.par=NULL,
      label.bg <- rep(label.bg,length=n)
    #Plot vertices now, if desired
    if(!vertices.last)
-     network.vertex(cx[use],cy[use],radius=vertex.radius[use], sides=vertex.sides[use],col=vertex.col[use],border=vertex.border[use],lty=vertex.lty[use],rot=vertex.rot[use])
+     network.vertex(cx[use],cy[use],radius=vertex.radius[use], sides=vertex.sides[use],col=vertex.col[use],border=vertex.border[use],lty=vertex.lty[use],rot=vertex.rot[use], lwd=vertex.lwd[use])
    #Generate the edges and their attributes
    px0<-vector()   #Create position vectors (tail, head)
    py0<-vector()
@@ -499,9 +555,10 @@ layout.par=NULL,
      if(length(dim(edge.lty))==2)
        edge.lty<-edge.lty[d[,1:2]]
      else if(is.character(edge.lty)&&(length(edge.lty)==1)){
+       temp<-edge.lty
        edge.lty<-(x%e%edge.lty)[edgetouse]
        if(all(is.na(edge.lty)))
-         stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
+         stop("Attribute '",temp,"' had illegal missing values for edge.lty or was not present in plot.network.default.")
      }else
        edge.lty<-rep(edge.lty,length=NROW(d))
      #Edge line width
@@ -509,9 +566,10 @@ layout.par=NULL,
        edge.lwd<-edge.lwd[d[,1:2]]
        e.lwd.as.mult<-FALSE
      }else if(is.character(edge.lwd)&&(length(edge.lwd)==1)){
+       temp<-edge.lwd
        edge.lwd<-(x%e%edge.lwd)[edgetouse]
        if(all(is.na(edge.lwd)))
-         stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
+         stop("Attribute '",temp,"' had illegal missing values for edge.lwd or was not present in plot.network.default.")
        e.lwd.as.mult<-FALSE
      }else{ 
        if(length(edge.lwd)==1)
@@ -533,14 +591,66 @@ layout.par=NULL,
          edge.curve<-rep(edge.curve,length=NROW(d))
        }
      }else if(is.character(edge.curve)&&(length(edge.curve)==1)){
+       temp<-edge.curve
        edge.curve<-(x%e%edge.curve)[edgetouse]
        if(all(is.na(edge.curve)))
-         stop("Attribute",temp,"had illegal missing values or was not present in plot.graph.default.")
+         stop("Attribute '",temp,"' had illegal missing values for edge.curve or was not present in plot.network.default.")
        e.curv.as.mult<-FALSE
      }else{
        edge.curve<-rep(0,length=NROW(d))
        e.curv.as.mult<-FALSE
      }
+     # only evaluate edge label stuff if we will draw label
+     if(!is.null(edge.label)){
+       #Edge label
+       if(length(dim(edge.label))==2){   #Coerce edge.label to vector form
+         edge.label<-edge.label[d[,1:2]]
+       }else if(is.character(edge.label)&&(length(edge.label)==1)){
+         temp<-edge.label
+         edge.label<-x%e%edge.label
+         if(!is.null(edge.label)){
+           edge.label<-edge.label[edgetouse]
+         }else
+           edge.label<-rep(temp,length=NROW(d))  #Assume it was a value to replicate
+       }else if(is.logical(edge.label)&&(length(edge.label)==1)) {
+         if (edge.label){
+           # default to edge ids.
+           edge.label<-valid.eids(x)[edgetouse]
+         } else {
+           # don't draw edge labels if set to FALSE
+           edge.label<-NULL
+         }
+       }else{   
+         
+         # do nothing and hope for the best!
+         edge.label<-rep(edge.label,length=NROW(d))
+       }
+       #Edge label color
+       if(length(dim(edge.col))==2)   #Coerce edge.label.col
+         edge.label.col<-edge.label.col[d[,1:2]]
+       else if(is.character(edge.label.col)&&(length(edge.label.col)==1)){
+         temp<-edge.label.col
+         edge.label.col<-x%e%edge.label.col
+         if(!is.null(edge.label.col)){
+           edge.label.col<-edge.label.col[edgetouse]
+           if(!all(is.color(edge.label.col),na.rm=TRUE))
+             edge.label.col<-as.color(edge.label.col)
+         }else
+           edge.label.col<-rep(temp,length=NROW(d))  #Assume it was a color word
+       }else
+         edge.label.col<-rep(edge.label.col,length=NROW(d))
+       #Edge label cex
+       if(length(dim(edge.label.cex))==2)
+         edge.label.cex<-edge.label.cex[d[,1:2]]
+       else if(is.character(edge.label.cex)&&(length(edge.label.cex)==1)){
+         temp<-edge.label.cex
+         edge.label.cex<-(x%e%edge.label.cex)[edgetouse]
+         if(all(is.na(edge.label.cex)))
+           stop("Attribute '",temp,"' had illegal missing values for edge.label.cex or was not present in plot.network.default.")
+       }else
+         edge.label.cex<-rep(edge.label.cex,length=NROW(d))
+     } # end edge label setup block
+     
      #Proceed with edge setup
      dist<-((cx[d[,1]]-cx[d[,2]])^2+(cy[d[,1]]-cy[d[,2]])^2)^0.5  #Get the inter-point distances for curves
      tl<-d.raw*dist   #Get rescaled edge lengths
@@ -578,10 +688,14 @@ layout.par=NULL,
              e.curv<-c(e.curv,edge.curve[i])
          }
        }
-     }
+     } # end edges block
    #Plot loops for the diagonals, if diag==TRUE, rotating wrt center of mass
    if(diag&&(length(px0)>0)&&sum(e.diag>0)){  #Are there any loops present?
      network.loop(as.vector(px0)[e.diag],as.vector(py0)[e.diag], length=1.5*baserad*arrowhead.cex,angle=25,width=e.lwd[e.diag]*baserad/10,col=e.col[e.diag],border=e.col[e.diag],lty=e.type[e.diag],offset=e.hoff[e.diag],edge.steps=loop.steps,radius=e.rad[e.diag],arrowhead=usearrows,xctr=mean(cx[use]),yctr=mean(cy[use]))
+     if(!is.null(edge.label)){
+       network.edgelabel(px0,py0,0,0,edge.label[e.diag],directed=is.directed(x),cex=edge.label.cex[e.diag],col=edge.label.col[e.diag],loops=TRUE)
+     }
+     
    }
    #Plot standard (i.e., non-loop) edges
    if(length(px0)>0){  #If edges are present, remove loops from consideration
@@ -598,16 +712,21 @@ layout.par=NULL,
      e.rad<-e.rad[!e.diag]
    }
    if(!usecurve&!uselen){   #Straight-line edge case
-     if(length(px0)>0)
+     if(length(px0)>0){
        network.arrow(as.vector(px0),as.vector(py0),as.vector(px1), as.vector(py1),length=2*baserad*arrowhead.cex,angle=20,col=e.col,border=e.col,lty=e.type,width=e.lwd*baserad/10,offset.head=e.hoff,offset.tail=e.toff,arrowhead=usearrows)
+       if(!is.null(edge.label)){
+         network.edgelabel(px0,py0,px1,py1,edge.label[!e.diag],directed=is.directed(x),cex=edge.label.cex[!e.diag],col=edge.label.col[!e.diag])
+       }
+     }
    }else{   #Curved edge case
      if(length(px0)>0){
        network.arrow(as.vector(px0),as.vector(py0),as.vector(px1), as.vector(py1),length=2*baserad*arrowhead.cex,angle=20,col=e.col,border=e.col,lty=e.type,width=e.lwd*baserad/10,offset.head=e.hoff,offset.tail=e.toff,arrowhead=usearrows,curve=e.curv,edge.steps=edge.steps)
      }
    }
+   
    #Plot vertices now, if we haven't already done so
    if(vertices.last)
-     network.vertex(cx[use],cy[use],radius=vertex.radius[use], sides=vertex.sides[use],col=vertex.col[use],border=vertex.border[use],lty=vertex.lty[use],rot=vertex.rot[use])
+     network.vertex(cx[use],cy[use],radius=vertex.radius[use], sides=vertex.sides[use],col=vertex.col[use],border=vertex.border[use],lty=vertex.lty[use],rot=vertex.rot[use], lwd=vertex.lwd[use])
    #Plot vertex labels, if needed
    if(displaylabels&(!all(label==""))&(!all(use==FALSE))){
      if (label.pos==0){
@@ -645,8 +764,8 @@ layout.par=NULL,
            xhat[i] <- xoff[i]/roff[i]
            yhat[i] <- yoff[i]/roff[i]
          }
-         if (xhat[i]==0) xhat[i] <- .01 #jitter to avoid labels on points
-         if (yhat[i]==0) yhat[i] <- .01
+         if (xhat[i]==0 | is.nan(xhat[i])) xhat[i] <- .01 #jitter to avoid labels on points
+         if (yhat[i]==0 | is.nan(yhat[i])) yhat[i] <- .01
        }
        xhat <- xhat[use]
        yhat <- yhat[use]

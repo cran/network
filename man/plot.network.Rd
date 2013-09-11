@@ -15,11 +15,12 @@
     displayisolates = TRUE, interactive = FALSE, xlab = NULL, 
     ylab = NULL, xlim = NULL, ylim = NULL, pad = 0.2, label.pad = 0.5,
     displaylabels = !missing(label), boxed.labels = FALSE, label.pos = 0,
-    label.bg = "white", vertex.sides = 50, vertex.rot = 0,
+    label.bg = "white", vertex.sides = 50, vertex.rot = 0, vertex.lwd=1,
     arrowhead.cex = 1, label.cex = 1, loop.cex = 1, vertex.cex = 1,
     edge.col = 1, label.col = 1, vertex.col = 2, label.border = 1,
     vertex.border = 1, edge.lty = 1, label.lty = NULL, vertex.lty = 1,
-    edge.lwd = 0, label.lwd = par("lwd"), edge.len = 0.5, 
+    edge.lwd = 0, edge.label = NULL, edge.label.cex = 1,
+    edge.label.col = 1, label.lwd = par("lwd"), edge.len = 0.5, 
     edge.curve = 0.1, edge.steps = 50, loop.steps = 20, 
     object.scale = 0.01, uselen = FALSE, usecurve = FALSE,
     suppress.axes = TRUE, vertices.last = TRUE, new = TRUE, 
@@ -49,6 +50,7 @@
   \item{label.bg}{ background color for label boxes (if \code{boxed.labels==TRUE}); may be a vector, if boxes are to be of different colors.}
   \item{vertex.sides}{ number of polygon sides for vertices; may be given as a vector or a vertex attribute name, if vertices are to be of different types. }
   \item{vertex.rot}{ angle of rotation for vertices (in degrees); may be given as a vector or a vertex attribute name, if vertices are to be rotated differently. }
+  \item{vertex.lwd}{ line width of vertex borders; may be given as a vector or a vertex attribute name, if vertex borders are to have different line widths. }
   \item{arrowhead.cex}{ expansion factor for edge arrowheads.}
   \item{label.cex}{ character expansion factor for label text. }
   \item{loop.cex}{ expansion factor for loops; may be given as a vector or a vertex attribute name, if loops are to be of different sizes. }
@@ -62,6 +64,9 @@
   \item{label.lty}{ line type for label boxes (if \code{boxed.labels==TRUE}); may be given as a vector, if label boxes are to have different line types. }
   \item{vertex.lty}{ line type for vertex borders; may be given as a vector or a vertex attribute name, if vertex borders are to have different line types. }
   \item{edge.lwd}{ line width scale for edges; if set greater than 0, edge widths are scaled by \code{edge.lwd*dat}.  May be given as a vector, adjacency matrix, or edge attribute name, if edges are to have different line widths. }
+  \item{edge.label}{if non-\code{NULL}, labels for edges will be drawn. May be given as a vector, adjacency matrix, or edge attribute name, if edges are to have different labels. A single value of \code{TRUE} will use edge ids as labels. NOTE: currently doesn't work for curved edges.}
+  \item{edge.label.cex}{ character expansion factor for edge label text; may be given as a vector or a edge attribute name, if edge labels are to have different sizes.}
+  \item{edge.label.col}{ color for edge labels; may be given as a vector or a edge attribute name, if labels are to be of different colors.}
   \item{label.lwd}{ line width for label boxes (if \code{boxed.labels==TRUE}); may be given as a vector, if label boxes are to have different line widths. }
   \item{edge.len}{ if \code{uselen==TRUE}, curved edge lengths are scaled by \code{edge.len}. }
   \item{edge.curve}{ if \code{usecurve==TRUE}, the extent of edge curvature is controlled by \code{edge.curv}.  May be given as a fixed value, vector, adjacency matrix, or edge attribute name, if edges are to have different levels of curvature.  }

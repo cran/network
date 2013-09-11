@@ -4,7 +4,7 @@
 # utils.c
 #
 # Written by Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/05/13
+# Last Modified 8/20/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -23,15 +23,6 @@
 #include <Rdefines.h>
 #include <Rinternals.h>
 #include "utils.h"
-
-
-/*ERROR ROUTINES-------------------------------------------------------------*/
-
-void SN_UNIMPLEMENTED_TYPE(const char *s, SEXPTYPE t)
-/*This is a replacement for UNIMPLEMENTED_TYPE, which cannot be used anymore.*/
-{
-  error("Unimplemented type with code %d was passed to function %s.\n",t,s);
-}
 
 
 /*LIST ACCESS/MODIFICATION ROUTINES-----------------------------------------*/
@@ -216,7 +207,7 @@ SEXP enlargeList(SEXP list, int n)
           setAttrib(newlist,R_NamesSymbol,newnames);
         break;
       default:
-        SN_UNIMPLEMENTED_TYPE("enlargeList",TYPEOF(list));
+        error("unimplemented type in enlargeList\n");        
     }
     UNPROTECT(pc);
     return newlist;
@@ -309,7 +300,7 @@ SEXP contractList(SEXP list, int n)
           setAttrib(newlist,R_NamesSymbol,newnames);
         break;
       default:
-        SN_UNIMPLEMENTED_TYPE("contractList",TYPEOF(list));
+        error("unimplemented type in contractList\n");        
     }
     UNPROTECT(pc);
     return newlist;
@@ -424,7 +415,7 @@ int vecAnyNA(SEXP a)
           return 1;
       break;
     default:
-      SN_UNIMPLEMENTED_TYPE("vecAnyNA",type);
+      error("unimplemented type in venAnyNA\n");        
   }
   
   /*If we made it this far, all is copacetic.*/
@@ -489,7 +480,7 @@ int vecEq(SEXP a, SEXP b)
       return 1;
       break;
     default:
-      SN_UNIMPLEMENTED_TYPE("vecEq",type);
+      error("unimplemented type in vecEq\n");        
   }
   /*Should never get here!*/
   return -1;
@@ -524,7 +515,7 @@ int vecIsIn(double a, SEXP b)
           return 1;
       break;
     default:
-      SN_UNIMPLEMENTED_TYPE("vecIsIn",TYPEOF(b));
+      error("unimplemented type in vecIsIn\n");        
   }
 
   /*If still here, a isn't in b*/
@@ -625,7 +616,7 @@ SEXP vecAppend(SEXP a, SEXP b)
         SET_VECTOR_ELT(v,i+length(a),VECTOR_ELT(b,i));
       break;
     default:
-      SN_UNIMPLEMENTED_TYPE("vecAppend",type);
+      error("unimplemented type in vecAppend\n");        
   }
 
   /*Unprotect and return*/
@@ -684,7 +675,7 @@ SEXP vecRemove(SEXP v, double e)
           RAW(newvec)[count++]=RAW(v)[i];
       break;
     default:
-      SN_UNIMPLEMENTED_TYPE("vecRemove",type);
+      error("unimplemented type in vecRemove\n");        
   }
 
   /*Unprotect and exit*/
@@ -802,7 +793,7 @@ SEXP vecUnique(SEXP a)
           RAW(newv)[dcount++]=RAW(a)[i];
       break;
     default:
-      SN_UNIMPLEMENTED_TYPE("vecUnion",TYPEOF(a));
+      error("unimplemented type in vecUnion\n");        
   }
 
   /*Unprotect and return*/
