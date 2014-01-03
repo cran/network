@@ -60,11 +60,15 @@ The \code{list.attributes} functions return the names of all edge, network, or v
 
 The \code{get.attribute} functions look for an edge, network, or vertex attribute (respectively) with the name \code{attrname}, returning its values.  Note that, to retrieve an edge attribute from all edges within a network \code{x}, \code{x$mel} should be used as the first argument to \code{get.edge.attribute}; \code{get.edge.value} is a convenience function which does this automatically. As of v1.7.2, if a \code{network} object is passed to \code{get.edge.attribute} it will automatically call \code{get.edge.value} instead of returning NULL. \code{network.vertex.names} is a convenience function to extract the \code{"vertex.names"} attribute from all vertices.
 
-The \code{set.attribute} functions allow one to set the values of edge, network, or vertex attributes.  \code{set.edge.value} is a convenience function which allows edge attributes to be given in adjacency matrix form, and the assignment form of \code{network.attribute.names} is likewise a convenient front-end to \code{set.vertex.attribute} for vertex names.  The \code{delete.attribute} functions, by contrast, remove the named attribute from the network, from all edges, or from all vertices (as appropriate).  If \code{attrname} is a vector of attribute names, each will be removed in turn.  These functions modify their arguments in place, although a pointer to the modified object is also (invisibly) returned.
+The \code{set.attribute} functions allow one to set the values of edge, network, or vertex attributes.  \code{set.edge.value} is a convenience function which allows edge attributes to be given in adjacency matrix form, and the assignment form of \code{network.vertex.names} is likewise a convenient front-end to \code{set.vertex.attribute} for vertex names.  The \code{delete.attribute} functions, by contrast, remove the named attribute from the network, from all edges, or from all vertices (as appropriate).  If \code{attrname} is a vector of attribute names, each will be removed in turn.  These functions modify their arguments in place, although a pointer to the modified object is also (invisibly) returned.
 
 Additional practical example of how to load and attach attributes are on the \code{\link{loading.attributes}} page. 
 
-Note that some attribute assignment/extraction can be performed through the various extraction/replacement operators.  See the associated man page for details.
+Some attribute assignment/extraction can be performed conveniently through the various extraction/replacement operators, although they may be less efficient.  See the associated man page for details.
+}
+
+\note{
+ As of version 1.9 the \code{set.vertex.attribute} function can accept and modify multiple attributes in a single call to improve efficiency.  For this case \code{attrname} can be a list or vector of attribute names and \code{value} is a list of values corresponding to the elements of \code{attrname} (can also be a list of lists of values if elements in v should have different values). 
 }
 \value{
 For the \code{list.attributes} methods, a vector containing attribute names.  For the \code{get.attribute} methods, a list containing the values of the attribute in question (or simply the value itself, for \code{get.network.attribute}).  For the \code{set.attribute} and \code{delete.attribute} methods, a pointer to the updated \code{network} object.

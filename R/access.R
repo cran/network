@@ -58,27 +58,49 @@
 
 
 #Add a single edge to a network object.
-#
+# S3 method dispatch for add edge
 add.edge<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, edge.check=FALSE, ...){
+   xn<-deparse(substitute(x))
+   ev<-parent.frame()
+   UseMethod("add.edge") 
+   if(exists(xn,envir=ev)){           #If x not anonymous, set in calling env 
+    on.exit(assign(xn,x,pos=ev)) 
+   }
+   invisible(x) 
+} 
+
+add.edge.network<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, edge.check=FALSE, ...){ 
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("add.edge requires an argument of class network.")
   #Do the deed
   xn<-deparse(substitute(x))
   ev<-parent.frame()
-  x$RIsTooLazy<-NULL    #Defeat R's pathological evaluation rules
   x<-.Call("addEdge_R",x,tail,head,names.eval,vals.eval,edge.check, PACKAGE="network")
-  if(exists(xn,envir=ev))            #If x not anonymous, set in calling env
+  if(exists(xn,envir=ev)){            #If x not anonymous, set in calling env
     on.exit(assign(xn,x,pos=ev))
+  }
   invisible(x)
 }
+
+
+
+# S3 method dispatch for add.edges
+add.edges<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, ...){
+  xn<-deparse(substitute(x))
+  ev<-parent.frame()
+  UseMethod("add.edges") 
+  if(exists(xn,envir=ev)){            #If x not anonymous, set in calling env 
+        on.exit(assign(xn,x,pos=ev))
+  }
+  invisible(x) 
+} 
 
 
 # Add multiple edges to network x.  Tail must be a list, each element of
 # which is the tail set for a given edge (ditto for head).  If edge values
 # are provided, they must be given similarly as lists of lists.
-#
-add.edges<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, ...){
+add.edges.network<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, ...){
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("add.edges requires an argument of class network.")
@@ -103,7 +125,6 @@ add.edges<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, ...){
   #Pass the inputs to the C side
   xn<-deparse(substitute(x))
   ev<-parent.frame()
-  x$RIsTooLazy<-NULL    #Defeat R's pathological evaluation rules
   x<-.Call("addEdges_R",x,tail,head,names.eval,vals.eval,edge.check, PACKAGE="network")
   if(exists(xn,envir=ev))            #If x not anonymous, set in calling env
     on.exit(assign(xn,x,pos=ev))
@@ -111,11 +132,22 @@ add.edges<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, ...){
 }
 
 
+
+# S3 method dispatch for add.vertices
+add.vertices<-function(x, nv, vattr=NULL, last.mode=TRUE, ...){
+  xn<-deparse(substitute(x))
+  ev<-parent.frame()
+    UseMethod("add.vertices") 
+    if(exists(xn,envir=ev)){            #If x not anonymous, set in calling env 
+       on.exit(assign(xn,x,pos=ev))
+    }
+    invisible(x) 
+} 
+
 # Add nv vertices to network x.  Vertex attributes (in addition to those which
 # are required) are to be provided in vattr; vattr must be a list containing
 # nv elements, each of which is equal to the desired val[i] entry.
-#
-add.vertices<-function(x, nv, vattr=NULL, last.mode=TRUE){
+add.vertices.network<-function(x, nv, vattr=NULL, last.mode=TRUE, ...){ 
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("add.vertices requires an argument of class network.\n")
@@ -130,7 +162,6 @@ add.vertices<-function(x, nv, vattr=NULL, last.mode=TRUE){
   xn<-deparse(substitute(x))
   ev<-parent.frame()
   if(nv>0){
-    x$RIsTooLazy<-NULL    #Defeat R's pathological evaluation rules
     if(last.mode||(!is.bipartite(x))){
       x<-.Call("addVertices_R",x,nv,vattr, PACKAGE="network")
       if(exists(xn,envir=ev))           #If x not anonymous, set in calling env
@@ -143,7 +174,7 @@ add.vertices<-function(x, nv, vattr=NULL, last.mode=TRUE){
       nnew<-nr+nc
       nold<-network.size(x)
       bip<-x%n%"bipartite"
-      .Call("addVertices_R", x, nv, vattr, PACKAGE = "network")
+      x<-.Call("addVertices_R", x, nv, vattr, PACKAGE = "network")
       
       if(nr>0){
         if(bip>0)
@@ -179,7 +210,6 @@ delete.edge.attribute<-function(x,attrname){
   #Remove the edges
   xn<-deparse(substitute(x))
   ev<-parent.frame()
-  x$RIsTooLazy<-NULL    #Defeat R's pathological evaluation rules
   x<-.Call("deleteEdgeAttribute_R",x,attrname, PACKAGE="network")
   if(exists(xn,envir=ev))          #If x not anonymous, set in calling env
     on.exit(assign(xn,x,pos=ev))
@@ -200,7 +230,6 @@ delete.edges<-function(x,eid){
     if((min(eid)<1)|(max(eid)>length(x$mel)))
       stop("Illegal edge in delete.edges.\n")
     #Remove the edges
-    x$RIsTooLazy<-NULL    #Defeat R's pathological evaluation rules
     x<-.Call("deleteEdges_R",x,eid, PACKAGE="network")
     if(exists(xn,envir=ev))          #If x not anonymous, set in calling env
       on.exit(assign(xn,x,pos=ev))
@@ -219,7 +248,6 @@ delete.network.attribute<-function(x,attrname){
   #Remove the edges
   xn<-deparse(substitute(x))
   ev<-parent.frame()
-  x$RIsTooLazy<-NULL    #Defeat R's pathological evaluation rules
   x<-.Call("deleteNetworkAttribute_R",x,attrname, PACKAGE="network")
   if(exists(xn,envir=ev))          #If x not anonymous, set in calling env
     on.exit(assign(xn,x,pos=ev))
@@ -237,7 +265,6 @@ delete.vertex.attribute<-function(x,attrname){
   if(network.size(x)>0){
     xn<-deparse(substitute(x))
     ev<-parent.frame()
-    x$RIsTooLazy<-NULL    #Defeat R's pathological evaluation rules
     x<-.Call("deleteVertexAttribute_R",x,attrname, PACKAGE="network")
     if(exists(xn,envir=ev))          #If x not anonymous, set in calling env
       on.exit(assign(xn,x,pos=ev))
@@ -258,7 +285,6 @@ delete.vertices<-function(x,vid){
   xn<-deparse(substitute(x))
   ev<-parent.frame()
   if(length(vid)>0){
-    x$RIsTooLazy<-NULL    #Defeat R's pathological evaluation rules
     if(is.bipartite(x)){  #If bipartite, might need to adjust mode 1 count
       m1v<-get.network.attribute(x,"bipartite")  #How many mode 1 verts?
       set.network.attribute(x,"bipartite",m1v-sum(vid<=m1v))
@@ -451,7 +477,11 @@ get.vertex.attribute<-function(x,attrname,na.omit=FALSE,null.na=TRUE,
   if(null.na)
     va[sapply(va,is.null)]<-NA
   #Return the result
-  x <- va[!vna]
+  if (na.omit){
+   x <- va[!vna]
+  } else {
+    x<-va
+  }
   if(unlist){unlist(x)}else{x}
 }
 
@@ -534,7 +564,7 @@ is.na.network<-function(x){
   #Create an empty network with the same properties as x
   y<-network.initialize(network.size(x),directed=is.directed(x), hyper=is.hyper(x),loops=has.loops(x),multiple=is.multiplex(x), bipartite=x%n%"bipartite")
   #Add the missing edges of x to y
-  .Call("isNANetwork_R",x,y,PACKAGE="network")
+  y<-.Call("isNANetwork_R",x,y,PACKAGE="network")
   #Return the updated network 
   y
 }
@@ -701,7 +731,6 @@ permute.vertexIDs<-function(x,vids){
   #Return the permuted graph
   xn<-deparse(substitute(x))
   ev<-parent.frame()
-  x$RIsTooLazy<-NULL    #Defeat R's pathological evaluation rules
   x<-.Call("permuteVertexIDs_R",x,vids, PACKAGE="network")
   if(exists(xn,envir=ev))          #If x not anonymous, set in calling env
     on.exit(assign(xn,x,pos=ev))
@@ -711,32 +740,100 @@ permute.vertexIDs<-function(x,vids){
 
 # Set an edge attribute for network x.
 #
+# set.edge.attribute<-function(x,attrname,value,e=seq_along(x$mel)){
+#   #Check to be sure we were called with a network
+#   if(!is.network(x))
+#     stop("set.edge.attribute requires an argument of class network.")
+#   #Make sure that value is appropriate, coercing if needed
+#   if(!is.list(value)){
+#     if(!is.vector(value))
+#       stop("Inappropriate edge value given in set.edge.attribute.\n")
+#     else
+#       value<-as.list(rep(value,length=length(e)))
+#   }else
+#     if(length(value)!=length(e))
+#       value<-rep(value,length=length(e))
+#   xn<-deparse(substitute(x))
+#   ev<-parent.frame()
+#   if(length(e)>0){
+#     if((min(e)<1)|(max(e)>length(x$mel)))
+#       stop("Illegal edge in set.edge.attribute.\n")
+#     #Do the deed
+#     x<-.Call("setEdgeAttribute_R",x,attrname,value,e, PACKAGE="network")
+#     if(exists(xn,envir=ev))          #If x not anonymous, set in calling env
+#       on.exit(assign(xn,x,pos=ev))
+#     invisible(x)
+#   }else
+#     invisible(x)
+# }
+
 set.edge.attribute<-function(x,attrname,value,e=seq_along(x$mel)){
   #Check to be sure we were called with a network
-  if(!is.network(x))
+  if(!is.network(x)){
     stop("set.edge.attribute requires an argument of class network.")
-  #Make sure that value is appropriate, coercing if needed
-  if(!is.list(value)){
-    if(!is.vector(value))
-      stop("Inappropriate edge value given in set.edge.attribute.\n")
-    else
-      value<-as.list(rep(value,length=length(e)))
-  }else
-    if(length(value)!=length(e))
-      value<-rep(value,length=length(e))
-  xn<-deparse(substitute(x))
-  ev<-parent.frame()
+  }
+  # determine if we have to do anything at all
   if(length(e)>0){
-    if((min(e)<1)|(max(e)>length(x$mel)))
+    if((min(e)<1)|(max(e)>length(x$mel))){
       stop("Illegal edge in set.edge.attribute.\n")
-    #Do the deed
-    x$RIsTooLazy<-NULL    #Defeat R's pathological evaluation rules
-    x<-.Call("setEdgeAttribute_R",x,attrname,value,e, PACKAGE="network")
-    if(exists(xn,envir=ev))          #If x not anonymous, set in calling env
+    }
+    xn<-deparse(substitute(x))
+    ev<-parent.frame()
+    # determine if we will be setting single or multiple values
+    if(length(attrname)==1){
+      #Make sure that value is appropriate, coercing if needed
+      if(!is.list(value)){
+        if(!is.vector(value)){
+          stop("Inappropriate edge value given in set.edge.attribute.\n")
+        } else {
+          value<-as.list(rep(value,length=length(e)))
+        }
+      } else {
+        if(length(value)!=length(e)) {
+          value<-rep(value,length=length(e))
+        }
+      }
+      #Do the deed, call the set single value version
+      x<-.Call("setEdgeAttribute_R",x,attrname,value,e, PACKAGE="network")
+    } else { # we will be setting multiple values
+      if (length(attrname)!=length(value)){
+        stop("the 'value' attribute must have an element corresponding to each attribute name in 'attrname' in set.edge.attribute")
+      }
+      #Make sure that value is appropriate, coercing if needed
+      if(!is.list(value)){
+        if(!is.vector(value)){
+          stop("Inappropriate edge value given in set.edge.attribute.\n")
+        } else { # value must be a vector
+          # replicate each element of value e times if needed
+          value<-lapply(1:length(value),function(n){
+            if (length(value[n])<length(e)){
+              return(as.list(rep(value[n],length=length(e))))
+            } else {
+              return(as.list(value[n]))
+            }
+          })
+        }
+      } else {
+        # replicate each element of value e times if needed
+        value<-lapply(1:length(value),function(n){
+          if (length(value[[n]])<length(e)){
+            return(as.list(rep(value[[n]],length=length(e))))
+          } else {
+            return(as.list(value[[n]]))
+          }
+        })
+        
+      }
+      #Do the deed, call the set multiple version
+      x<-.Call("setEdgeAttributes_R",x,attrname,value,e, PACKAGE="network")
+    }
+    if(exists(xn,envir=ev)) {       #If x not anonymous, set in calling env
       on.exit(assign(xn,x,pos=ev))
+    }
     invisible(x)
-  }else
+  } else { # there were no edges to modifiy, so do nothing
     invisible(x)
+  }
 }
 
 
@@ -763,7 +860,6 @@ set.edge.value<-function(x,attrname,value,e=seq_along(x$mel)){
   #Do the deed
   xn<-deparse(substitute(x))
   ev<-parent.frame()
-  x$RIsTooLazy<-NULL    #Defeat R's pathological evaluation rules
   x<-.Call("setEdgeValue_R",x,attrname,value,e, PACKAGE="network")
   if(exists(xn,envir=ev))          #If x not anonymous, set in calling env
     on.exit(assign(xn,x,pos=ev))
@@ -791,7 +887,6 @@ set.network.attribute<-function(x,attrname,value){
   #Do the deed
   xn<-deparse(substitute(x))
   ev<-parent.frame()
-  x$RIsTooLazy<-NULL    #Defeat R's pathological evaluation rules
   x<-.Call("setNetworkAttribute_R",x,attrname,value,PACKAGE="network")
   if(exists(xn,envir=ev))          #If x not anonymous, set in calling env
     on.exit(assign(xn,x,pos=ev))
@@ -800,7 +895,42 @@ set.network.attribute<-function(x,attrname,value){
 
 
 # Set a vertex attribute for network x.
-#
+# This version has been removed so we can test one that can set multiple values at once
+# set.vertex.attribute<-function(x,attrname,value,v=seq_len(network.size(x))){
+#   #Check to be sure we were called with a network
+#   if(!is.network(x))
+#     stop("set.vertex.attribute requires an argument of class network.")
+#   #Perform some sanity checks
+#   if(any((v>network.size(x))|(v<1)))
+#     stop("Vertex ID does not correspond to actual vertex in set.vertex.attribute.\n")
+#   #Make sure that value is appropriate, coercing if needed
+#   if(!is.list(value)){
+#     if(!is.vector(value))
+#       stop("Inappropriate value given in set.vertex.attribute.\n")
+#     else
+#       value<-as.list(rep(value,length=length(v)))
+#   }else
+#     if(length(value)!=length(v))
+#       value<-rep(value,length=length(v))
+#   #Do the deed
+#   xn<-deparse(substitute(x))
+#   ev<-parent.frame()
+#   x<-.Call("setVertexAttribute_R",x,attrname,value,v, PACKAGE="network")
+#   if(exists(xn,envir=ev))          #If x not anonymous, set in calling env
+#     on.exit(assign(xn,x,pos=ev))
+#   invisible(x)
+# }
+
+# valid.eids  returns a list of non-null edge ids for a given network
+valid.eids <-function(x){
+  # maybe should omit class test for speed?
+  if (!is.network(x)){
+    stop("cannot determine non-null edge ids because argument x is not a network object")
+  }
+  # get the ids of all the non-null elements on the edgelist of x
+  return(which(!sapply(x$mel,is.null)))
+}
+
 set.vertex.attribute<-function(x,attrname,value,v=seq_len(network.size(x))){
   #Check to be sure we were called with a network
   if(!is.network(x))
@@ -808,20 +938,59 @@ set.vertex.attribute<-function(x,attrname,value,v=seq_len(network.size(x))){
   #Perform some sanity checks
   if(any((v>network.size(x))|(v<1)))
     stop("Vertex ID does not correspond to actual vertex in set.vertex.attribute.\n")
-  #Make sure that value is appropriate, coercing if needed
-  if(!is.list(value)){
-    if(!is.vector(value))
-      stop("Inappropriate value given in set.vertex.attribute.\n")
-    else
-      value<-as.list(rep(value,length=length(v)))
-  }else
-    if(length(value)!=length(v))
-      value<-rep(value,length=length(v))
-  #Do the deed
+  
   xn<-deparse(substitute(x))
   ev<-parent.frame()
-  x$RIsTooLazy<-NULL    #Defeat R's pathological evaluation rules
-  x<-.Call("setVertexAttribute_R",x,attrname,value,v, PACKAGE="network")
+  
+  #Make sure that value is appropriate, coercing if needed
+  if (length(attrname)==1){ # if we are only setting a single attribute use old version
+    if(!is.list(value)){
+      if(!is.vector(value)){
+        stop("Inappropriate value given in set.vertex.attribute.\n")
+      } else {
+        value<-as.list(rep(value,length=length(v)))
+      }
+    } else {
+      if(length(value)!=length(v)){
+        value<-rep(value,length=length(v))
+      }
+    }
+    # call older singular value version
+    x<-.Call("setVertexAttribute_R",x,attrname,value,v, PACKAGE="network")
+  } else { # setting multiple values
+    if (length(value)!=length(attrname)){
+      stop("the 'value' attribute must have an element corresponding to each attribute name in 'attrnames' in set.vertex.attribute")
+    }
+    if(!is.list(value)){
+      if(!is.vector(value)){
+        stop("Inappropriate value given in set.vertex.attribute.\n")
+      } else { # value is a vector
+    
+        # replicate each element of value v times if needed
+        value<-lapply(1:length(value),function(n){
+                  if (length(value[n])<length(v)){
+                    return(as.list(rep(value[n],length=length(v))))
+                  } else {
+                    return(as.list(value[n]))
+                  }
+              })
+      }
+    } else {  # value is a list
+      # replicate each element of value v times if needed
+      value<-lapply(1:length(value),function(n){
+        if (length(value[[n]])<length(v)){
+          return(as.list(rep(value[[n]],length=length(v))))
+        } else {
+          return(as.list(value[[n]]))
+        }
+      })
+    }
+    # call multiple value version
+    x<-.Call("setVertexAttributes_R",x,attrname,value,v, PACKAGE="network")
+  } # end setting multiple values
+  #Do the deed
+  
+  
   if(exists(xn,envir=ev))          #If x not anonymous, set in calling env
     on.exit(assign(xn,x,pos=ev))
   invisible(x)
