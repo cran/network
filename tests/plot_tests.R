@@ -34,3 +34,26 @@ if(!all(is.color(col.list)[1:3] & is.na(is.color(col.list)[4]))){
 
 plot(network.initialize(5),vertex.lwd=c(1,2,3,5,10))
 
+# test for expansion of label attribute name bug #785
+# this should produce a plot with vertices labeled A to E, instead
+# used to plot single vertex is labeled with "Label'
+test<-network.initialize(5)
+set.vertex.attribute(test,'Label',LETTERS[1:5])
+plot(test,label='Label')
+
+# replicates non-matching label name
+plot(test,label='A')
+plot(test,label=1)
+
+# should error if all values are missing
+#set.vertex.attribute(test,'bad',NA,v=1:3)
+#plot(test,label='bad')
+
+# tests for #673 plot.network.default gives error when rendering labels if two connected vertices have the same position
+test<-network.initialize(2)
+test[1,2]<-1
+plot(test,coord=cbind(c(1,1),c(1,1)),jitter=FALSE,displaylabels=TRUE)
+
+test<-network.initialize(3)
+test[1,2:3]<-1
+plot(test,coord=cbind(c(1,1,2),c(1,1,2)),jitter=FALSE,displaylabels=TRUE)

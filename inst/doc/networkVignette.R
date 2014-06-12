@@ -1,28 +1,28 @@
 ### R code from vignette source 'networkVignette.Rnw'
 
 ###################################################
-### code chunk number 1: networkVignette.Rnw:151-153
+### code chunk number 1: networkVignette.Rnw:154-156
 ###################################################
 library(network)
 set.seed(1702)
 
 
 ###################################################
-### code chunk number 2: networkVignette.Rnw:171-173
+### code chunk number 2: networkVignette.Rnw:174-176
 ###################################################
 data("flo")
 data("emon")
 
 
 ###################################################
-### code chunk number 3: networkVignette.Rnw:184-186
+### code chunk number 3: networkVignette.Rnw:187-189
 ###################################################
 net <- network.initialize(5)
 net
 
 
 ###################################################
-### code chunk number 4: networkVignette.Rnw:213-216
+### code chunk number 4: networkVignette.Rnw:216-219
 ###################################################
 nmat <- matrix(rbinom(25, 1, 0.5), nr = 5, nc = 5)
 net <- network(nmat, loops = TRUE)
@@ -30,33 +30,33 @@ net
 
 
 ###################################################
-### code chunk number 5: networkVignette.Rnw:218-219
+### code chunk number 5: networkVignette.Rnw:221-222
 ###################################################
 summary(net)
 
 
 ###################################################
-### code chunk number 6: networkVignette.Rnw:221-222
+### code chunk number 6: networkVignette.Rnw:224-225
 ###################################################
 all(nmat == net[,])
 
 
 ###################################################
-### code chunk number 7: networkVignette.Rnw:234-236
+### code chunk number 7: networkVignette.Rnw:237-239
 ###################################################
 net <- as.network(nmat, loops = TRUE)
 all(nmat == net[,])
 
 
 ###################################################
-### code chunk number 8: networkVignette.Rnw:242-244
+### code chunk number 8: networkVignette.Rnw:245-247
 ###################################################
 nflo <- network(flo, directed = FALSE)
 nflo
 
 
 ###################################################
-### code chunk number 9: networkVignette.Rnw:248-253
+### code chunk number 9: networkVignette.Rnw:251-256
 ###################################################
 nflo[9,]
 nflo[9,1]
@@ -66,7 +66,7 @@ is.adjacent(nflo, 9, 4)
 
 
 ###################################################
-### code chunk number 10: networkVignette.Rnw:260-268
+### code chunk number 10: networkVignette.Rnw:263-271
 ###################################################
 network.size(nflo)                 #Number of vertices
 network.edgecount(nflo)            #Number of edges
@@ -79,7 +79,7 @@ is.multiplex(nflo)                 #Are multiplex edges allowed?
 
 
 ###################################################
-### code chunk number 11: networkVignette.Rnw:274-278
+### code chunk number 11: networkVignette.Rnw:277-281
 ###################################################
 as.sociomatrix(nflo)
 all(nflo[,]==as.sociomatrix(nflo))
@@ -88,7 +88,7 @@ as.matrix(nflo,matrix.type="edgelist")
 
 
 ###################################################
-### code chunk number 12: networkVignette.Rnw:287-305
+### code chunk number 12: networkVignette.Rnw:290-308
 ###################################################
 #Add edges to an empty network
 net <- network.initialize(5,loops=TRUE)
@@ -111,7 +111,7 @@ all(nmat==net[,])                      #When will it all end??
 
 
 ###################################################
-### code chunk number 13: networkVignette.Rnw:309-317
+### code chunk number 13: networkVignette.Rnw:312-320
 ###################################################
 #Add edges (redux)
 net<-network.initialize(5)                  #Create empty graph
@@ -124,7 +124,7 @@ net[,]                                      #Note that loops are not created!
 
 
 ###################################################
-### code chunk number 14: networkVignette.Rnw:323-328
+### code chunk number 14: networkVignette.Rnw:326-331
 ###################################################
 #Deleting vertices
 delete.vertices(net,4)                                  #Remove vertex 4
@@ -134,7 +134,7 @@ net[,]                                                  #Both are isolates
 
 
 ###################################################
-### code chunk number 15: networkVignette.Rnw:334-338
+### code chunk number 15: networkVignette.Rnw:337-341
 ###################################################
 #Retrieving edges
 get.edges(net,1)                                  #Out-edges sent by vertex 1
@@ -143,7 +143,7 @@ get.edges(net,1,alter=2)                          #Out-edges from 1 to 2
 
 
 ###################################################
-### code chunk number 16: networkVignette.Rnw:343-347
+### code chunk number 16: networkVignette.Rnw:346-350
 ###################################################
 #Retrieving edge IDs
 get.edgeIDs(net,1)                        #Same as above, but gets ID numbers
@@ -152,7 +152,7 @@ get.edgeIDs(net,1,alter=2)
 
 
 ###################################################
-### code chunk number 17: networkVignette.Rnw:351-354
+### code chunk number 17: networkVignette.Rnw:354-357
 ###################################################
 #Vertex neighborhoods
 get.neighborhood(net,1)                                    #1's out-neighbors
@@ -160,7 +160,7 @@ get.neighborhood(net,2,type="in")                          #2's in-neighbors
 
 
 ###################################################
-### code chunk number 18: networkVignette.Rnw:358-364
+### code chunk number 18: networkVignette.Rnw:361-367
 ###################################################
 #Deleting edges
 net[2,3]<-0                                            #This deletes the 2->3
@@ -171,7 +171,7 @@ net[,]
 
 
 ###################################################
-### code chunk number 19: networkVignette.Rnw:376-379
+### code chunk number 19: networkVignette.Rnw:379-382
 ###################################################
 net <- network.initialize(5)
 set.network.attribute(net, "boo", 1:10)
@@ -179,7 +179,7 @@ net %n% "hoo" <- letters[1:7]
 
 
 ###################################################
-### code chunk number 20: networkVignette.Rnw:382-388
+### code chunk number 20: networkVignette.Rnw:385-391
 ###################################################
 #List attributes
 list.network.attributes(net)
@@ -190,7 +190,7 @@ net %n% "hoo"
 
 
 ###################################################
-### code chunk number 21: networkVignette.Rnw:392-395
+### code chunk number 21: networkVignette.Rnw:395-398
 ###################################################
 #Delete attributes
 delete.network.attribute(net,"boo")
@@ -198,7 +198,7 @@ list.network.attributes(net)
 
 
 ###################################################
-### code chunk number 22: networkVignette.Rnw:403-417
+### code chunk number 22: networkVignette.Rnw:406-420
 ###################################################
 #Add vertex attributes
 set.vertex.attribute(net,"boo",1:5)              #Create a numeric attribute
@@ -217,7 +217,7 @@ list.vertex.attributes(net)                      #Check to see that it's gone
 
 
 ###################################################
-### code chunk number 23: networkVignette.Rnw:426-447
+### code chunk number 23: networkVignette.Rnw:429-450
 ###################################################
 #Create a network with some edges
 net <- network(nmat)
@@ -243,7 +243,7 @@ list.edge.attributes(net)
 
 
 ###################################################
-### code chunk number 24: networkVignette.Rnw:462-477
+### code chunk number 24: networkVignette.Rnw:465-480
 ###################################################
 #Extract location information
 MtSHloc<-emon$MtStHelens%v%"Location"
@@ -263,14 +263,14 @@ MtSHbyloc
 
 
 ###################################################
-### code chunk number 25: networkVignette.Rnw:489-491
+### code chunk number 25: networkVignette.Rnw:492-494
 ###################################################
 plot(nflo, displaylabels = TRUE, boxed.labels = FALSE)
 plot(nflo, displaylabels = TRUE, mode = "circle")
 
 
 ###################################################
-### code chunk number 26: networkVignette.Rnw:502-507
+### code chunk number 26: networkVignette.Rnw:505-510
 ###################################################
 op<-par() # cache the plot params
 par(mfcol=c(1,2),mar=c(1,1,1,1),cex=0.5) # adjust margins and text size to fit two panels
@@ -280,19 +280,19 @@ par(op) # reset the plot params
 
 
 ###################################################
-### code chunk number 27: networkVignette.Rnw:513-514
+### code chunk number 27: networkVignette.Rnw:516-517
 ###################################################
 plot(emon$MtSi)
 
 
 ###################################################
-### code chunk number 28: networkVignette.Rnw:521-522
+### code chunk number 28: networkVignette.Rnw:524-525
 ###################################################
 plot(emon$MtSi)
 
 
 ###################################################
-### code chunk number 29: networkVignette.Rnw:532-541
+### code chunk number 29: networkVignette.Rnw:535-544
 ###################################################
 library(sna)
 network.layout.degree <- function(d, layout.par){
@@ -306,7 +306,7 @@ plot(emon$MtStHelens, mode = "degree", displaylabels = TRUE,
 
 
 ###################################################
-### code chunk number 30: networkVignette.Rnw:548-551
+### code chunk number 30: networkVignette.Rnw:551-554
 ###################################################
 plot(emon$MtStHelens, mode = "degree", displaylabels = TRUE, 
     boxed.labels = FALSE, suppress.axes = FALSE, label.cex = 0.5,
@@ -314,7 +314,7 @@ plot(emon$MtStHelens, mode = "degree", displaylabels = TRUE,
 
 
 ###################################################
-### code chunk number 31: networkVignette.Rnw:559-564
+### code chunk number 31: networkVignette.Rnw:562-567
 ###################################################
 plot(MtSHbyloc, displaylabels = TRUE, label = 
     c(network.vertex.names(MtSHbyloc), "Local", "Non-Local"), 
@@ -324,7 +324,7 @@ plot(MtSHbyloc, displaylabels = TRUE, label =
 
 
 ###################################################
-### code chunk number 32: networkVignette.Rnw:573-578
+### code chunk number 32: networkVignette.Rnw:576-581
 ###################################################
 plot(MtSHbyloc, displaylabels = TRUE, label = 
     c(network.vertex.names(MtSHbyloc), "Local", "Non-Local"), 
@@ -334,7 +334,7 @@ plot(MtSHbyloc, displaylabels = TRUE, label =
 
 
 ###################################################
-### code chunk number 33: networkVignette.Rnw:716-728
+### code chunk number 33: networkVignette.Rnw:719-731
 ###################################################
 rnbernexp <- function(n, nv, p = 0.5, onset.hazard = 1, 
     termination.hazard = 1){

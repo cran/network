@@ -64,7 +64,7 @@ x \%vattr\% attrname <- value
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 
 
-\seealso{ \code{\link{is.adjacent}}, \code{\link{as.sociomatrix}}, \code{\link{attribute.methods}}, \code{\link{add.edges}}, \code{\link{network.operators}}}
+\seealso{ \code{\link{is.adjacent}}, \code{\link{as.sociomatrix}}, \code{\link{attribute.methods}}, \code{\link{add.edges}}, \code{\link{network.operators}}, and \code{\link{get.inducedSubgraph}}}
 \examples{
   #Create a random graph (inefficiently)
   g<-network.initialize(10)
@@ -83,7 +83,7 @@ x \%vattr\% attrname <- value
   g \%e\% "hoo" <- "wah"
   g \%e\% "hoo"
   #Assignment input should be as adjacency matrix
-  g \%e\% "age" <- as.matrix(1:100, 10, 10)
+  g \%e\% "age" <- matrix(1:100, 10, 10)
   g \%e\% "age"
   as.sociomatrix(g,"age")
 

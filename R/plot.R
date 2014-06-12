@@ -242,7 +242,7 @@ plot.network <- function(x, ...){
 }
 
 
-#Two-dimensional network visualization; this is a direct port of the gplot
+#Two-dimensional network visualization; this was originally a direct port of the gplot
 #routine from sna (Carter T. Butts <buttsc@uci.edu>)
 plot.network.default<-function(x,
 attrname=NULL,
@@ -419,8 +419,23 @@ layout.par=NULL,
    if(new){  #If new==FALSE, we add to the existing plot; else create a new one
      plot(0,0,xlim=xlim,ylim=ylim,type="n",xlab=xlab,ylab=ylab,asp=1, axes=!suppress.axes,...)
    }
+   # force lazy evaluation of display labels arg before we change value of labels
+   displaylabels<-displaylabels
    #Fill out vertex vectors; assume we're using attributes if chars used
-   if(is.character(vertex.cex)&&(length(vertex.cex==1))){
+   if(is.character(label)&(length(label)==1)){
+     temp<-label
+     if(temp%in%list.vertex.attributes(x)){
+       label <- rep(get.vertex.attribute(x,temp),length=n)
+       if(all(is.na(label))){
+         stop("Attribute '",temp,"' had illegal missing values for label or was not present in plot.network.default.")
+       }
+     } else { # didn't match with a vertex attribute, assume we are supposed to replicate it
+       label <- rep(label,length=n)
+     }
+   }else{
+     label <- rep(as.character(label),length=n)
+   }
+   if(is.character(vertex.cex)&(length(vertex.cex)==1)){
      temp<-vertex.cex
      vertex.cex <- rep(get.vertex.attribute(x,vertex.cex),length=n)
      if(all(is.na(vertex.cex)))
@@ -749,11 +764,13 @@ layout.par=NULL,
              xhat[i] <- xhat[i]+dx/dr
              yhat[i] <- yhat[i]+dy/dr
            }
+           
            #Take the average of all the ties
            xhat[i] <- xhat[i]/ij.n
            yhat[i] <- yhat[i]/ij.n
            rhat[i] <- sqrt(xhat[i]^2+yhat[i]^2)
-           if (rhat[i]!=0) { # normalize direction vector
+           if (!is.nan(rhat[i]) && rhat[i]!=0) { # watch out for NaN when vertices have same position
+             # normalize direction vector
              xhat[i] <- xhat[i]/rhat[i]
              yhat[i] <- yhat[i]/rhat[i]
            } else { #if no direction, make xhat and yhat away from center
@@ -764,8 +781,8 @@ layout.par=NULL,
            xhat[i] <- xoff[i]/roff[i]
            yhat[i] <- yoff[i]/roff[i]
          }
-         if (xhat[i]==0 | is.nan(xhat[i])) xhat[i] <- .01 #jitter to avoid labels on points
-         if (yhat[i]==0 | is.nan(yhat[i])) yhat[i] <- .01
+         if ( is.nan(xhat[i]) || xhat[i]==0 ) xhat[i] <- .01 #jitter to avoid labels on points
+         if (is.nan(yhat[i]) || yhat[i]==0 ) yhat[i] <- .01
        }
        xhat <- xhat[use]
        yhat <- yhat[use]

@@ -65,8 +65,7 @@ network<-function(x, vertex.attr=NULL, vertex.attrnames=NULL,
 #
 network.bipartite<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
   #Set things up to edit g in place
-  gn<-deparse(substitute(g))
-  gev<-parent.frame()
+  gn<-substitute(g)
   #Build head/tail lists; note that these cannot be hypergraphic or
   #multiplex, since our data is drawn from an adjacency matrix
   nactors <- dim(x)[1]
@@ -103,8 +102,9 @@ network.bipartite<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
     add.edges(g, as.list(1+e%%n), as.list(1+e%/%n),
               names.eval=en, vals.eval=ev, ...)
   #Patch up g on exit for in-place modification
-  if(exists(gn,envir=gev))
-    on.exit(assign(gn,g,pos=gev))
+  if(.validLHS(gn,parent.frame())){
+    on.exit(eval.parent(call('<-',gn,g)))
+  }
   invisible(g)
 }
 
@@ -112,9 +112,16 @@ network.bipartite<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
 # Construct a network's edge set, using an adjacency matrix as input.
 #
 network.adjacency<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
+  # check that dimension of g is appropriate for x
+  if (nrow(x)!=ncol(x)){
+    stop('the network.adjacency constructor expects its matrix argument to be square (same number of rows and columns)')
+  }
+  if (network.size(g) != nrow(x)){
+    stop('the network.adjacency constructor requires that the size of its network argument (',network.size(g),') matches the dimensions of the matrix argument (',nrow(x),' by ',ncol(x),')')
+  }
+  
   #Set things up to edit g in place
-  gn<-deparse(substitute(g))
-  gev<-parent.frame()
+  gn<-substitute(g)
   #Build head/tail lists; note that these cannot be hypergraphic or
   #multiplex, since our data is drawn from an adjacency matrix
   if(!is.directed(g)){
@@ -155,8 +162,9 @@ network.adjacency<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
     add.edges(g, as.list(1+e%%n), as.list(1+e%/%n),
               names.eval=en, vals.eval=ev, ...)
   #Patch up g on exit for in-place modification
-  if(exists(gn,envir=gev))
-    on.exit(assign(gn,g,pos=gev))
+  if(.validLHS(gn,parent.frame())){
+    on.exit(eval.parent(call('<-',gn,g)))
+  }
   invisible(g)
 }
 
@@ -177,8 +185,7 @@ network.copy<-function(x){
 #
 network.edgelist<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
   #Set things up to edit g in place
-  gn<-deparse(substitute(g))
-  gev<-parent.frame()
+  gn<-substitute(g)
   l<-dim(x)[2]
   #Traverse the edgelist matrix, adding edges as we go.
   if((l>2)&&(!ignore.eval)){		#Use values if present...
@@ -200,8 +207,9 @@ network.edgelist<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
     g<-add.edges(g,as.list(x[,1]),as.list(x[,2]),edge.check=edge.check)
   }
   #Patch up g on exit for in-place modification
-  if(exists(gn,envir=gev))
-    on.exit(assign(gn,g,pos=gev))
+  if(.validLHS(gn,parent.frame())){
+    on.exit(eval.parent(call('<-',gn,g)))
+  }
   invisible(g)
 }
 
@@ -210,8 +218,7 @@ network.edgelist<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
 #
 network.incidence<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
   #Set things up to edit g in place
-  gn<-deparse(substitute(g))
-  gev<-parent.frame()
+  gn<-substitute(g)
   n<-network.size(g)
   edge.check<-list(...)$edge.check      
   #Traverse the incidence matrix, adding edges as we go.
@@ -254,8 +261,9 @@ network.incidence<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
     g<-add.edge(g,tail,head,names.eval=en,vals.eval=ev,edge.check=edge.check)
   }
   #Patch up g on exit for in-place modification
-  if(exists(gn,envir=gev))
-    on.exit(assign(gn,g,pos=gev))
+  if(.validLHS(gn,parent.frame())){
+    on.exit(eval.parent(call('<-',gn,g)))
+  }
   invisible(g)
 }
 
