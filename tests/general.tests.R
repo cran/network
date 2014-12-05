@@ -3,7 +3,7 @@
 
 library(network)
 
-# ----- check assigning multiple attribute values in a single call 
+# ----- check assigning multiple attribute values in a single call ------
 test<-network.initialize(3)
 set.vertex.attribute(test,c('a','b'),c(1,2))
 if(!all(test%v%'a'==c(1,1,1) & test%v%'b'==c(2,2,2))){
@@ -42,10 +42,6 @@ set.network.attribute(netlist[[1]],"test","a value")
 if (!"test" %in% list.network.attributes(netlist[[1]]))
   stop('assignment to list of networks failed')
 
-# check memory saftey with a big assignment
-net<-network.initialize(100000)
-set.vertex.attribute(net,LETTERS,LETTERS)
-
 # test multiple assignment for network
 
 test<-network.initialize(3)
@@ -62,7 +58,7 @@ if (!all(test%n%'a'==1,test%n%'b'==2)){
 
 
 
-# test multiple assignment for edges
+#  test multiple assignment for edges 
 
 test<-network.initialize(3)
 add.edges(test,tail=1:3,head=c(2,3,1))
@@ -91,53 +87,104 @@ if(!all(all.equal(get.edge.attribute(net,'a',unlist=FALSE)[[1]],obj) & all.equal
   stop('setting multiple attribute values with list values in set.edge.attribute failed')
 }
 
-# check memory saftey with a big assignment
-net<-network.initialize(100000)
-net<-add.edges(net,1:99999,2:100000)
-set.edge.attribute(net,LETTERS,LETTERS)
 
 
-# check get edge attribute overloading
+# ---- checks for  get.edge.attribute overloading and omit args ----
 net<-network.initialize(3)
 add.edges(net,c(1,2,3),c(2,3,1))
 set.edge.attribute(net,'test',"a")
 if(!all(get.edge.attribute(net,'test')==c("a","a","a"))){stop("overloading of get.edge.attribute to get.edge.value not working correctly ")}
 
+# check list output of get.edge.attribute with deleted.edges.omit
+delete.edges(net,2)
+set.edge.attribute(net,'foo','bar',1)
+if(!identical(list('bar',NULL,NULL),get.edge.attribute(net,'foo',unlist=FALSE,  deleted.edges.omit = FALSE))){
+  stop("deleted.edges.omit argument causing bad return values in get.edge.attribute ")
+}
+if(!identical(list('bar',NULL),get.edge.attribute(net,'foo',unlist=FALSE,  deleted.edges.omit = TRUE))){
+  stop("deleted.edges.omit argument causing bad return values in get.edge.attribute ")
+}
 
-# check for undirected loops getID cases #327 #609
-net<-network.initialize(2,loops=TRUE,directed=FALSE)
-net[1,1]<-1
+# check unlisted output of get.edge.attribute with na.omit and deleted.edges.omit
+if(!identical(c('bar'),get.edge.attribute(net,'foo',unlist=TRUE,deleted.edges.omit=TRUE))){
+  stop("omission argument causing bad return values in get.edge.attribute")
+}
+if(!identical(c('bar'),get.edge.attribute(net,'foo',unlist=TRUE,deleted.edges.omit=TRUE))){
+  stop("omission  arguments causing bad return values in get.edge.attribute")
+}
+
+# check for null.na recoding of non-set attributes
+if(!identical(c('bar'),get.edge.attribute(net,'foo',unlist=TRUE,null.na=FALSE))){
+  stop("null.na  arguments causing bad return values in get.edge.attribute")
+}
+if(!identical(c('bar',NA),get.edge.attribute(net,'foo',unlist=TRUE,null.na=TRUE))){
+  stop("null.na  arguments causing bad return values in get.edge.attribute")
+}
+if(!identical(list('bar',NULL,NULL),get.edge.attribute(net,'foo',unlist=FALSE,null.na=FALSE))){
+  stop("null.na  arguments causing bad return values in get.edge.attribute")
+}
+if(!identical(list('bar',NULL,NA),get.edge.attribute(net,'foo',unlist=FALSE,null.na=TRUE))){
+  stop("null.na  arguments causing bad return values in get.edge.attribute")
+}
+
+
+
+#mark an edge as missing to test na.omit
+set.edge.attribute(net,'na',TRUE,e=1)
+
+# check that values corresponding to missing edges are ommited
+if(!identical(list('bar',NULL,NULL),get.edge.attribute(net,'foo',unlist=FALSE,na.omit=FALSE))){
+  stop("na.omit argument causing bad return values in get.edge.attribute")
+}
+if(!identical(list(NULL,NULL),get.edge.attribute(net,'foo',unlist=FALSE,na.omit=TRUE))){
+  stop("na.omit argument causing bad return values in get.edge.attribute")
+}
+
+if(!identical(c('bar'),get.edge.attribute(net,'foo',unlist=TRUE,na.omit=FALSE))){
+  stop("na.omit argument causing bad return values in get.edge.attribute")
+}
+if(!identical(NULL,get.edge.attribute(net,'foo',unlist=TRUE,na.omit=TRUE))){
+  stop("na.omit argument causing bad return values in get.edge.attribute")
+}
+# check for behavior when querying the 'na' attribute
+if(!identical(c(TRUE,FALSE),get.edge.attribute(net,'na',na.omit=FALSE))){
+  stop("get.edge.attribute did not return correct values for 'na' attribute with na.omit=FALSE")
+}
+if(!identical(c(FALSE),get.edge.attribute(net,'na',na.omit=TRUE))){
+  stop("get.edge.attribute did not return correct values for 'na' attribute with na.omit=TRUE")
+}
+
+# check behavior on a network with no edges
+if(!identical(list(),get.edge.attribute(network.initialize(3),'foo',unlist=FALSE))){
+  stop("get.edge.attribute did not return correct values network with no edges")
+}
+
+if(!identical(NULL,get.edge.attribute(network.initialize(3),'foo',unlist=TRUE))){
+  stop("get.edge.attribute did not return correct values network with no edges")
+}
+
+if(!identical(NULL,get.edge.attribute(net,'bar'))){
+  stop("get.edge.attribute did not return correct values for attribute that does not exist")
+}
+
+
+# check for behavior of attribute values explicitly set to null
+net<-network.initialize(3)
 net[1,2]<-1
-net[2,2]<-1
-if(get.edgeIDs(net,v=1,alter=1)!=1){
-  stop("problem with get.edgeIDs on undirected network with loops")
-}
-if(get.edgeIDs(net,v=2,alter=2)!=3){
-  stop("problem with get.edgeIDs on undirected network with loops")
-}
+net[1,3]<-1
+set.edge.attribute(net,'nullval',list(NULL))
 
-net<-network.initialize(2,loops=TRUE,directed=FALSE)
-net[1,2]<-1
-if(length(get.edgeIDs(net,v=2,alter=2))>0){
-  stop("problem with get.edgeIDs on undirected network with loops")
+# expect NULL,NULL
+if(!identical(list(NULL,NULL),get.edge.attribute(net,'nullval',unlist=FALSE,null.na=FALSE))){
+  stop("get.edge.attribute not returning NULL values stored as edge attribute correctly")
 }
 
-
-# ---- tests for specific bugs/edgecases -----
-
-# ticket #180 (used to throw error if no edges exist)
-set.edge.attribute(network.initialize(3),"test","a")
-
-# check for network of zero size --used to give error ticket #255
-set.vertex.attribute(network.initialize(0),'foo','bar')
-
-
-
-
-
-# check for is.na.network problems #619
-x2<-network.initialize(3)
-x2[1,2]<-NA
-if(is.na.network(x2)[1,2]!=1){
-  stop('problem iwth is.na.netowrk')
+# expect that this should return NULL values, which will dissappear on unlisting
+# do NOT want to see NA,NA
+if(!identical(NULL,get.edge.attribute(net,'nullval',null.na=FALSE))){
+  stop("get.edge.attribute not returning NULL values stored as edge attribute correctly")
 }
+if(!identical(NULL,get.edge.attribute(net,'nullval',null.na=TRUE))){
+  stop("get.edge.attribute not returning NULL values stored as edge attribute correctly")
+}
+

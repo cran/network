@@ -1105,6 +1105,78 @@ SEXP deleteEdgeAttribute_R(SEXP x, SEXP attrname)
   return x;
 }
 
+SEXP getEdgeAttribute_R(SEXP el,SEXP attrname,SEXP naomit,SEXP nullna,SEXP deletededgesomit){
+  Rboolean naom, naomVal, nuna, deo, attrFound;
+  const char *attr;
+  int i,j,k, iLen, jLen, pc;
+  SEXP iList, iNames, attrVal, ans, tmpans, tmp;
+
+  attr = CHAR(STRING_ELT(attrname,0));
+  naom = LOGICAL(naomit)[0];
+  nuna = LOGICAL(nullna)[0];
+  deo = LOGICAL(deletededgesomit)[0];
+
+  iLen = length(el);
+  k = 0;
+  pc = 0;
+
+  tmpans = PROTECT(allocVector(VECSXP,iLen)); pc++;
+
+  for(i=0; i < iLen; i++){
+    iList = VECTOR_ELT(el,i);
+    if (iList == R_NilValue){
+      if (deo==FALSE){
+        /* allocate return list element of NULL */
+        SET_VECTOR_ELT(tmpans,k++,R_NilValue);
+      }
+      continue;
+    }
+    iList = getListElement(iList,"atl");
+    iNames = getAttrib(iList, R_NamesSymbol);
+    jLen = length(iList);
+    naomVal = FALSE;
+    attrVal = R_NilValue;
+    attrFound = FALSE;
+    for (j = 0; j < jLen; j++){
+
+      if (strcmp(attr,CHAR(STRING_ELT(iNames,j))) == 0){
+        attrVal = VECTOR_ELT(iList,j);
+        attrFound = TRUE;
+      }
+
+      if (naom && strcmp("na",CHAR(STRING_ELT(iNames,j))) == 0){
+        tmp = VECTOR_ELT(iList,0);
+        if (TYPEOF(tmp) == LGLSXP)
+          naomVal = LOGICAL(tmp)[0];
+        else
+          warning("attribute na is not a logical vector: %d.",TYPEOF(tmp));
+      }
+    }
+    if (naomVal) continue;
+    if (nuna && !attrFound){
+      /* allocate return list element of NA */
+      SET_VECTOR_ELT(tmpans,k++,PROTECT(ScalarLogical(NA_LOGICAL))); pc++;
+      continue;
+    }
+    
+    /* allocate return list element from attrVal. may be NULL */
+    SET_VECTOR_ELT(tmpans,k++,attrVal);
+  }
+  
+  ans = R_NilValue;
+  if (k == iLen){
+    ans = tmpans;
+  } else if (k < iLen){
+    ans = PROTECT(allocVector(VECSXP,k)); pc++;
+    for(i=0;i<k;i++)
+      SET_VECTOR_ELT(ans,i,VECTOR_ELT(tmpans,i));
+  }
+
+  UNPROTECT(pc);
+
+  return ans;
+}
+
 
 
 SEXP deleteEdges_R(SEXP x, SEXP eid)
@@ -1636,4 +1708,29 @@ SEXP setVertexAttributes_R(SEXP x, SEXP attrnames, SEXP values, SEXP v)
   /*Unprotect and return*/
   UNPROTECT(pc);
   return x;
+}
+
+SEXP nonEmptyEdges_R(SEXP el)
+/* retrun all edges which are non NULL */
+{
+  int i, elen, n=0;
+  SEXP ans;
+
+  elen = length(el);
+  
+  for(i=0; i<elen; i++){
+    if (VECTOR_ELT(el,i) != R_NilValue) n++;
+  }
+
+  PROTECT(ans = allocVector(VECSXP,n));
+
+  n=0;
+  for(i=0; i<elen; i++){
+    if (VECTOR_ELT(el,i) != R_NilValue){
+      SET_VECTOR_ELT(ans,n++, duplicate(VECTOR_ELT(el,i)));
+    }
+  }
+  UNPROTECT(1);
+
+  return ans;
 }

@@ -334,7 +334,7 @@ plot(MtSHbyloc, displaylabels = TRUE, label =
 
 
 ###################################################
-### code chunk number 33: networkVignette.Rnw:719-731
+### code chunk number 33: networkVignette.Rnw:721-733
 ###################################################
 rnbernexp <- function(n, nv, p = 0.5, onset.hazard = 1, 
     termination.hazard = 1){
