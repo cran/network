@@ -101,6 +101,7 @@ network.vertex.names,
 permute.vertexIDs,
 plot.network,
 plot.network.default,
+plotArgs.network,
 print.mixingmatrix,
 print.network,
 print.summary.character,
@@ -127,5 +128,37 @@ which.matrix.type
 
 )
 
-#S3method("%c%",'network')
+# register S3 methods
+
+S3method('%c%',network)
+S3method(add.edge, network)
+S3method(add.edges, network) 
+S3method(add.vertices, network)
+S3method(as.network, default)
+S3method(as.network, matrix)
+S3method(as.network, network)
+S3method(as.matrix, network)
+S3method(print,mixingmatrix)
+S3method(print,network)
+S3method(print,summary.network)
+S3method(print,summary.character)
+S3method(summary,character)
+S3method(summary,network)
+S3method(plot,network)
+S3method(plot.network,default)
+S3method(is.na,network)
+S3method('+',network)
+S3method('-',network) 
+S3method('*',network)
+S3method('&',network)
+S3method('|',network)
+S3method('!',network)
+S3method(prod,network)
+S3method(sum,network)
+
+# These are not 'real' S3 methods, as there is no corresponding class
+# but they are dispatched by as.matrix.network and are flagged by check
+S3method(as.matrix.network,adjacency)
+S3method(as.matrix.network,edgelist)
+S3method(as.matrix.network,incidence)
 

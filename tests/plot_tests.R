@@ -2,7 +2,7 @@
 # mostly recent functionality added by skyebend
 require(network)
 # -----  test edge labels ------
-ymat<-matrix(c(0,1,2,3, 0,0,0,0, 0,0,0,0, 0,0,0,0),ncol=4)
+ymat<-matrix(c(0,1,2,3, 0,0,0,0, 1,0,0,0, 0,0,0,0),ncol=4)
 ynet<-network(ymat,ignore.eval=FALSE,names.eval='weight')
 # don't do anything if no value given
 plot(ynet,edge.label.col='blue',edge.label.cex='weight')
@@ -10,6 +10,10 @@ plot(ynet,edge.label.col='blue',edge.label.cex='weight')
 plot(ynet,edge.label=TRUE)
 
 plot(ynet,edge.label='weight',edge.label.col='blue',edge.label.cex='weight')
+
+# labels for curved edges
+plot(ynet,edge.label='weight',edge.label.col='blue',edge.label.cex='weight',usecurve=TRUE)
+plot(ynet,edge.label='weight',edge.label.col='blue',edge.label.cex='weight',usecurve=TRUE,edge.curve=0.5)
 
 data(emon)
 par(mar=c(0,0,0,0))
@@ -57,3 +61,9 @@ plot(test,coord=cbind(c(1,1),c(1,1)),jitter=FALSE,displaylabels=TRUE)
 test<-network.initialize(3)
 test[1,2:3]<-1
 plot(test,coord=cbind(c(1,1,2),c(1,1,2)),jitter=FALSE,displaylabels=TRUE)
+
+# tests for polygon sizes/sides
+plot(network.initialize(7),vertex.sides=c(50,4,3,2,1,0,NA),vertex.cex=40,coord=matrix(0,ncol=7,nrow=7),jitter=F,vertex.col='#CCCCCC00',vertex.border =c('red','green','blue','orange'))
+plot(network.initialize(7),vertex.sides=c(50,4,3,2,1,0,NA),vertex.cex=0)
+plot(network.initialize(7),vertex.sides=c(50,4,3,2,1,0,NA),vertex.cex=NA)
+
