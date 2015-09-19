@@ -368,6 +368,29 @@ get.edges<-function(x, v, alter=NULL, neighborhood=c("out","in","combined"), na.
   .Call(getEdges_R,x,v,alter,neighborhood,na.omit)
 }
 
+# get the the edge ids associated with a set of dayds
+# as defined by a vector of tails and heads vertex ids
+get.dyads.eids<-function(x,tails,heads,neighborhood = c("out", "in", "combined")){
+  if(length(tails)!=length(heads)){
+    stop('heads and tails vectors must be the same length for get.dyads.eids')
+  }
+  if (any(heads>network.size(x) | heads<1) | any(tails>network.size(x) | tails<1)){
+    stop('invalid vertex id in heads or tails vector')
+  }
+  neighborhood<-match.arg(neighborhood)
+  if (!is.directed(x)){
+    neighborhood = "combined"
+  }
+  lapply(seq_along(tails),function(e){
+    eid<-get.edgeIDs(x,v = tails[e],alter=heads[e],neighborhood=neighborhood)
+    if(length(eid)>1){
+      eid<-NA
+      warning('get.dyads.eids found multiple edge ids for dyad ',tails[e],',',heads[e],' NA will be returned')
+    }
+    eid
+  })
+}
+
 
 # Given a network and a set of vertices, return the subgraph induced by those
 # vertices (preserving all associated metadata); if given two such sets, 
@@ -656,19 +679,34 @@ list.vertex.attributes<-function(x){
 # Retrieve the number of free dyads (i.e., number of non-missing) of network x.
 #
 network.dyadcount<-function(x,na.omit=TRUE){
- if(!is.network(x))
+ if(!is.network(x)){
    stop("network.dyadcount requires an argument of class network.")
+ }
 
  nodes <- network.size(x)
  if(is.directed(x)){
+   if(is.bipartite(x)){ # directed bipartite
+     nactor <- get.network.attribute(x,"bipartite")
+     nevent <- nodes - nactor
+     dyads <- nactor * nevent *2
+   }else{ # directed unipartite
     dyads <- nodes * (nodes-1)
- }else{
-  if(is.bipartite(x)){
+    if(has.loops(x)){
+      # add in the diagonal
+      dyads<-dyads+nodes
+    }
+   }
+ }else{ # undirected
+  if(is.bipartite(x)){ # undirected bipartite
    nactor <- get.network.attribute(x,"bipartite")
    nevent <- nodes - nactor
    dyads <- nactor * nevent
-  }else{
+  }else{ # undirected unipartite
    dyads <- nodes * (nodes-1)/2
+   if(has.loops(x)){
+     # add in the diagonal
+     dyads<-dyads+nodes
+   }
   }
  }
  if(na.omit){
