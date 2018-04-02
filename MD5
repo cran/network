@@ -1,7 +1,7 @@
 d1d9ef37996a4a39aa735358746a86fe *COPYING
 4ddfa995fe92a2bd8bfcde1580441d3b *ChangeLog
-fedb3e355912ca89c0280f47c41f99af *DESCRIPTION
-0bd8ea15704961a94abaefe7e718cb9e *NAMESPACE
+525275718f0b8973c881e69c1e70f598 *DESCRIPTION
+6e653e7fb93dcbd4faa354a8949f2eb7 *NAMESPACE
 1993f738e7d0a20db6284607b7b55add *R/access.R
 bed15d78cf3d2f994fd690dc566294d2 *R/as.edgelist.R
 3a629504ac36684d2c3e1c87b4576727 *R/assignment.R
@@ -15,8 +15,8 @@ b553b179aab15fef22821b811a292f10 *R/operators.R
 4123f07f452c2fb6dbcdc7e7c32c7db3 *R/printsum.R
 dface8a4101be20e58a062f835aa9756 *R/zzz.R
 966e327a45bb11a8c7b95c2eeefc62a3 *build/vignette.rds
-4e1fd0dcead8991dc32c05e2d7301c40 *data/emon.RData
-bb3e0d4d549b892aa8701af630adb78a *data/flo.RData
+62cf633f3c217859b0d1c1311dad0a9e *data/emon.RData
+9d534b71917dd5dec1939bac9f3f33bd *data/flo.RData
 7980ec9e97babb9a36477bf7ca9d83a3 *inst/CITATION
 3e06997d5f02a81dfdccf3d00ff43d0f *inst/doc/networkVignette.R
 e426433ac42ea149a73be4923359cf0d *inst/doc/networkVignette.Rnw

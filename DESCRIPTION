@@ -1,5 +1,5 @@
 Package: network
-Version: 1.13.0
+Version: 1.13.0.1
 Date: 2015-08-31
 Title: Classes for Relational Data
 Authors@R: c(
@@ -14,7 +14,7 @@ Description: Tools to create and modify network objects.  The network class can 
 License: GPL (>= 2)
 URL: http://statnet.org/
 NeedsCompilation: yes
-Packaged: 2015-09-15 12:24:10 UTC; rpackagebuilder
+Packaged: 2018-04-02 12:10:58 UTC; hornik
 Author: Carter T. Butts [aut, cre],
   David Hunter [ctb],
   Mark Handcock [ctb],
@@ -22,4 +22,4 @@ Author: Carter T. Butts [aut, cre],
   Jeffrey Horner [ctb]
 Maintainer: Carter T. Butts <buttsc@uci.edu>
 Repository: CRAN
-Date/Publication: 2015-09-19 22:13:50
+Date/Publication: 2018-04-02 20:05:25 UTC
