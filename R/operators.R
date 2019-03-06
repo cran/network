@@ -122,6 +122,17 @@
 
 
 "[<-.network"<-function(x,i,j,names.eval=NULL,add.edges=FALSE,value){
+  #For the common special case of x[,] <- 0, delete edges quickly by
+  #reconstructing new outedgelists, inedgelists, and edgelists,
+  #leaving the old ones to the garbage collector.
+  if(missing(i) && missing(j) && is.null(names.eval) && isTRUE(all(value==FALSE))){
+    if(length(x$mel)==0 || network.edgecount(x,na.omit=FALSE)==0) return(x) # Nothing to do; note that missing edges are still edges for the purposes of this.
+    x$oel <- rep(list(integer(0)), length(x$oel))
+    x$iel <- rep(list(integer(0)), length(x$iel))
+    x$mel <- list()
+    x$gal$mnext <- 1
+    return(x)
+  }
   #Check for hypergraphicity
   if(is.hyper(x))
     stop("Assignment operator overloading does not currently support hypergraphic networks.");
@@ -212,7 +223,7 @@
         }
         epresent[k]<-TRUE
       }else
-        epresent[k]<-(val[k]==0)   #If zero, skip it; otherwise, add
+        epresent[k]<-!is.na(val[k]) && (val[k]==0)   #If zero, skip it; otherwise (including NA), add
     }
     if(sum(epresent)>0)               #Adjust attributes for extant edges
       x<-set.edge.attribute(x,names.eval,valsl,eid)
@@ -230,7 +241,8 @@
 
 
 "%e%<-"<-function(x,attrname,value){
-  set.edge.value(x,attrname=attrname,value=value)
+  if(is.matrix(value)) set.edge.value(x,attrname=attrname,value=value)
+  else set.edge.attribute(x,attrname=attrname,value=value,e=valid.eids(x))
 }
 
 

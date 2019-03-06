@@ -7,7 +7,9 @@ import(utils)
 importFrom("grDevices", "colors", "gray")
 importFrom("graphics", "locator", "par", "plot", "polygon", "rect",
              "strheight", "strwidth", "text")
-importFrom("stats", "rnorm")
+importFrom("stats", "rnorm", "na.omit")
+importFrom("tibble", "tibble", "as.tibble", "as_tibble")
+importFrom("magrittr", "%>%", "set_names")
 
 #Export everything except symbols that start with '.' or end with '_R'.
 #exportPattern("^[^\\.].*[^_][^R]$")
@@ -35,7 +37,7 @@ as.network.matrix,
 as.network.network,
 as.sociomatrix,
 as.edgelist,
-as.edgelist.network,
+# TODO: Don't export as.edgelist.matrix once no one depends on it.
 as.edgelist.matrix,
 is.edgelist,
 "%c%.network",
@@ -164,13 +166,22 @@ S3method('*',network)
 S3method('&',network)
 S3method('|',network)
 S3method('!',network)
+S3method('[',network)
+S3method('[<-',network)
 S3method(prod,network)
 S3method(sum,network)
 S3method(as.edgelist,network)
 S3method(as.edgelist,matrix)
+S3method(as.edgelist,tbl_df)
+S3method(mixingmatrix,network)
 
-S3method("[", network)
-S3method("[<-", network)
+S3method(as.tibble,network)
+S3method(as_tibble,network)
+
+S3method(network.dyadcount,network)
+S3method(network.edgecount,network)
+S3method(network.naedgecount,network)
+S3method(network.size,network)
 
 # These are not 'real' S3 methods, as there is no corresponding class
 # but they are dispatched by as.matrix.network and are flagged by check if not marked here

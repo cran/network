@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 02/26/13
+# Last Modified 02/24/19
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -69,10 +69,6 @@ add.edge<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, edge.check=FA
 } 
 
 add.edge.network<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, edge.check=FALSE, ...){ 
-  #Check to be sure we were called with a network
-  if(!is.network(x))
-    stop("add.edge requires an argument of class network.")
-  #Do the deed
   xn<-substitute(x)
   if(.validLHS(xn,parent.frame())){  #If x not anonymous, set in calling env 
     on.exit(eval.parent(call('<-',xn,x)))
@@ -96,9 +92,6 @@ add.edges<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, ...){
 # which is the tail set for a given edge (ditto for head).  If edge values
 # are provided, they must be given similarly as lists of lists.
 add.edges.network<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, ...){
-  #Check to be sure we were called with a network
-  if(!is.network(x))
-    stop("add.edges requires an argument of class network.")
   #Ensure that the inputs are set up appropriately 
   if(!is.list(tail))
     tail<-as.list(tail)
@@ -678,11 +671,8 @@ list.vertex.attributes<-function(x){
 
 # Retrieve the number of free dyads (i.e., number of non-missing) of network x.
 #
-network.dyadcount<-function(x,na.omit=TRUE){
- if(!is.network(x)){
-   stop("network.dyadcount requires an argument of class network.")
- }
-
+network.dyadcount<-function(x, na.omit=TRUE, ...) UseMethod("network.dyadcount")
+network.dyadcount.network<-function(x,na.omit=TRUE,...){
  nodes <- network.size(x)
  if(is.directed(x)){
    if(is.bipartite(x)){ # directed bipartite
@@ -731,18 +721,16 @@ network.dyadcount<-function(x,na.omit=TRUE){
 
 #Retrieve the number of edges in network x.
 #
-network.edgecount<-function(x,na.omit=TRUE){
-  #First, check to see that this is a graph object
-  if(!is.network(x))
-    stop("network.edgecount requires an argument of class network.\n")
-  #Return the edge count
+network.edgecount<-function(x,na.omit=TRUE, ...) UseMethod("network.edgecount")
+network.edgecount.network<-function(x,na.omit=TRUE,...){
   .Call(networkEdgecount_R,x,na.omit)
 }
 
 
 #Retrieve the number of missing edges in network x
 #
-network.naedgecount<-function(x){
+network.naedgecount<-function(x, ...) UseMethod("network.naedgecount")
+network.naedgecount.network<-function(x, ...){
   na<-get.edge.attribute(x$mel,"na")
   if(is.null(na))
     0
@@ -753,11 +741,9 @@ network.naedgecount<-function(x){
 
 # Retrieve the size (i.e., number of vertices) of network x.
 #
-network.size<-function(x){
-  if(!is.network(x))
-    stop("network.size requires an argument of class network.\n")
-  else
-    get.network.attribute(x,"n")
+network.size<-function(x, ...) UseMethod("network.size")
+network.size.network<-function(x, ...){
+  get.network.attribute(x,"n")
 }
 
 
@@ -793,11 +779,11 @@ permute.vertexIDs<-function(x,vids){
     stop("permute.vertexIDs requires an argument of class network.\n")
   #Sanity check: is this a permutation vector?
   n<-network.size(x)
-  if((length(unique(vids))!=n)||(range(vids)!=c(1,n)))
+  if((length(unique(vids))!=n)||any(range(vids)!=c(1,n)))
     stop("Invalid permutation vector in permute.vertexIDs.")
   if(is.bipartite(x)){  #If bipartite, enforce partitioning
     bpc<-get.network.attribute(x,"bipartite")
-    if(any(vids[0:bpc]>bpc)||(vids[(bpc+1):n]<=bpc))
+    if(any(vids[0:bpc]>bpc)||any(vids[(bpc+1):n]<=bpc))
       warning("Performing a cross-mode permutation in permute.vertexIDs.  I hope you know what you're doing....")
   }
   #Return the permuted graph
