@@ -1,6 +1,6 @@
 Package: network
-Version: 1.14-377
-Date: 2019-03-04
+Version: 1.15
+Date: 2019-04-01
 Title: Classes for Relational Data
 Authors@R: c(
     person("Carter T.", "Butts", role=c("aut","cre"), email="buttsc@uci.edu"),
@@ -16,7 +16,7 @@ Description: Tools to create and modify network objects.  The network class can 
 License: GPL (>= 2)
 URL: http://statnet.org/
 NeedsCompilation: yes
-Packaged: 2019-03-05 06:18:28 UTC; buttsc
+Packaged: 2019-04-02 06:08:43 UTC; buttsc
 Author: Carter T. Butts [aut, cre],
   David Hunter [ctb],
   Mark Handcock [ctb],
@@ -25,4 +25,4 @@ Author: Carter T. Butts [aut, cre],
   Li Wang [ctb]
 Maintainer: Carter T. Butts <buttsc@uci.edu>
 Repository: CRAN
-Date/Publication: 2019-03-06 10:10:03 UTC
+Date/Publication: 2019-04-02 08:30:04 UTC
