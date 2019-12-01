@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 7/05/11
+# Last Modified 11/26/19
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/network package
@@ -26,6 +26,9 @@
 
 # Printing for network class objects.
 #
+#' @rdname network
+#' @export print.network
+#' @export
 print.network<-function(x, matrix.type=which.matrix.type(x), 
                       mixingmatrices=FALSE, na.omit=TRUE, print.adj=FALSE, ...)
 {
@@ -64,7 +67,7 @@ print.network<-function(x, matrix.type=which.matrix.type(x),
              print(table(attributeValue,dnn=paste('  ',attributeName,':',sep='')))
           }else{
              # for short attributes, just print out the values
-             if((class(attributeValue)%in%c("factor","character","numeric", "logical","integer","double","NULL","call","formula"))&&(length(attributeValue) < 10)){
+             if(inherits(attributeValue,c("factor","character","numeric", "logical","integer","double","NULL","call","formula"))&&(length(attributeValue) < 10)){
                # handle NULL case because cat won't print NULL
                if (is.null(attributeValue)){
                  cat(" ",attributeName,"= NULL\n")
@@ -77,7 +80,7 @@ print.network<-function(x, matrix.type=which.matrix.type(x),
                # don't print summary for net obs period or active attributes
                if (attributeName=='net.obs.period' || grepl('.active$',attributeName) ){
                  cat("  ",attributeName,": (not shown)\n", sep="")
-               } else if (class(attributeValue)%in%c("matrix")){
+               } else if (inherits(attributeValue,c("matrix"))){
                  cat("  ",attributeName,": ",nrow(attributeValue),"x",ncol(attributeValue)," matrix\n", sep="")
                  
                } else {
@@ -147,6 +150,8 @@ print.network<-function(x, matrix.type=which.matrix.type(x),
 
 
 #Print method for summary.character
+#' @export print.summary.character
+#' @export
 print.summary.character <- function(x, max.print=10, ...){
   x<-table(x)
   nam<-names(x)
@@ -164,6 +169,8 @@ print.summary.character <- function(x, max.print=10, ...){
 
 
 #Print method for summary.network
+#' @export print.summary.network
+#' @export
 print.summary.network<-function(x, ...){
     #Pull any extra goodies from summary.network (stored in gal)
     na.omit<-x%n%"summary.na.omit"
@@ -199,7 +206,7 @@ print.summary.network<-function(x, ...){
               print(mixingmatrix(x,attributeName))
             }
           }else{
-            if((class(attributeValue)%in%c("factor","character","numeric", "logical","integer","double","call","formula"))&& (length(attributeValue) < 10)){
+            if(inherits(attributeValue,c("factor","character","numeric", "logical","integer","double","call","formula"))&& (length(attributeValue) < 10)){
               if(is.call(attributeValue)) attributeValue <- deparse(attributeValue)
               cat("  ",attributeName," = ",attributeValue,"\n",sep="")
             }else{
@@ -319,6 +326,8 @@ print.summary.network<-function(x, ...){
 
 
 #An internal routine to handle summaries of characters
+#' @export summary.character
+#' @export
 summary.character <- function(object, ...){
   class(object)<-c("summary.character",class(object))
   object
@@ -327,6 +336,9 @@ summary.character <- function(object, ...){
 
 # Summaries of network objects
 #
+#' @rdname network
+#' @export summary.network
+#' @export
 summary.network<-function(object, na.omit=TRUE, mixingmatrices=FALSE, print.adj=TRUE, ...){
   #Add printing parameters as network objects, and change the class
   object%n%"summary.na.omit"<-na.omit
