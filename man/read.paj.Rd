@@ -112,7 +112,7 @@ plot(test.net.2,main=test.net.2\%n\%'title',
                
 # read .paj project file
 # notice output has $networks and $partitions
-read.paj('http://vlado.fmf.uni-lj.si/vlado/podstat/AO/net/Tina.paj')
+read.paj('https://vlado.fmf.uni-lj.si/vlado/podstat/AO/net/Tina.paj')
 }
 
 }

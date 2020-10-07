@@ -1,6 +1,6 @@
 Package: network
-Version: 1.16.0
-Date: 2019-11-30
+Version: 1.16.1
+Date: 2020-10-06
 Title: Classes for Relational Data
 Authors@R: c(
     person("Carter T.", "Butts", role=c("aut","cre"), email="buttsc@uci.edu"),
@@ -20,7 +20,7 @@ Collate: 'access.R' 'as.edgelist.R' 'assignment.R' 'coercion.R'
         'constructors.R' 'fileio.R' 'layout.R' 'misc.R'
         'network-package.R' 'operators.R' 'plot.R' 'printsum.R' 'zzz.R'
 NeedsCompilation: yes
-Packaged: 2019-12-01 03:15:17 UTC; buttsc
+Packaged: 2020-10-07 06:12:38 UTC; buttsc
 Author: Carter T. Butts [aut, cre],
   David Hunter [ctb],
   Mark Handcock [ctb],
@@ -29,4 +29,4 @@ Author: Carter T. Butts [aut, cre],
   Li Wang [ctb]
 Maintainer: Carter T. Butts <buttsc@uci.edu>
 Repository: CRAN
-Date/Publication: 2019-12-01 12:30:02 UTC
+Date/Publication: 2020-10-07 07:00:02 UTC
