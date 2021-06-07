@@ -8,7 +8,7 @@
 #
 # Last Modified 11/26/19
 # Licensed under the GNU General Public License version 2 (June, 1991)
-# or later
+# or greater
 #
 # Part of the R/network package
 #
@@ -68,7 +68,7 @@
 #' each direction) added for every row in the \code{*Edges} block.
 #' 
 #' If the \code{*Vertices}, \code{*Arcs} or \code{*Edges} blocks having timing
-#' information included in the rows (indicated by '[...]' tokens), it will be
+#' information included in the rows (indicated by `...` tokens), it will be
 #' attached to the vertices with behavior determined by the \code{time.format}
 #' option.  If the \code{'networkDynamic'} format is used, times will be
 #' translated to \code{networkDynamic}'s spell model with the assumtion that
@@ -374,7 +374,7 @@ read.paj <- function(file,verbose=FALSE,debug=FALSE,
 
 
      #need to check to see if we are reading in more vertex rows than there actually are (some edges are implied)
-     edgelistPosition <-  grep("\\*(arcs|edges|matrix)",as.matrix(vertex),ignore.case=TRUE)
+     edgelistPosition <-  grep("\\*(arcs|edges|matrix)",as.matrix(vertex),ignore.case=TRUE, useBytes = TRUE)
 
      if(any(edgelistPosition)){
        if(verbose){
@@ -560,14 +560,14 @@ read.paj <- function(file,verbose=FALSE,debug=FALSE,
          if (all(RAlengths==2)){
            # assume default weight of 1
            # convert to data.frame by first unlisting and dumping into 3 col matrix
-           edgeData <- as.data.frame(matrix(unlist(lapply(dyadList,function(x){
+           edgeData <- as.data.frame(stringsAsFactors=TRUE,matrix(unlist(lapply(dyadList,function(x){
              c(as.numeric(x[1:2]),1)})),
              nrow=length(dyadList),ncol=3,byrow=TRUE))
 
            if(verbose) print('weights ommited from arcs/edges lines, assuming weight of 1')
          } else {
          # create a data frame from the (possibly ragged) rows of the dyadList
-         edgeData<-as.data.frame(fillMatrixFromListRows(dyadList))
+         edgeData<-as.data.frame(stringsAsFactors=TRUE,fillMatrixFromListRows(dyadList))
          # convert to appropriate class, have to convert to character first because it is a factor and NA will be recoded wrong
          edgeData[,1]<-as.numeric(as.character(edgeData[,1])) 
          edgeData[,2]<-as.numeric(as.character(edgeData[,2]))
@@ -845,7 +845,7 @@ postProcessProject<-function(
     temp <- networksData[[i]]
     isDynamic<-FALSE
     if(!is.null(vertex)){  
-      if (nrow(as.data.frame(vertex)) == network.size(temp)) {
+      if (nrow(as.data.frame(stringsAsFactors=TRUE,vertex)) == network.size(temp)) {
         # set the vertex names to match names in file
         temp <- set.vertex.attribute(temp, "vertex.names",
                                      as.character(vertex[as.numeric(vertex[,1]),2]))
@@ -977,7 +977,7 @@ postProcessProject<-function(
     }else{
       warning("null network title")
     }
-    if(nrow(as.data.frame(vertex))== network.size(temp)){ #should i be doing this? why don't these numbers match all time
+    if(nrow(as.data.frame(stringsAsFactors=TRUE,vertex))== network.size(temp)){ #should i be doing this? why don't these numbers match all time
       temp <- set.vertex.attribute(temp,"vertex.names",as.character(vertex[as.numeric(vertex[,1]),2]))
     }
     

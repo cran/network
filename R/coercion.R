@@ -6,9 +6,9 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 02/26/13
+# Last Modified 06/05/21
 # Licensed under the GNU General Public License version 2 (June, 1991)
-# or later
+# or greater
 #
 # Part of the R/network package
 #
@@ -99,7 +99,7 @@
 #' \code{\link{network.extraction}},\code{\link{as.edgelist}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{http://www.jstatsoft.org/v24/i02/}
+#' \url{https://www.jstatsoft.org/v24/i02/}
 #' @keywords classes graphs
 #' @examples
 #' 
@@ -259,8 +259,9 @@ as.matrix.network.edgelist<-function(x,attrname=NULL,as.sna.edgelist=FALSE,na.rm
 # used to identify a list of attributes to use for edge values.
 #
 #' @rdname as.matrix.network
+#' @param store.eid whether the edge ID should be stored in the third column (`.eid`).
 #' @export
-as_tibble.network<-function(x,attrnames=(match.arg(unit)=="vertices"),na.rm=TRUE,..., unit=c("edges", "vertices")){
+as_tibble.network<-function(x,attrnames=(match.arg(unit)=="vertices"),na.rm=TRUE,..., unit=c("edges", "vertices"), store.eid=FALSE){
   unit <- match.arg(unit)
   if(unit=="edges"){
 
@@ -272,9 +273,9 @@ as_tibble.network<-function(x,attrnames=(match.arg(unit)=="vertices"),na.rm=TRUE
     heads <- lapply(x$mel,`[[`,"inl")
     m <- list(
       .tail = if(is.hyper(x)) tails else as.integer(unlist(tails)),
-      .head = if(is.hyper(x)) heads else as.integer(unlist(heads)),
-      .eid = which(as.logical(sapply(tails, length)) | as.logical(sapply(heads, length)))
+      .head = if(is.hyper(x)) heads else as.integer(unlist(heads))
     )
+    if(store.eid) m$.eid <- which(as.logical(sapply(tails, length)) | as.logical(sapply(heads, length)))
 
     #Add edge values, if needed
     # If logical or numeric, use as index; na.omit() is needed to handle
@@ -282,8 +283,8 @@ as_tibble.network<-function(x,attrnames=(match.arg(unit)=="vertices"),na.rm=TRUE
     # attrnames=TRUE.
     if(is.logical(attrnames) || is.numeric(attrnames)) attrnames <- na.omit(list.edge.attributes(x)[attrnames])
     a <- attrnames %>%
-      lapply(get.edge.attribute, el=x$mel, unlist=FALSE, na.omit=FALSE,null.na=TRUE,deleted.edges.omit=TRUE) %>% # Obtain a list of edge attribute values.
-      lapply(function(l) if(length(lens <- unique(lengths(l))) == 1L && lens==1L) unlist(l, recursive=FALSE) else l) %>% # Iff all values of an edge attribut ehave the same length *and* that length is 1, convert to vector. (FIXME: why didn't I just compare all lengths to 1L?)
+      lapply(get.edge.attribute, x=x$mel, unlist=FALSE, na.omit=FALSE,null.na=TRUE,deleted.edges.omit=TRUE) %>% # Obtain a list of edge attribute values.
+      lapply(simplify_simple, toNA="keep") %>%
       set_names(attrnames)
     m <- c(m, a)
 
@@ -295,7 +296,7 @@ as_tibble.network<-function(x,attrnames=(match.arg(unit)=="vertices"),na.rm=TRUE
     if(is.logical(attrnames) || is.numeric(attrnames)) attrnames <- na.omit(list.vertex.attributes(x)[attrnames])
     a <- attrnames %>%
       lapply(get.vertex.attribute, x=x, unlist=FALSE, na.omit=FALSE,null.na=TRUE) %>% # Obtain a list of edge attribute values.
-      lapply(function(l) if(length(lens <- unique(lengths(l))) == 1L && lens==1L) unlist(l, recursive=FALSE) else l) %>% # Iff all values of a vertex attribut ehave the same length *and* that length is 1, convert to vector. (FIXME: why didn't I just compare all lengths to 1L?)
+      lapply(simplify_simple, toNA="keep") %>%
       set_names(attrnames)
     m <- a
 
@@ -312,8 +313,6 @@ as_tibble.network<-function(x,attrnames=(match.arg(unit)=="vertices"),na.rm=TRUE
 }
 
 #' @rdname as.matrix.network
-#' @usage \method{as.tibble}{network}(x, attrnames = (match.arg(unit)=="vertices"), na.rm = TRUE, ...,
-#'    unit=c("edges","vertices"))
 #' @rawNamespace S3method(as.tibble,network)
 as.tibble.network <- as_tibble.network
 
@@ -408,7 +407,7 @@ as.network<-function(x,...)
 #' \code{\link{which.matrix.type}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{http://www.jstatsoft.org/v24/i02/}
+#' \url{https://www.jstatsoft.org/v24/i02/}
 #' @keywords classes graphs
 #' @examples
 #' 
@@ -589,7 +588,7 @@ as.network.matrix<-function(x, matrix.type=NULL,
 #' @seealso \code{\link{as.matrix.network}}, \code{\link{network}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{http://www.jstatsoft.org/v24/i02/}
+#' \url{https://www.jstatsoft.org/v24/i02/}
 #' @keywords graphs manip
 #' @examples
 #' 

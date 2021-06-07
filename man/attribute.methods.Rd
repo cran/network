@@ -3,47 +3,119 @@
 \name{attribute.methods}
 \alias{attribute.methods}
 \alias{delete.edge.attribute}
+\alias{delete.edge.attribute.network}
 \alias{delete.network.attribute}
+\alias{delete.network.attribute.network}
 \alias{delete.vertex.attribute}
+\alias{delete.vertex.attribute.network}
 \alias{get.edge.attribute}
+\alias{get.edge.attribute.network}
+\alias{get.edge.attribute.list}
 \alias{get.edge.value}
+\alias{get.edge.value.network}
+\alias{get.edge.value.list}
 \alias{get.network.attribute}
+\alias{get.network.attribute.network}
 \alias{get.vertex.attribute}
 \alias{get.vertex.attribute.network}
 \alias{list.edge.attributes}
+\alias{list.edge.attributes.network}
 \alias{list.network.attributes}
+\alias{list.network.attributes.network}
 \alias{list.vertex.attributes}
 \alias{list.vertex.attributes.network}
 \alias{network.vertex.names}
 \alias{network.vertex.names<-}
 \alias{set.edge.attribute}
+\alias{set.edge.attribute.network}
 \alias{set.edge.value}
+\alias{set.edge.value.network}
 \alias{set.network.attribute}
+\alias{set.network.attribute.network}
 \alias{set.vertex.attribute}
+\alias{set.vertex.attribute.network}
 \title{Attribute Interface Methods for the Network Class}
 \usage{
-delete.edge.attribute(x, attrname)
+delete.edge.attribute(x, attrname, ...)
 
-delete.network.attribute(x, attrname)
+\method{delete.edge.attribute}{network}(x, attrname, ...)
 
-delete.vertex.attribute(x, attrname)
+delete.network.attribute(x, attrname, ...)
 
-get.edge.attribute(el, attrname, unlist = TRUE, na.omit = FALSE,
-  null.na = FALSE, deleted.edges.omit = FALSE)
+\method{delete.network.attribute}{network}(x, attrname, ...)
 
-get.edge.value(x, attrname, unlist = TRUE, na.omit = FALSE,
-  null.na = FALSE, deleted.edges.omit = FALSE)
+delete.vertex.attribute(x, attrname, ...)
 
-get.network.attribute(x, attrname, unlist = FALSE)
+\method{delete.vertex.attribute}{network}(x, attrname, ...)
+
+get.edge.attribute(x, ..., el)
+
+\method{get.edge.attribute}{network}(
+  x,
+  attrname,
+  unlist = TRUE,
+  na.omit = FALSE,
+  null.na = FALSE,
+  deleted.edges.omit = FALSE,
+  ...,
+  el
+)
+
+\method{get.edge.attribute}{list}(
+  x,
+  attrname,
+  unlist = TRUE,
+  na.omit = FALSE,
+  null.na = FALSE,
+  deleted.edges.omit = FALSE,
+  ...,
+  el
+)
+
+get.edge.value(x, ...)
+
+\method{get.edge.value}{network}(
+  x,
+  attrname,
+  unlist = TRUE,
+  na.omit = FALSE,
+  null.na = FALSE,
+  deleted.edges.omit = FALSE,
+  ...
+)
+
+\method{get.edge.value}{list}(
+  x,
+  attrname,
+  unlist = TRUE,
+  na.omit = FALSE,
+  null.na = FALSE,
+  deleted.edges.omit = FALSE,
+  ...
+)
+
+get.network.attribute(x, ...)
+
+\method{get.network.attribute}{network}(x, attrname, unlist = FALSE, ...)
 
 get.vertex.attribute(x, ...)
 
-\method{get.vertex.attribute}{network}(x, attrname, na.omit = FALSE,
-  null.na = TRUE, unlist = TRUE, ...)
+\method{get.vertex.attribute}{network}(
+  x,
+  attrname,
+  na.omit = FALSE,
+  null.na = TRUE,
+  unlist = TRUE,
+  ...
+)
 
-list.edge.attributes(x)
+list.edge.attributes(x, ...)
 
-list.network.attributes(x)
+\method{list.edge.attributes}{network}(x, ...)
+
+list.network.attributes(x, ...)
+
+\method{list.network.attributes}{network}(x, ...)
 
 list.vertex.attributes(x, ...)
 
@@ -53,38 +125,46 @@ network.vertex.names(x)
 
 network.vertex.names(x) <- value
 
-set.edge.attribute(x, attrname, value, e = seq_along(x$mel))
+set.edge.attribute(x, attrname, value, e, ...)
 
-set.edge.value(x, attrname, value, e = seq_along(x$mel))
+\method{set.edge.attribute}{network}(x, attrname, value, e = seq_along(x$mel), ...)
 
-set.network.attribute(x, attrname, value)
+set.edge.value(x, attrname, value, e, ...)
 
-set.vertex.attribute(x, attrname, value, v = seq_len(network.size(x)))
+\method{set.edge.value}{network}(x, attrname, value, e = seq_along(x$mel), ...)
+
+set.network.attribute(x, attrname, value, ...)
+
+\method{set.network.attribute}{network}(x, attrname, value, ...)
+
+set.vertex.attribute(x, attrname, value, v = seq_len(network.size(x)), ...)
+
+\method{set.vertex.attribute}{network}(x, attrname, value, v = seq_len(network.size(x)), ...)
 }
 \arguments{
-\item{x}{an object of class \code{network}.}
+\item{x}{an object of class \code{network}, or a list of edges
+(possibly \code{network$mel}) in \code{get.edge.attribute}.}
 
 \item{attrname}{the name of the attribute to get or set.}
 
-\item{el}{a list of edges (possibly \code{network$mel}), or an object of 
-class \code{network} from which the full list of edges will be extracted}
+\item{...}{additional arguments}
 
-\item{unlist}{logical; should retrieved attribute values be 
+\item{el}{Deprecated; use \code{x} instead.}
+
+\item{unlist}{logical; should retrieved attribute values be
 \code{\link{unlist}}ed prior to being returned?}
 
-\item{na.omit}{logical; should retrieved attribute values corresponding to 
+\item{na.omit}{logical; should retrieved attribute values corresponding to
 vertices/edges marked as 'missing' be removed?}
 
 \item{null.na}{logical; should \code{NULL} values (corresponding to vertices
 or edges with no values set for the attribute) be replaced with \code{NA}s
 in output?}
 
-\item{deleted.edges.omit}{logical: should the elements corresponding to 
+\item{deleted.edges.omit}{logical: should the elements corresponding to
 deleted edges be removed?}
 
-\item{...}{additional arguments}
-
-\item{value}{values of the attribute to be set; these should be in 
+\item{value}{values of the attribute to be set; these should be in
 \code{vector} or \code{list} form for the \code{edge} and \code{vertex}
 cases, or \code{matrix} form for \code{set.edge.value}.}
 
@@ -93,65 +173,65 @@ cases, or \code{matrix} form for \code{set.edge.value}.}
 \item{v}{IDs for the vertices whose attributes are to be altered.}
 }
 \value{
-For the \code{list.attributes} methods, a vector containing 
-  attribute names.  For the \code{get.attribute} methods, a list containing
-  the values of the attribute in question (or simply the value itself, for 
-  \code{get.network.attribute}).  For the \code{set.attribute} and 
-  \code{delete.attribute} methods, a pointer to the updated \code{network}
-  object.
+For the \code{list.attributes} methods, a vector containing
+attribute names.  For the \code{get.attribute} methods, a list containing
+the values of the attribute in question (or simply the value itself, for
+\code{get.network.attribute}).  For the \code{set.attribute} and
+\code{delete.attribute} methods, a pointer to the updated \code{network}
+object.
 }
 \description{
-These methods get, set, list, and delete attributes at the 
-  network, edge, and vertex level.
+These methods get, set, list, and delete attributes at the
+network, edge, and vertex level.
 }
 \details{
 The \code{list.attributes} functions return the names of all edge,
-  network, or vertex attributes (respectively) in the network.  All 
-  attributes need not be defined for all elements; the union of all extant
-  attributes for the respective element type is returned.
+network, or vertex attributes (respectively) in the network.  All
+attributes need not be defined for all elements; the union of all extant
+attributes for the respective element type is returned.
 
-The \code{get.attribute} functions look for an edge, network, or vertex 
-  attribute (respectively) with the name \code{attrname}, returning its
-  values.  Note that, to retrieve an edge attribute from all edges within
-  a network \code{x}, \code{x$mel} should be used as the first argument to
-  \code{get.edge.attribute}; \code{get.edge.value} is a convenience function
-  which does this automatically. As of v1.7.2, if a \code{network} object is
-  passed to \code{get.edge.attribute} it will automatically call 
-  \code{get.edge.value} instead of returning NULL. When the parameters 
-  \code{na.omit},  or \code{deleted.edges.omit} are used, the position index
-  of the attribute values returned will not correspond to the vertex/edge 
-  id.  To preserved backward compatibility, if the edge attribute 
-  \code{attrname} does not exist for any edge, \code{get.edge.attribute} 
-  will still return \code{NULL} even if \code{null.na=TRUE}
+The \code{get.attribute} functions look for an edge, network, or vertex
+attribute (respectively) with the name \code{attrname}, returning its
+values.  Note that, to retrieve an edge attribute from all edges within
+a network \code{x}, \code{x$mel} should be used as the first argument to
+\code{get.edge.attribute}; \code{get.edge.value} is a convenience function
+which does this automatically. As of v1.7.2, if a \code{network} object is
+passed to \code{get.edge.attribute} it will automatically call
+\code{get.edge.value} instead of returning NULL. When the parameters
+\code{na.omit},  or \code{deleted.edges.omit} are used, the position index
+of the attribute values returned will not correspond to the vertex/edge
+id.  To preserved backward compatibility, if the edge attribute
+\code{attrname} does not exist for any edge, \code{get.edge.attribute}
+will still return \code{NULL} even if \code{null.na=TRUE}
 
-\code{network.vertex.names} is a convenience function to extract the 
-  \code{"vertex.names"} attribute from all vertices.
+\code{network.vertex.names} is a convenience function to extract the
+\code{"vertex.names"} attribute from all vertices.
 
-The \code{set.attribute} functions allow one to set the values of edge, 
-  network, or vertex attributes.  \code{set.edge.value} is a convenience
-  function which allows edge attributes to be given in adjacency matrix 
-  form, and the assignment form of \code{network.vertex.names} is likewise
-  a convenient front-end to \code{set.vertex.attribute} for vertex names.  
-  The \code{delete.attribute} functions, by contrast, remove the named 
-  attribute from the network, from all edges, or from all vertices (as 
-  appropriate).  If \code{attrname} is a vector of attribute names, each
-  will be removed in turn.  These functions modify their arguments in place,
-  although a pointer to the modified object is also (invisibly) returned.
+The \code{set.attribute} functions allow one to set the values of edge,
+network, or vertex attributes.  \code{set.edge.value} is a convenience
+function which allows edge attributes to be given in adjacency matrix
+form, and the assignment form of \code{network.vertex.names} is likewise
+a convenient front-end to \code{set.vertex.attribute} for vertex names.
+The \code{delete.attribute} functions, by contrast, remove the named
+attribute from the network, from all edges, or from all vertices (as
+appropriate).  If \code{attrname} is a vector of attribute names, each
+will be removed in turn.  These functions modify their arguments in place,
+although a pointer to the modified object is also (invisibly) returned.
 
 Additional practical example of how to load and attach attributes are on the
-  \code{\link{loading.attributes}} page. 
+\code{\link{loading.attributes}} page.
 
-Some attribute assignment/extraction can be performed conveniently through 
-  the various extraction/replacement operators, although they may be less 
-  efficient.  See the associated man page for details.
+Some attribute assignment/extraction can be performed conveniently through
+the various extraction/replacement operators, although they may be less
+efficient.  See the associated man page for details.
 }
 \note{
 As of version 1.9 the \code{set.vertex.attribute} function can accept
-  and modify multiple attributes in a single call to improve efficiency.  
-  For this case \code{attrname} can be a list or vector of attribute names 
-  and \code{value} is a list of values corresponding to the elements of 
-  \code{attrname} (can also be a list of lists of values if elements in v 
-  should have different values).
+and modify multiple attributes in a single call to improve efficiency.
+For this case \code{attrname} can be a list or vector of attribute names
+and \code{value} is a list of values corresponding to the elements of
+\code{attrname} (can also be a list of lists of values if elements in v
+should have different values).
 }
 \examples{
 #Create a network with three edges
@@ -207,13 +287,13 @@ as.sociomatrix(g,"myeval")              # Or like this
 }
 \references{
 Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
-  Relational Data in R.}  \emph{Journal of Statistical Software}, 24(2).  
-  \url{https://www.jstatsoft.org/v24/i02/}
+Relational Data in R.}  \emph{Journal of Statistical Software}, 24(2).
+\url{https://www.jstatsoft.org/v24/i02/}
 }
 \seealso{
-\code{\link{loading.attributes}},\code{\link{network}}, 
-  \code{\link{as.network.matrix}}, \code{\link{as.sociomatrix}}, 
-  \code{\link{as.matrix.network}}, \code{\link{network.extraction}}
+\code{\link{loading.attributes}},\code{\link{network}},
+\code{\link{as.network.matrix}}, \code{\link{as.sociomatrix}},
+\code{\link{as.matrix.network}}, \code{\link{network.extraction}}
 }
 \author{
 Carter T. Butts \email{buttsc@uci.edu}

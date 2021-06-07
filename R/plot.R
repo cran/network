@@ -6,9 +6,9 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 11/24/19
+# Last Modified 06/06/21
 # Licensed under the GNU General Public License version 2 (June, 1991)
-# or later
+# or greater
 #
 # Part of the R/network package
 #
@@ -122,7 +122,7 @@ make.arrow.poly.coords<-function(x0,y0,x1,y1,ahangle,ahlen,swid,toff,hoff,ahead,
 #' \code{\link{polygon}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{http://www.jstatsoft.org/v24/i02/}
+#' \url{https://www.jstatsoft.org/v24/i02/}
 #' @keywords aplot graphs
 #' @examples
 #' 
@@ -135,7 +135,7 @@ make.arrow.poly.coords<-function(x0,y0,x1,y1,ahangle,ahlen,swid,toff,hoff,ahead,
 #' @export network.arrow
 network.arrow<-function(x0,y0,x1,y1,length=0.1,angle=20,width=0.01,col=1,border=1,lty=1,offset.head=0,offset.tail=0,arrowhead=TRUE,curve=0,edge.steps=50,...){
   if(length(x0)==0)   #Leave if there's nothing to do
-    return();
+    return()
 
   #"Stretch" the arguments
   n<-length(x0)
@@ -258,7 +258,7 @@ make.loop.poly.coords<-function(x0,y0,xctr,yctr,ahangle,ahlen,swid,off,rad,ahead
 #' @export network.loop
 network.loop<-function(x0,y0,length=0.1,angle=10,width=0.01,col=1,border=1,lty=1,offset=0,edge.steps=10,radius=1,arrowhead=TRUE,xctr=0,yctr=0,...){
   if(length(x0)==0)   #Leave if there's nothing to do
-    return();
+    return()
 
   #"Stretch" the arguments
   n<-length(x0)
@@ -333,7 +333,7 @@ make.vertex.poly.coords<-function(x,y,r,s,rot){
 #' @seealso \code{\link{plot.network}}, \code{\link{polygon}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{http://www.jstatsoft.org/v24/i02/}
+#' \url{https://www.jstatsoft.org/v24/i02/}
 #' @keywords aplot graphs
 #' @examples
 #' 
@@ -600,7 +600,7 @@ network.edgelabel<-function(px0,py0,px1,py1,label,directed,loops=FALSE,cex,curve
 #' \code{\link{network.loop}}, \code{\link{network.vertex}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{http://www.jstatsoft.org/v24/i02/}
+#' \url{https://www.jstatsoft.org/v24/i02/}
 #' 
 #' Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis:
 #' Methods and Applications.} Cambridge: Cambridge University Press.

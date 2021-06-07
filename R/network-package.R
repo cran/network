@@ -60,13 +60,13 @@ NULL
 #' @format A list of 7 \code{\link{network}} objects:
 #' 
 #'  \tabular{rlll}{
-#'    [[1]] \tab Cheyenne     \tab network \tab Cheyenne SAR EMON\cr
-#'    [[2]] \tab HurrFrederic \tab network \tab Hurricane Frederic SAR EMON\cr
-#'    [[3]] \tab LakePomona   \tab network \tab Lake Pomona SAR EMON\cr
-#'    [[4]] \tab MtSi         \tab network \tab Mt. Si SAR EMON\cr
-#'    [[5]] \tab MtStHelens   \tab network \tab Mt. St. Helens SAR EMON\cr
-#'    [[6]] \tab Texas        \tab network \tab Texas Hill Country SAR EMON\cr
-#'    [[7]] \tab Wichita      \tab network \tab Wichita Falls SAR EMON
+#'    `[[1]]` \tab Cheyenne     \tab network \tab Cheyenne SAR EMON\cr
+#'    `[[2]]` \tab HurrFrederic \tab network \tab Hurricane Frederic SAR EMON\cr
+#'    `[[3]]` \tab LakePomona   \tab network \tab Lake Pomona SAR EMON\cr
+#'    `[[4]]` \tab MtSi         \tab network \tab Mt. Si SAR EMON\cr
+#'    `[[5]]` \tab MtStHelens   \tab network \tab Mt. St. Helens SAR EMON\cr
+#'    `[[6]]` \tab Texas        \tab network \tab Texas Hill Country SAR EMON\cr
+#'    `[[7]]` \tab Wichita      \tab network \tab Wichita Falls SAR EMON
 #'  }
 #' 
 #' Each network has one edge attribute:
@@ -183,7 +183,7 @@ NULL
 #' 
 #' Butts, C. T.  (2008).  \dQuote{network: a Package for Managing Relational
 #' Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{http://www.jstatsoft.org/v24/i02/}
+#' \url{https://www.jstatsoft.org/v24/i02/}
 #' @keywords classes graphs
 #' @examples
 #' 
@@ -329,7 +329,7 @@ NULL
 #' elData
 #' 
 #' # to make a network we just use the first two id columns
-#' valuedNet2<-network(elData[,1:2],matrix.type='edgelist')
+#' valuedNet2<-network(elData[,1:2],loops=TRUE)
 #' 
 #' # print it out
 #' as.matrix(valuedNet2)
@@ -338,7 +338,7 @@ NULL
 #' 
 #' # to include values (with names from the columns)
 #' 
-#' valuedNet2<-network(elData,matrix.type='edgelist',ignore.eval=FALSE)
+#' valuedNet2<-network(elData,loops=TRUE)
 #' list.edge.attributes(valuedNet2)
 #' as.matrix(valuedNet2,attrname='someLetters')
 #' 

@@ -1,6 +1,6 @@
 Package: network
-Version: 1.16.1
-Date: 2020-10-06
+Version: 1.17.0
+Date: 2021-06-06
 Title: Classes for Relational Data
 Authors@R: c(
     person("Carter T.", "Butts", role=c("aut","cre"), email="buttsc@uci.edu"),
@@ -8,25 +8,34 @@ Authors@R: c(
     person("Mark", "Handcock", role=c("ctb"), email="handcock@stat.ucla.edu"),
     person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@uw.edu"),
     person("Jeffrey", "Horner", role=c("ctb"), email="jeffrey.horner@gmail.com"),
-    person("Li", "Wang", role=c("ctb"), email="lxwang@uw.edu"))
-Depends: R (>= 2.10), utils
-Imports: tibble, magrittr
-Suggests: sna, statnet.common, testthat, covr
-Description: Tools to create and modify network objects.  The network class can represent a range of relational data types, and supports arbitrary vertex/edge/graph attributes.
-License: GPL (>= 2)
-URL: http://statnet.org/
-RoxygenNote: 6.1.1
-Collate: 'access.R' 'as.edgelist.R' 'assignment.R' 'coercion.R'
-        'constructors.R' 'fileio.R' 'layout.R' 'misc.R'
-        'network-package.R' 'operators.R' 'plot.R' 'printsum.R' 'zzz.R'
-NeedsCompilation: yes
-Packaged: 2020-10-07 06:12:38 UTC; buttsc
+    person("Li", "Wang", role=c("ctb"), email="lxwang@uw.edu"),
+    person("Pavel N.", "Krivitsky", role=c("ctb"), email="pavel@statnet.org", comment=c(ORCID="0000-0002-9101-3362")),
+    person("Brendan", "Knapp", role=c("ctb"), email="brendan.g.knapp@gmail.com", comment=c(ORCID="0000-0003-3284-4972")),
+    person("Michał", "Bojanowski", role=c("ctb"), email="mbojanowski@kozminski.edu.pl"),
+    person("Chad", "Klumb", role=c("ctb"), email="cklumb@gmail.com"))
 Author: Carter T. Butts [aut, cre],
   David Hunter [ctb],
   Mark Handcock [ctb],
   Skye Bender-deMoll [ctb],
   Jeffrey Horner [ctb],
-  Li Wang [ctb]
+  Li Wang [ctb],
+  Pavel N. Krivitsky [ctb] (<https://orcid.org/0000-0002-9101-3362>),
+  Brendan Knapp [ctb] (<https://orcid.org/0000-0003-3284-4972>),
+  Michał Bojanowski [ctb],
+  Chad Klumb [ctb]
 Maintainer: Carter T. Butts <buttsc@uci.edu>
+Depends: R (>= 2.10), utils
+Imports: tibble, magrittr, statnet.common (>= 4.4.1), stats
+Suggests: sna, testthat, covr
+Description: Tools to create and modify network objects.  The network class can represent a range of relational data types, and supports arbitrary vertex/edge/graph attributes.
+License: GPL (>= 2)
+URL: http://statnet.org/
+RoxygenNote: 7.1.1
+Collate: 'access.R' 'as.edgelist.R' 'assignment.R' 'coercion.R'
+        'constructors.R' 'dataframe.R' 'fileio.R' 'layout.R' 'misc.R'
+        'network-package.R' 'operators.R' 'plot.R' 'printsum.R' 'zzz.R'
+Encoding: UTF-8
+NeedsCompilation: yes
+Packaged: 2021-06-06 07:39:10 UTC; buttsc
 Repository: CRAN
-Date/Publication: 2020-10-07 07:00:02 UTC
+Date/Publication: 2021-06-07 05:40:02 UTC

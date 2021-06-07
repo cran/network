@@ -6,9 +6,9 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 02/26/13
+# Last Modified 06/06/21
 # Licensed under the GNU General Public License version 2 (June, 1991)
-# or later
+# or greater
 #
 # Part of the R/network package
 #
@@ -119,7 +119,7 @@ network<-function(x, vertex.attr=NULL, vertex.attrnames=NULL,
 #' 
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing 
 #'   Relational Data in R.}  \emph{Journal of Statistical Software}, 24(2).  
-#'   \url{http://www.jstatsoft.org/v24/i02/}
+#'   \url{https://www.jstatsoft.org/v24/i02/}
 #'
 #' @author Carter T. Butts \email{buttsc@uci.edu} and David Hunter 
 #'   \email{dhunter@stat.psu.edu}
@@ -159,14 +159,6 @@ network<-function(x, vertex.attr=NULL, vertex.attrnames=NULL,
 #' g<-network.incidence(inci,network.initialize(4,directed=FALSE))
 #' as.matrix(g)
 #' 
-#' # load in biparite dataframe with weights
-#' bipMat<-data.frame(
-#'         event1=c(1,2,1,0),
-#'         event2=c(0,0,3,0),
-#'         event3=c(1,1,0,4),
-#'         row.names=c("a","b","c","d"))
-#' net<-network(bipMat,matrix.type='bipartite',ignore.eval=FALSE,names.eval='pies')
-#' as.matrix(net,attername='pies')
 #' 
 #' 
 #' 
@@ -313,6 +305,23 @@ network.edgelist<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
   #Set things up to edit g in place
   gn<-substitute(g)
   l<-dim(x)[2]
+  #Remove loops if has.loops==FALSE
+  if(!has.loops(g)){
+    cn<-colnames(x)
+    x<-x[x[,1]!=x[,2],,drop=FALSE]  #Remove loops
+    colnames(x)<-cn
+  }
+  #Remove redundant edges if is.multiplex==FALSE
+  if(!is.multiplex(g)){
+    cn<-colnames(x)
+    if(is.directed(g)){
+      x<-x[!duplicated(x[,1:2]),,drop=FALSE]
+    }else{
+      x[,1:2]<-t(apply(x[,1:2],1,sort))
+      x<-x[!duplicated(x[,1:2]),,drop=FALSE]
+    }
+    colnames(x)<-cn
+  }
   #Traverse the edgelist matrix, adding edges as we go.
   if((l>2)&&(!ignore.eval)){		#Use values if present...
     #if names not given, try to use the names from data frame
@@ -423,7 +432,7 @@ network.incidence<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
 #' @seealso \code{\link{network}}, \code{\link{as.network.matrix}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{http://www.jstatsoft.org/v24/i02/}
+#' \url{https://www.jstatsoft.org/v24/i02/}
 #' @keywords classes graphs
 #' @examples
 #' 
@@ -449,9 +458,9 @@ network.initialize<-function(n,directed=TRUE,hyper=FALSE,loops=FALSE,multiple=FA
   g$gal$bipartite<-bipartite
   #Populate the vertex attribute lists, endpoint lists, etc.
   if(n>0){
-    g$val<-replicate(n,list())
-    g$iel<-replicate(n,vector(mode="integer"))
-    g$oel<-replicate(n,vector(mode="integer"))
+    g$val<-rep(list(list()), n)
+    g$iel<-rep(list(integer()), n)
+    g$oel<-rep(list(integer()), n)
   }else{
     g$val<-vector(length=0,mode="list")
     g$iel<-vector(length=0,mode="list")

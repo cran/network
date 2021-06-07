@@ -6,9 +6,9 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 01/28/11
+# Last Modified 06/06/21
 # Licensed under the GNU General Public License version 2 (June, 1991)
-# or later
+# or greater
 #
 # Part of the R/network package
 #
@@ -61,7 +61,15 @@
   return(x)
 }
 
+# A helper function to check that a particular edgelist can be validly queried or assigned to.
+#' @importFrom statnet.common NVL
+out_of_bounds <- function(x, el){
+  n <- network.size(x)
+  bip <- NVL(x%n%"bipartite", FALSE)
 
+  anyNA(el) || any(el<1L) || any(el>n) ||
+    (bip && (any((el[,1]<=bip) == (el[,2]<=bip))))
+}
 
 # removed so that will dispatch to internal primitive method #642
 #"$<-.network"<-function(x,i,value){
@@ -116,7 +124,7 @@
 #' corresponding to \code{get.vertex.attribute(x,attrname)}.  In assignment,
 #' the respective equivalences are to
 #' \code{set.network.attribute(x,attrname,value)} and
-#' \code{set.vertex.attribute(x,attrname,value)}.  Note that the ``\%\%''
+#' \code{set.vertex.attribute(x,attrname,value)}.  Note that the `%%`
 #' assignment forms are generally slower than the named versions of the
 #' functions beause they will trigger an additional internal copy of the
 #' network object.
@@ -148,7 +156,7 @@
 #' \code{\link{network.operators}}, and \code{\link{get.inducedSubgraph}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{http://www.jstatsoft.org/v24/i02/}
+#' \url{https://www.jstatsoft.org/v24/i02/}
 #' @keywords graphs manip
 #' @examples
 #' 
@@ -187,26 +195,32 @@
 "[.network"<-function(x,i,j,na.omit=FALSE){
   narg<-nargs()+missing(na.omit)
   n<-network.size(x)
+  bip <- x%n%"bipartite"
   xnames <- network.vertex.names(x)
-  if(missing(i))              #If missing, use 1:n
-    i<-1:n
-  if((narg>3)&&missing(j))
-    j<-1:n
+  if(missing(i)){              #If missing, use 1:n
+    i <- if(is.bipartite(x)) 1:bip else 1:n
+  }
+  if((narg>3)&&missing(j)){
+    j <- if(is.bipartite(x)) (bip+1L):n else 1:n
+  }
   if(is.matrix(i)&&(NCOL(i)==1))  #Vectorize if degenerate matrix
     i<-as.vector(i)
   if(is.matrix(i)){    #Still a matrix?
     if(is.logical(i)){                    #Subset w/T/F?
       j<-col(i)[i]
       i<-row(i)[i]
+      if(out_of_bounds(x, cbind(i,j))) stop("subscript out of bounds")
       out<-is.adjacent(x,i,j,na.omit=na.omit)
     }else{                                #Were we passed a pair list?
       if(is.character(i))
         i<-apply(i,c(1,2),match,xnames)
+      if(out_of_bounds(x, i)) stop("subscript out of bounds")
       out<-is.adjacent(x,i[,1],i[,2], na.omit=na.omit)
     }
   }else if((narg<3)&&missing(j)){   #Here, assume a list of cell numbers
     ir<-1+((i-1)%%n)
     ic<-1+((i-1)%/%n)
+    if(out_of_bounds(x, cbind(ir,ic))) stop("subscript out of bounds")
     out<-is.adjacent(x,ir,ic,na.omit=na.omit)
   }else{                      #Otherwise, assume a vector or submatrix
     if(is.character(i))
@@ -216,14 +230,17 @@
     i<-(1:n)[i]                 #Piggyback on R's internal tricks
     j<-(1:n)[j]
     if(length(i)==1){
+      if(out_of_bounds(x, cbind(i,j))) stop("subscript out of bounds")
       out<-is.adjacent(x,i,j,na.omit=na.omit)
     }else{
       if(length(j)==1){
+        if(out_of_bounds(x, cbind(i,j))) stop("subscript out of bounds")
         out<-is.adjacent(x,i,j,na.omit=na.omit)
       }else{
         jrep<-rep(j,rep.int(length(i),length(j)))
         if(length(i)>0)
           irep<-rep(i,times=ceiling(length(jrep)/length(i)))
+        if(out_of_bounds(x, cbind(irep,jrep))) stop("subscript out of bounds")
         out<-matrix(is.adjacent(x,irep,jrep,na.omit=na.omit), length(i),length(j))
       }
     }
@@ -255,10 +272,13 @@
   narg<-nargs()+missing(names.eval)+missing(add.edges)
   n<-network.size(x)
   xnames <- network.vertex.names(x)
-  if(missing(i))              #If missing, use 1:n
-    i<-1:n
-  if((narg>5)&&missing(j))
-    j<-1:n
+  bip <- x%n%"bipartite"
+  if(missing(i)){              #If missing, use 1:n
+    i <- if(is.bipartite(x)) 1:bip else 1:n
+  }
+  if((narg>5)&&missing(j)){
+    j <- if(is.bipartite(x)) (bip+1L):n else 1:n
+  }
   if(is.matrix(i)&&(NCOL(i)==1))  #Vectorize if degenerate matrix
     i<-as.vector(i)
   if(is.matrix(i)){    #Still a matrix?
@@ -293,6 +313,10 @@
       }
     }
   }
+
+  # Check bounds
+  if(out_of_bounds(x, el)) stop("subscript out of bounds")
+
   #Set up values
   if(is.matrix(value))
     val<-value[cbind(match(el[,1],sort(unique(el[,1]))), match(el[,2],sort(unique(el[,2]))))]
@@ -530,7 +554,7 @@
 #' @seealso \code{\link{network.extraction}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{http://www.jstatsoft.org/v24/i02/}
+#' \url{https://www.jstatsoft.org/v24/i02/}
 #' 
 #' Wasserman, S. and Faust, K.  (1994).  \emph{Social Network Analysis: Methods
 #' and Applications.} Cambridge: University of Cambridge Press.
@@ -574,7 +598,7 @@
     if(!is.multiplex(out)){           #If not multiplex, remove duplicates
       el<-unique(el)
       elna<-unique(elna)
-      if(NROW(el)*NROW(elna)>0){
+      if(NROW(el)>0&&NROW(elna)>0){
         n<-network.size(out)
         elnum<-(el[,1]-1)+n*(el[,2]-1)
         elnanum<-(elna[,1]-1)+n*(elna[,2]-1)
@@ -861,7 +885,7 @@
     elna<-rbind(outinf$elnax,outinf$elnay)
     el<-unique(el)
     elna<-unique(elna)
-    if(NROW(el)*NROW(elna)>0){
+    if(NROW(el)>0&&NROW(elna)>0){
       n<-network.size(out)
       elnum<-(el[,1]-1)+n*(el[,2]-1)
       elnanum<-(elna[,1]-1)+n*(elna[,2]-1)
@@ -1063,7 +1087,7 @@ if (!exists('%c%')){
     if(NROW(elna)>1){
       elna<-unique(elna)
     }
-    if(NROW(elna)*NROW(el)>0){
+    if(NROW(elna)>0&&NROW(el)>0){
       sel<-rep(TRUE,NROW(elna))
       for(i in 1:NROW(elna)){
         if(any((el[,1]==elna[i,1])&(el[,2]==elna[i,2])))
@@ -1268,7 +1292,7 @@ networkOperatorSetup<-function(x,y=NULL){
 #' @seealso \code{\link{network.operators}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{http://www.jstatsoft.org/v24/i02/}
+#' \url{https://www.jstatsoft.org/v24/i02/}
 #' @keywords arith graphs
 #' @examples
 #' 
@@ -1333,7 +1357,7 @@ prod.network<-function(..., attrname=NULL, na.rm=FALSE){
 #' @seealso \code{\link{network.operators}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{http://www.jstatsoft.org/v24/i02/}
+#' \url{https://www.jstatsoft.org/v24/i02/}
 #' @keywords arith graphs
 #' @examples
 #' 

@@ -7,8 +7,14 @@
 \alias{readAndVectorizeLine}
 \title{Read a Pajek Project or Network File and Convert to an R 'Network' Object}
 \usage{
-read.paj(file, verbose = FALSE, debug = FALSE, edge.name = NULL,
-  simplify = FALSE, time.format = c("pajekTiming", "networkDynamic"))
+read.paj(
+  file,
+  verbose = FALSE,
+  debug = FALSE,
+  edge.name = NULL,
+  simplify = FALSE,
+  time.format = c("pajekTiming", "networkDynamic")
+)
 }
 \arguments{
 \item{file}{the name of the file whence the data are to be read. If it does
@@ -77,7 +83,7 @@ be returned. Otherwise the network will be directed, with two edges (one in
 each direction) added for every row in the \code{*Edges} block.
 
 If the \code{*Vertices}, \code{*Arcs} or \code{*Edges} blocks having timing
-information included in the rows (indicated by '[...]' tokens), it will be
+information included in the rows (indicated by \code{...} tokens), it will be
 attached to the vertices with behavior determined by the \code{time.format}
 option.  If the \code{'networkDynamic'} format is used, times will be
 translated to \code{networkDynamic}'s spell model with the assumtion that
@@ -112,7 +118,7 @@ plot(test.net.2,main=test.net.2\%n\%'title',
                
 # read .paj project file
 # notice output has $networks and $partitions
-read.paj('https://vlado.fmf.uni-lj.si/vlado/podstat/AO/net/Tina.paj')
+read.paj('http://vlado.fmf.uni-lj.si/vlado/podstat/AO/net/Tina.paj')
 }
 
 }

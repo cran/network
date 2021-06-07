@@ -8,7 +8,7 @@
 #
 # Last Modified 11/26/19
 # Licensed under the GNU General Public License version 2 (June, 1991)
-# or later
+# or greater
 #
 # Part of the R/network package
 #

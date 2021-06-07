@@ -8,7 +8,7 @@
 #
 # Last Modified 11/26/19
 # Licensed under the GNU General Public License version 2 (June, 1991)
-# or later
+# or greater
 #
 # Part of the R/network package
 #
@@ -151,8 +151,6 @@ print.network<-function(x, matrix.type=which.matrix.type(x),
 
 
 #Print method for summary.character
-#' @export print.summary.character
-#' @export
 print.summary.character <- function(x, max.print=10, ...){
   x<-table(x)
   nam<-names(x)
@@ -327,8 +325,6 @@ print.summary.network<-function(x, ...){
 
 
 #An internal routine to handle summaries of characters
-#' @export summary.character
-#' @export
 summary.character <- function(object, ...){
   class(object)<-c("summary.character",class(object))
   object
@@ -345,7 +341,7 @@ summary.network<-function(object, na.omit=TRUE, mixingmatrices=FALSE, print.adj=
   object%n%"summary.na.omit"<-na.omit
   object%n%"summary.mixingmatrices"<-mixingmatrices
   object%n%"summary.print.adj"<-print.adj
-  class(object)<-"summary.network"
+  class(object)<-c("summary.network", class(object))
   #Return the object
   object
 }

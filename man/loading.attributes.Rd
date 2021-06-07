@@ -15,7 +15,7 @@ gives examples of how to load in and attach attribute data, drawing heavily
 on material from the Sunbelt statnet workshops
 \url{https://github.com/statnet/Workshops/wiki}.
 
-The examples section below give a quick overview of: 
+The examples section below give a quick overview of:
 \itemize{
 \item Loading in a matrix
 
@@ -182,7 +182,7 @@ elData<-data.frame(
 elData
 
 # to make a network we just use the first two id columns
-valuedNet2<-network(elData[,1:2],matrix.type='edgelist')
+valuedNet2<-network(elData[,1:2],loops=TRUE)
 
 # print it out
 as.matrix(valuedNet2)
@@ -191,7 +191,7 @@ as.matrix(valuedNet2)
 
 # to include values (with names from the columns)
 
-valuedNet2<-network(elData,matrix.type='edgelist',ignore.eval=FALSE)
+valuedNet2<-network(elData,loops=TRUE)
 list.edge.attributes(valuedNet2)
 as.matrix(valuedNet2,attrname='someLetters')
 
