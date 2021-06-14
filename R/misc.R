@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 06/06/21
+# Last Modified 06/08/21
 # Licensed under the GNU General Public License version 2 (June, 1991)
 # or greater
 #
@@ -20,6 +20,7 @@
 #   is.discrete
 #   is.discrete.character
 #   is.discrete.numeric
+#   which.matrix.type
 #
 ######################################################################
 
@@ -551,6 +552,8 @@ which.matrix.type<-function(x)
             out<-NA
         else if (diff(dim(x))==0)  
             out<-"adjacency"
+        else if (NROW(x)==0)  #For a 0-row matrix, an empty edgelist is the best bet...
+            out<-"edgelist"
         else if (max(abs(x),na.rm=TRUE)==1 && max(abs(x-as.integer(x)),na.rm=TRUE)==0)
             out<-"bipartite"
         else if (max(abs(x-as.integer(x))[,1:2],na.rm=TRUE)==0 && min(x[,1:2],na.rm=TRUE)>0)
@@ -567,24 +570,4 @@ which.matrix.type<-function(x)
             out<-"edgelist"
     }
     out
-}
-
-
-# This is a temporary transplant from statnet.common, copied here to ease transition on CRAN.
-#' @importFrom statnet.common EVL
-simplify_simple <- function(x, toNA = c("null","empty","keep"), empty = c("keep", "unlist"), ...){
-  if(isFALSE(toNA)) toNA <- "keep"
-  toNA <- match.arg(toNA)
-  empty <- match.arg(empty)
-
-  if(is.atomic(x)) return(x)
-
-  x <- switch(toNA,
-              keep = x,
-              null = lapply(x, NVL, NA),
-              empty = lapply(x, EVL, NA))
-
-  if(length(x)==0) switch(empty, keep=x, unlist=unlist(x, recursive=FALSE, ...))
-  else if(all(lengths(x)==1L) && all(vapply(x, is.atomic, logical(1)))) unlist(x, recursive=FALSE, ...)
-  else x
 }
