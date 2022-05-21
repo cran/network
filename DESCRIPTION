@@ -1,6 +1,6 @@
 Package: network
-Version: 1.17.1
-Date: 2021-06-12
+Version: 1.17.2
+Date: 2022-05-20
 Title: Classes for Relational Data
 Authors@R: c(
     person("Carter T.", "Butts", role=c("aut","cre"), email="buttsc@uci.edu"),
@@ -36,6 +36,6 @@ Collate: 'access.R' 'as.edgelist.R' 'assignment.R' 'coercion.R'
         'network-package.R' 'operators.R' 'plot.R' 'printsum.R' 'zzz.R'
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2021-06-14 01:46:28 UTC; buttsc
+Packaged: 2022-05-21 06:20:27 UTC; buttsc
 Repository: CRAN
-Date/Publication: 2021-06-14 06:40:01 UTC
+Date/Publication: 2022-05-21 07:40:02 UTC
