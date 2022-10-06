@@ -1,4 +1,5 @@
-if(FALSE){ #Set to TRUE to enable test
+#Set to TRUE to run tests
+if(FALSE){
 
 # additional tests of misc network functionality split off from general.tests.R to avoid speed warnings
 library(network)
@@ -93,4 +94,5 @@ if(nrow(result5) != 0 & ncol(result5) != 0){
   stop('as.matrix.network.incidence did not return matrix with correct dimensions')
 }
 
+#End test
 }

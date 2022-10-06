@@ -1,7 +1,8 @@
-if(FALSE){ #Set to TRUE to enable test
-
 #The following battery of tests is intended to verify the functionality of
 #the network library
+
+#Set to TRUE to run tests
+if(FALSE){
 
 library(network)
 #These functions are intended to mimic functionality from the sna package.
@@ -210,4 +211,5 @@ if(!all(check)){                                               #Should be TRUE
   stop(paste("network package test failed on test(s):",which(!check)))
 }
 
+#End test
 }

@@ -1,4 +1,5 @@
-if(FALSE){ #Set to TRUE to enable test
+#Set to TRUE to run tests
+if(FALSE){
 
 library(network)
 if (require(statnet.common,quietly=TRUE)){
@@ -31,4 +32,5 @@ if (require(statnet.common,quietly=TRUE)){
 
 }
 
+#End tests
 }

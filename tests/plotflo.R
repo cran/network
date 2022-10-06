@@ -1,4 +1,5 @@
-if(FALSE){ #Set to TRUE to enable test
+#Set to TRUE to run tests
+if(FALSE){
 
 #
 # load the library
@@ -50,4 +51,5 @@ par(mar=c(0,0,0,0))
 plot(emon[[5]],edge.label=TRUE,edge.label.cex=0.6,
      edge.col='gray',edge.lwd=(emon[[5]]%e%'Frequency')*2)
 
+#End tests
 }

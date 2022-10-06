@@ -1,4 +1,5 @@
-if(FALSE){ #Set to TRUE to enable test
+#Set to TRUE to run tests
+if(FALSE){
 
 require(network)
 
@@ -62,4 +63,5 @@ net%n%'a_desc_vec'<-numeric(rep(100,1))
 net%n%'a_net'<-network.initialize(5)
 print.network(net)
 
+#End tests
 }

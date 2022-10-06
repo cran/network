@@ -187,15 +187,15 @@ add.edges.network<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, ...)
   if(!is.list(tail))
     tail<-as.list(tail)
   if(!is.list(head))
-    head<-as.list(rep(head,length=length(tail)))
+    head<-as.list(rep(head,length.out=length(tail)))
   if(is.null(names.eval))
     names.eval<-replicate(length(tail),NULL)
   else if(!is.list(names.eval))
-    names.eval<-as.list(rep(names.eval,length=length(tail)))
+    names.eval<-as.list(rep(names.eval,length.out=length(tail)))
   if(is.null(vals.eval))
     vals.eval<-replicate(length(tail),NULL)
   else if(!is.list(vals.eval))
-    vals.eval<-as.list(rep(vals.eval,length=length(names.eval)))
+    vals.eval<-as.list(rep(vals.eval,length.out=length(names.eval)))
   if(length(unique(c(length(tail),length(head),length(names.eval), length(vals.eval))))>1)
     stop("head, tail, names.eval and vals.eval lists passed to add.edges must be of the same length!\n")
   edge.check<-list(...)$edge.check
@@ -299,9 +299,9 @@ add.vertices.network<-function(x, nv, vattr=NULL, last.mode=TRUE, ...){
   #Check the vertex attributes, to be sure that they are legal
   if(!is.null(vattr)){
     if(is.list(vattr))
-      vattr<-rep(vattr,length=nv)
+      vattr<-rep(vattr,length.out=nv)
     else
-      vattr<-as.list(rep(vattr,length=nv))
+      vattr<-as.list(rep(vattr,length.out=nv))
   }
   #Perform the addition
   xn<-substitute(x)
@@ -531,6 +531,7 @@ delete.edge.attribute.network <- function(x, attrname, ...) {
 #' @param x an object of class \code{network}.
 #' @param eid a vector of edge IDs.
 #' @param vid a vector of vertex IDs.
+#' @param ... additional arguments to methods.
 #'   
 #' @return Invisibly, a pointer to the updated network; these functions modify
 #'   their arguments in place.
@@ -563,10 +564,13 @@ delete.edge.attribute.network <- function(x, attrname, ...) {
 #' 
 #' @keywords classes graphs
 #' @export
-delete.edges<-function(x,eid){
-  #Check to be sure we were called with a network
-  if(!is.network(x))
-    stop("delete.edges requires an argument of class network.")
+delete.edges <- function(x, eid, ...) {
+  UseMethod("delete.edges")
+}
+
+#' @rdname deletion.methods
+#' @export
+delete.edges.network <- function(x, eid, ...) {
   xn<-substitute(x)
   if(length(eid)>0){
     #Perform a sanity check
@@ -628,11 +632,14 @@ delete.vertex.attribute.network <- function(x, attrname, ...) {
 # Remove specified vertices (and associated edges) from the network.
 #
 #' @rdname deletion.methods
-#' @export delete.vertices
-delete.vertices<-function(x,vid){
-  #Check to be sure we were called with a network
-  if(!is.network(x))
-    stop("delete.vertices requires an argument of class network.")
+#' @export
+delete.vertices <- function(x, vid, ...) {
+  UseMethod("delete.vertices")
+}
+
+#' @rdname deletion.methods
+#' @export
+delete.vertices.network <- function(x, vid, ...) {
   #Remove any vids which are out of bounds
   vid<-vid[(vid>0)&(vid<=network.size(x))]
   #Do the deed, if still needed
@@ -827,7 +834,7 @@ get.edges<-function(x, v, alter=NULL, neighborhood=c("out","in","combined"), na.
 # as defined by a vector of tails and heads vertex ids
 #' @rdname get.edges
 #' @export get.dyads.eids
-get.dyads.eids<-function(x,tails,heads,neighborhood = c("out", "in", "combined")){
+get.dyads.eids<-function(x,tails,heads,neighborhood = c("out", "in", "combined"),na.omit = TRUE){
   if(length(tails)!=length(heads)){
     stop('heads and tails vectors must be the same length for get.dyads.eids')
   }
@@ -839,7 +846,7 @@ get.dyads.eids<-function(x,tails,heads,neighborhood = c("out", "in", "combined")
     neighborhood = "combined"
   }
   lapply(seq_along(tails),function(e){
-    eid<-get.edgeIDs(x,v = tails[e],alter=heads[e],neighborhood=neighborhood)
+    eid<-get.edgeIDs(x,v = tails[e],alter=heads[e],neighborhood=neighborhood,na.omit=na.omit)
     if(length(eid)>1){
       eid<-NA
       warning('get.dyads.eids found multiple edge ids for dyad ',tails[e],',',heads[e],' NA will be returned')
@@ -1267,8 +1274,8 @@ is.adjacent<-function(x,vi,vj,na.omit=FALSE){
   if(!is.network(x))
     stop("is.adjacent requires an argument of class network.\n")
   if(length(vi)!=length(vj)){
-    vi<-rep(vi,length=max(length(vi),length(vj)))
-    vj<-rep(vj,length=max(length(vi),length(vj)))
+    vi<-rep(vi,length.out=max(length(vi),length(vj)))
+    vj<-rep(vj,length.out=max(length(vi),length(vj)))
   }
   #Do the deed
  .Call(isAdjacent_R,x,vi,vj,na.omit)
@@ -1876,10 +1883,10 @@ permute.vertexIDs<-function(x,vids){
 #     if(!is.vector(value))
 #       stop("Inappropriate edge value given in set.edge.attribute.\n")
 #     else
-#       value<-as.list(rep(value,length=length(e)))
+#       value<-as.list(rep(value,length.out=length(e)))
 #   }else
 #     if(length(value)!=length(e))
-#       value<-rep(value,length=length(e))
+#       value<-rep(value,length.out=length(e))
 #   xn<-deparse(substitute(x))
 #   ev<-parent.frame()
 #   if(length(e)>0){
@@ -1915,11 +1922,11 @@ set.edge.attribute.network <- function(x, attrname, value, e=seq_along(x$mel), .
         if(!is.vector(value)){
           stop("Inappropriate edge value given in set.edge.attribute.\n")
         } else {
-          value<-as.list(rep(value,length=length(e)))
+          value<-as.list(rep(value,length.out=length(e)))
         }
       } else {
         if(length(value)!=length(e)) {
-          value<-rep(value,length=length(e))
+          value<-rep(value,length.out=length(e))
         }
       }
       #Do the deed, call the set single value version
@@ -1936,7 +1943,7 @@ set.edge.attribute.network <- function(x, attrname, value, e=seq_along(x$mel), .
           # replicate each element of value e times if needed
           value<-lapply(1:length(value),function(n){
             if (length(value[n])<length(e)){
-              return(as.list(rep(value[n],length=length(e))))
+              return(as.list(rep(value[n],length.out=length(e))))
             } else {
               return(as.list(value[n]))
             }
@@ -1946,7 +1953,7 @@ set.edge.attribute.network <- function(x, attrname, value, e=seq_along(x$mel), .
         # replicate each element of value e times if needed
         value<-lapply(1:length(value),function(n){
           if (length(value[[n]])<length(e)){
-            return(as.list(rep(value[[n]],length=length(e))))
+            return(as.list(rep(value[[n]],length.out=length(e))))
           } else {
             return(as.list(value[[n]]))
           }
@@ -1986,7 +1993,7 @@ set.edge.value.network <- function(x, attrname, value, e = seq_along(x$mel), ...
   n<-network.size(x)
   if(!is.matrix(value)){
     if(is.vector(value))
-      value<-matrix(rep(value,length=n*n),n,n)
+      value<-matrix(rep(value,length.out=n*n),n,n)
     else
       value<-matrix(value,n,n)
   } else if (min(dim(value)) < n) {
@@ -2018,9 +2025,9 @@ set.network.attribute.network <- function(x, attrname, value, ...) {
     value<-list(value)
   }else{
     if(is.list(value)){
-      value<-rep(value,length=length(attrname))
+      value<-rep(value,length.out=length(attrname))
     }else if(is.vector(value)){
-      value<-as.list(rep(value,length=length(attrname)))
+      value<-as.list(rep(value,length.out=length(attrname)))
     }else
       stop("Non-replicable value with multiple attribute names in set.network.attribute.\n")
   }
@@ -2048,10 +2055,10 @@ set.network.attribute.network <- function(x, attrname, value, ...) {
 #     if(!is.vector(value))
 #       stop("Inappropriate value given in set.vertex.attribute.\n")
 #     else
-#       value<-as.list(rep(value,length=length(v)))
+#       value<-as.list(rep(value,length.out=length(v)))
 #   }else
 #     if(length(value)!=length(v))
-#       value<-rep(value,length=length(v))
+#       value<-rep(value,length.out=length(v))
 #   #Do the deed
 #   xn<-deparse(substitute(x))
 #   ev<-parent.frame()
@@ -2076,6 +2083,7 @@ set.network.attribute.network <- function(x, attrname, value, ...) {
 #' argument.
 #' 
 #' @param x a network object, possibly with some deleted edges.
+#' @param ... additional arguments to methods.
 #' @return a vector of integer ids corresponding to the non-null edges in x
 #' @note If it is known that x has no deleted edges, \code{seq_along(x$mel)} is
 #' a faster way to generate the sequence of possible edge ids.
@@ -2089,12 +2097,14 @@ set.network.attribute.network <- function(x, attrname, value, ...) {
 #' # get the ids of the non-deleted edges
 #' valid.eids(net)
 #' 
-#' @export valid.eids
-valid.eids <-function(x){
-  # maybe should omit class test for speed?
-  if (!is.network(x)){
-    stop("cannot determine non-null edge ids because argument x is not a network object")
-  }
+#' @export
+valid.eids <- function(x, ...) {
+  UseMethod("valid.eids")
+}
+
+#' @rdname valid.eids
+#' @export
+valid.eids.network <- function(x, ...) {
   # get the ids of all the non-null elements on the edgelist of x
   return(which(!sapply(x$mel,is.null)))
 }
@@ -2120,11 +2130,11 @@ set.vertex.attribute.network <- function(x, attrname, value, v = seq_len(network
       if(!is.vector(value)){
         stop("Inappropriate value given in set.vertex.attribute.\n")
       } else {
-        value<-as.list(rep(value,length=length(v)))
+        value<-as.list(rep(value,length.out=length(v)))
       }
     } else {
       if(length(value)!=length(v)){
-        value<-rep(value,length=length(v))
+        value<-rep(value,length.out=length(v))
       }
     }
     # call older singular value version
@@ -2141,7 +2151,7 @@ set.vertex.attribute.network <- function(x, attrname, value, v = seq_len(network
         # replicate each element of value v times if needed
         value<-lapply(1:length(value),function(n){
                   if (length(value[n])<length(v)){
-                    return(as.list(rep(value[n],length=length(v))))
+                    return(as.list(rep(value[n],length.out=length(v))))
                   } else {
                     return(as.list(value[n]))
                   }
@@ -2151,7 +2161,7 @@ set.vertex.attribute.network <- function(x, attrname, value, v = seq_len(network
       # replicate each element of value v times if needed
       value<-lapply(1:length(value),function(n){
         if (length(value[[n]])<length(v)){
-          return(as.list(rep(value[[n]],length=length(v))))
+          return(as.list(rep(value[[n]],length.out=length(v))))
         } else {
           return(as.list(value[[n]]))
         }
@@ -2167,14 +2177,3 @@ set.vertex.attribute.network <- function(x, attrname, value, v = seq_len(network
   }
   invisible(x)
 }
-
-# valid.eids  returns a list of non-null edge ids for a given network
-valid.eids <-function(x){
-  # maybe should omit class test for speed?
-  if (!is.network(x)){
-    stop("cannot determine non-null edge ids because argument x is not a network object")
-  }
-  # get the ids of all the non-null elements on the edgelist of x
-  return(which(!sapply(x$mel,is.null)))
-}
-

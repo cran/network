@@ -1,5 +1,3 @@
-if(FALSE){  #Set to TRUE to enable test
-
 require("network")
 set.seed(1702)
 
@@ -156,4 +154,3 @@ if (!all(results)) {
   stop(paste('The following tests in vignette.R failed:', which(results==FALSE)))
 }
 
-}

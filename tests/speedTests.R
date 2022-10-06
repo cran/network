@@ -1,4 +1,5 @@
-if(FALSE){ #Set to TRUE to enable test
+#Set to TRUE to run tests
+if(FALSE){
 
 # some really basic speed checks to help us know if we make changes that massively degrade performance
 require(network)
@@ -13,6 +14,7 @@ gete<-system.time(get.edge.attribute(net,"foo"))[3]
 liste<-system.time(list.edge.attributes(net))[3]
 addmoree<-system.time(add.edge(net,100000,1))[3]
 addmorev<-system.time(add.vertices(net,1))[3]
+
 
 # optionally compare to benchmarks saved in test folder to see if things have changed
 # benchmarks<-rbind(init,setv,getv,listv,adde,sete,gete,liste,addmoree,addmorev)
@@ -64,4 +66,5 @@ if(addmorev>5){
   stop("add.vertices for a network with large number of vertices took longer than expected")
 }
 
+#End tests
 }

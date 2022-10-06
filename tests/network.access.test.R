@@ -1,4 +1,5 @@
-if(FALSE){ #Set to TRUE to enable test
+#Set to TRUE to run tests
+if(FALSE){
 
 library(network)
 
@@ -87,4 +88,5 @@ if(!all(check)){                                               #Should be TRUE
   stop(paste("network package test failed on test(s):",which(!check)))
 }
 
+#End tests
 }
