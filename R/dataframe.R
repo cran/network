@@ -568,8 +568,8 @@ as.network.data.frame <- function(x,
 }
 
 
-.as_edge_df <- function(x, attrs_to_ignore, na.rm, ...) {
-  if (network.edgecount(x) == 0L) {
+.as_edge_df <- function(x, attrs_to_ignore, na.rm, name_vertices, sort_attrs, store_eid, ...) {
+  if (network.edgecount(x, na.omit = FALSE) == 0L) {
     empty_edge_df <- structure(
       list(.tail = logical(), .head = logical(), .na = logical()),
       row.names = integer(),
@@ -583,29 +583,42 @@ as.network.data.frame <- function(x,
 
   vertex_names <- network.vertex.names(x)
 
-  el_list <- list(
-    .tail = lapply(x[["mel"]], function(.x) vertex_names[.x[["outl"]]]),
-    .head = lapply(x[["mel"]], function(.x) vertex_names[.x[["inl"]]])
-  )
+  deleted <- vapply(x[["mel"]], is.null, logical(1))
+
+  if (name_vertices) {
+    el_list <- list(
+      .tail = lapply(x[["mel"]], function(.x) vertex_names[.x[["outl"]]]),
+      .head = lapply(x[["mel"]], function(.x) vertex_names[.x[["inl"]]])
+    )
+  } else {
+    el_list <- list(
+      .tail = lapply(lapply(x[["mel"]], `[[`, "outl"), as.integer),
+      .head = lapply(lapply(x[["mel"]], `[[`, "inl"), as.integer)
+    )
+  }
 
   # list.edge.attributes() sorts, meaning we can't test round-trips
-  edge_attr_names <- unique(
-    unlist(lapply(x[["mel"]], function(.x) names(.x[["atl"]])),
-      use.names = FALSE
-    )
-  )
+  edge_attr_names <-
+    if (sort_attrs) list.edge.attributes(x)
+    else unique(
+           unlist(lapply(x[["mel"]], function(.x) names(.x[["atl"]])),
+                  use.names = FALSE
+                  )
+         )
   names(edge_attr_names) <- edge_attr_names
 
   # extract attributes as-is (lists)
   edge_attrs <- lapply(
     edge_attr_names,
-    function(.x) get.edge.attribute(x, .x, unlist = FALSE)
+    function(.x) get.edge.attribute(x, .x, unlist = FALSE, null.na = TRUE)
   )
   # if not `TRUE`, "na" is assumed `FALSE` (in the event of `NULL`s or corrupted data)
   edge_attrs[["na"]] <- !vapply(
     edge_attrs[["na"]], isFALSE, logical(1L),
     USE.NAMES = FALSE
   )
+
+  if (store_eid) edge_attrs <- c(list(.eid = seq_along(x[["mel"]])), edge_attrs)
 
   # skip `base::as.data.frame()`'s auto-unlisting behavior
   out <- structure(
@@ -614,16 +627,14 @@ as.network.data.frame <- function(x,
     class = "data.frame"
   )
 
+  out <- out[!deleted, ]
   if (na.rm) {
     # drop NA edge rows
     out <- out[!out[["na"]], ]
-    # reset `rownames()` so they're sequential in returned object
-    rownames(out) <- NULL
-  } else if (!is.hyper(x)) {
-    # replace empty ".tail" and ".head" with `NA` so that the columns can be safely
-    # vectorized for non-hyper edges when `na.rm` is `FALSE`
-    out[1:2] <- lapply(out[1:2], lapply, function(.x) if (length(.x)) .x else NA)
   }
+
+  # reset `rownames()` so they're sequential in returned object
+  rownames(out) <- NULL
 
   cols_to_keep <- c(".tail", ".head", setdiff(names(edge_attrs), attrs_to_ignore))
   out <- out[cols_to_keep]
@@ -643,7 +654,7 @@ as.network.data.frame <- function(x,
 }
 
 
-.as_vertex_df <- function(x, attrs_to_ignore, na.rm, ...) {
+.as_vertex_df <- function(x, attrs_to_ignore, na.rm, name_vertices, sort_attrs, ...) {
   if (network.size(x) == 0L) {
     empty_vertex_df <- structure(
       list(vertex.names = logical(), na = logical()),
@@ -655,7 +666,11 @@ as.network.data.frame <- function(x,
     return(empty_vertex_df)
   }
   # list.vertex.attributes() sorts the result, meaning we can't test round-trips
-  vertex_attr_names <- unique(unlist(lapply(x[["val"]], names), use.names = FALSE))
+  vertex_attr_names <-
+    if (sort_attrs)
+      list.vertex.attributes(x)
+    else
+      unique(unlist(lapply(x[["val"]], names), use.names = FALSE))
 
   vertex_attrs <- lapply(
     `names<-`(vertex_attr_names, vertex_attr_names),
@@ -697,38 +712,38 @@ as.network.data.frame <- function(x,
 #'
 #' @param x an object of class \code{network}
 #' @param ...  additional arguments
-#' @param unit whether a \code{data.frame} of edge or vertex attributes
-#' should be returned.
-#' @param na.rm logical; ignore missing entries when constructing the data frame?
-#' @param attrs_to_ignore character; a vector of attribute names to exclude from
-#' the returned \code{data.frame} (Default: \code{"na"})
+#' @param unit whether a \code{data.frame} of edge or vertex
+#'   attributes should be returned.
+#' @param na.rm logical; ignore missing edges/vertices when constructing the
+#'   data frame?
+#' @param attrs_to_ignore character; a vector of attribute names to
+#'   exclude from the returned \code{data.frame} (Default:
+#'   \code{"na"})
+#' @param name_vertices logical; for `unit="edges"`, should the
+#'   `.tail` and the `.head` columns contain vertex names as opposed
+#'   to vertex indices?
+#' @param sort_attrs logical; should the attribute columns in the
+#'   returned data frame be sorted alphabetically?
+#' @param store_eid logical; for `unit="edges"`, should the edge ID in
+#'   the network's internal representation be stored in a column
+#'   `.eid`?
 #'
 #' @export as.data.frame.network
 #' @export
 as.data.frame.network <- function(x, ..., unit = c("edges", "vertices"),
                                   na.rm = TRUE,
-                                  attrs_to_ignore = "na") {
-  if (inherits(x, "network", which = TRUE) != length(class(x))) {
-    warning( # nocov start
-      '`x` may not correctly inherit from class "network".',
-      sprintf("\n\t- `class(x)`: `%s", deparse(class(x)))
-    )        # nocov end
-  }
-
-  switch(match.arg(unit, c("edges", "vertices")),
-    edges = .as_edge_df(
-      x,
-      attrs_to_ignore = attrs_to_ignore,
-      na.rm = na.rm,
-      ...
-    ),
-    vertices = .as_vertex_df(
-      x,
-      attrs_to_ignore = attrs_to_ignore,
-      na.rm = na.rm,
-      ...
-    ),
-    # `match.arg()` used, so this should never be reached...
-    stop('`unit` must be one of `"edges"` or `"vertices".') # nocov
-  )
+                                  attrs_to_ignore = "na", name_vertices = TRUE,
+                                  sort_attrs = FALSE, store_eid = FALSE) {
+  helper <-
+    switch(match.arg(unit, c("edges", "vertices")),
+           edges = .as_edge_df,
+           vertices = .as_vertex_df,
+           # `match.arg()` used, so this should never be reached...
+           stop('`unit` must be one of `"edges"` or `"vertices".') # nocov
+           )
+  helper(x,
+         attrs_to_ignore = attrs_to_ignore, sort_attrs = sort_attrs,
+         na.rm = na.rm, name_vertices = name_vertices, store_eid = store_eid,
+         ...
+         )
 }

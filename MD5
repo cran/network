@@ -1,13 +1,13 @@
 9b699d8131bbe4e391b88e47beef1f74 *COPYING
-1c98502c9a71da986fa9ac327acd0b9c *ChangeLog
-955baf871e9e520f4b65bb4aecb3df7d *DESCRIPTION
-ae5f533b9faf3814b7ac4379467c46cb *NAMESPACE
+47a461fe8903a2742ddfadbdc90126bd *ChangeLog
+832e95789a63bb057b0fb1f89188bc6c *DESCRIPTION
+ac7fab487f528d7d2ceeebc10673cb6a *NAMESPACE
 319d93d4aa4e7a7a9bb40636f5d33abc *R/access.R
 f5fa6f6757d876cfd75554828d3b4531 *R/as.edgelist.R
 1589770cd6defbc3704ee0d2f9b1cfe4 *R/assignment.R
-05367def7bc9baadbe23bea5a452a833 *R/coercion.R
+21a661a7be287a2c2e540ca09d6cbde5 *R/coercion.R
 54f51b3a32ed37c00b4a10bec56d188b *R/constructors.R
-31b452422a0a81a556c5c29f1d28eb3e *R/dataframe.R
+6cf83e2a1248ff367885588a3dd30ad0 *R/dataframe.R
 642c07701bc5cc3263060634a274c250 *R/fileio.R
 e4bb97ca8d816a7c6c9682d252f4736c *R/layout.R
 e35133a9713f7eedfb00918942d3fec7 *R/misc.R
@@ -22,7 +22,7 @@ bb3e0d4d549b892aa8701af630adb78a *data/flo.RData
 32bcc50a43d7a2258b65404072039bbd *inst/CITATION
 3e06997d5f02a81dfdccf3d00ff43d0f *inst/doc/networkVignette.R
 e426433ac42ea149a73be4923359cf0d *inst/doc/networkVignette.Rnw
-c4402ae8f578424fa355dcaa1f778139 *inst/doc/networkVignette.pdf
+50c116f8ffc11ab4c03ef2412105594e *inst/doc/networkVignette.pdf
 2fce00a65f9969063ffe26e50ccbd87c *inst/include/netregistration.h
 4b9aa09dd1d9f3ff6e9cd5236188d653 *inst/include/network.h
 c78b6af71f6256929251472b1d75fbe1 *inst/network.api/networkapi.c
@@ -30,7 +30,7 @@ c78b6af71f6256929251472b1d75fbe1 *inst/network.api/networkapi.c
 856af12a5d27abbbb0d9e90ece504486 *man/add.edges.Rd
 970966dfd9c04a965cf2e3a1c15b867c *man/add.vertices.Rd
 050041ed9630847918d1f5aef7bb559a *man/as.color.Rd
-527bec4496a2890641b69f4aadc5900d *man/as.data.frame.network.Rd
+c60986b288e28d7992293d62c363c936 *man/as.data.frame.network.Rd
 ba90af3e510e8d2ed100492a668db41a *man/as.edgelist.Rd
 f162a5a390b318a71ef4d9c21c81fa27 *man/as.matrix.network.Rd
 5f3eca6afe2d4bfba4a143b1d6d59f32 *man/as.network.matrix.Rd
@@ -45,7 +45,7 @@ ceec9dfc3b6392adf7a859e7fae9bdec *man/flo.Rd
 925ede0dd14067eded687953250e4693 *man/get.neighborhood.Rd
 531bf734d867ce44efcf534a16416d31 *man/has.edges.Rd
 0646e1ccbc345eb32b187c7a8659c804 *man/is.adjacent.Rd
-3c72a55e72fdbb21dbf618aacff1e432 *man/loading.attributes.Rd
+185b1261739816f76cada4e7df8adea9 *man/loading.attributes.Rd
 f777f59c54627809aa77690959b60252 *man/mixingmatrix.Rd
 fdefba72e6a1c0e37a3ae45d6a645b36 *man/network-internal.Rd
 a0d15078aad89b9b1065412b718894a9 *man/network-operators.Rd
@@ -73,7 +73,7 @@ dc4b9d73c25b3112155ce8a768e45c9c *man/read.paj.Rd
 b1dd30b318f7fb788bcd4704bc49f9b4 *man/valid.eids.Rd
 b9891aea2f463206f7c3f10750bf3b58 *man/which.matrix.type.Rd
 1c5cf8036602f903a2699b928fc0ca93 *src/Rinit.c
-e8bd8e13cde2e1b4bf3496c887d7510d *src/access.c
+695648b73168cb91054db821d0f60d8f *src/access.c
 96fc95a8ae2941d6e411b38c80cee9af *src/access.h
 739756cc9b67f775864fa7f6aa19745e *src/constructors.c
 58ac8ab29e39950e95390b86a5de4c83 *src/constructors.h
