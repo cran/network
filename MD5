@@ -1,6 +1,6 @@
 9b699d8131bbe4e391b88e47beef1f74 *COPYING
-47a461fe8903a2742ddfadbdc90126bd *ChangeLog
-832e95789a63bb057b0fb1f89188bc6c *DESCRIPTION
+974a74af1e31e47a5f34229153cc3ab5 *ChangeLog
+1c1fdeb42d1580e67851a7af72f48af2 *DESCRIPTION
 ac7fab487f528d7d2ceeebc10673cb6a *NAMESPACE
 319d93d4aa4e7a7a9bb40636f5d33abc *R/access.R
 f5fa6f6757d876cfd75554828d3b4531 *R/as.edgelist.R
@@ -16,13 +16,13 @@ e35133a9713f7eedfb00918942d3fec7 *R/misc.R
 226953b9c7b118f16356c5195080fe23 *R/plot.R
 c32f1c0c9fcaa343a872dd12ee309c8c *R/printsum.R
 263822ebe70c081f9b90a05790829538 *R/zzz.R
-0c1b7082d3b2584d4df54bfe4a6ab801 *build/vignette.rds
+a2ab2bbcee19e748642b36925bd17955 *build/vignette.rds
 4e1fd0dcead8991dc32c05e2d7301c40 *data/emon.RData
 bb3e0d4d549b892aa8701af630adb78a *data/flo.RData
 32bcc50a43d7a2258b65404072039bbd *inst/CITATION
 3e06997d5f02a81dfdccf3d00ff43d0f *inst/doc/networkVignette.R
 e426433ac42ea149a73be4923359cf0d *inst/doc/networkVignette.Rnw
-50c116f8ffc11ab4c03ef2412105594e *inst/doc/networkVignette.pdf
+79bc6d805a2c9fc1bb2eac7a5c2815e7 *inst/doc/networkVignette.pdf
 2fce00a65f9969063ffe26e50ccbd87c *inst/include/netregistration.h
 4b9aa09dd1d9f3ff6e9cd5236188d653 *inst/include/network.h
 c78b6af71f6256929251472b1d75fbe1 *inst/network.api/networkapi.c
@@ -47,7 +47,7 @@ ceec9dfc3b6392adf7a859e7fae9bdec *man/flo.Rd
 0646e1ccbc345eb32b187c7a8659c804 *man/is.adjacent.Rd
 185b1261739816f76cada4e7df8adea9 *man/loading.attributes.Rd
 f777f59c54627809aa77690959b60252 *man/mixingmatrix.Rd
-fdefba72e6a1c0e37a3ae45d6a645b36 *man/network-internal.Rd
+058216fd129f2ad55a3ac5a7185830d0 *man/network-internal.Rd
 a0d15078aad89b9b1065412b718894a9 *man/network-operators.Rd
 49e60c11289ff2d5a295d321c15014e5 *man/network-package.Rd
 6f812eea36d010190f623b6b4389b2f8 *man/network.Rd
@@ -73,7 +73,7 @@ dc4b9d73c25b3112155ce8a768e45c9c *man/read.paj.Rd
 b1dd30b318f7fb788bcd4704bc49f9b4 *man/valid.eids.Rd
 b9891aea2f463206f7c3f10750bf3b58 *man/which.matrix.type.Rd
 1c5cf8036602f903a2699b928fc0ca93 *src/Rinit.c
-695648b73168cb91054db821d0f60d8f *src/access.c
+f5fade07e572adf2c3f04b69ac9b7266 *src/access.c
 96fc95a8ae2941d6e411b38c80cee9af *src/access.h
 739756cc9b67f775864fa7f6aa19745e *src/constructors.c
 58ac8ab29e39950e95390b86a5de4c83 *src/constructors.h
