@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 06/08/21
+# Last Modified 12/07/24
 # Licensed under the GNU General Public License version 2 (June, 1991)
 # or greater
 #
@@ -45,6 +45,7 @@ network<-function(x, vertex.attr=NULL, vertex.attrnames=NULL,
   #Initialize the network object
   g<-as.network(x,directed=directed,hyper=hyper,loops=loops,
               multiple=multiple,bipartite=bipartite,...)
+	      
   #Add vertex attributes, if needed
   if(!is.null(vertex.attr)){
     #Create vertex attribute names, if needed
@@ -119,7 +120,7 @@ network<-function(x, vertex.attr=NULL, vertex.attrnames=NULL,
 #' 
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing 
 #'   Relational Data in R.}  \emph{Journal of Statistical Software}, 24(2).  
-#'   \url{https://www.jstatsoft.org/v24/i02/}
+#'   \doi{10.18637/jss.v024.i02}
 #'
 #' @author Carter T. Butts \email{buttsc@uci.edu} and David Hunter 
 #'   \email{dhunter@stat.psu.edu}
@@ -432,7 +433,7 @@ network.incidence<-function(x, g, ignore.eval=TRUE, names.eval=NULL, ...){
 #' @seealso \code{\link{network}}, \code{\link{as.network.matrix}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}
+#' \doi{10.18637/jss.v024.i02}
 #' @keywords classes graphs
 #' @examples
 #' 

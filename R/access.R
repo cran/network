@@ -6,7 +6,7 @@
 # David Hunter <dhunter@stat.psu.edu> and Mark S. Handcock
 # <handcock@u.washington.edu>.
 #
-# Last Modified 06/06/21
+# Last Modified 12/04/24
 # Licensed under the GNU General Public License version 2 (June, 1991)
 # or greater
 #
@@ -104,7 +104,7 @@
 #' \code{\link{network.edgelist}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}
+#' \doi{10.18637/jss.v024.i02}
 #' @keywords classes graphs
 #' @examples
 #' 
@@ -143,14 +143,7 @@
 #' 
 #' 
 #' @export
-add.edge<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, edge.check=FALSE, ...){
-  xn<-substitute(x)
-  UseMethod("add.edge") 
-  if(.validLHS(xn,parent.frame())){  #If x not anonymous, set in calling env 
-    on.exit(eval.parent(call('<-',xn,x)))
-  }
-  invisible(x) 
-} 
+add.edge <- function(x, tail, head, names.eval=NULL, vals.eval=NULL, edge.check=FALSE, ...) UseMethod("add.edge")
 
 #' @export add.edge.network
 #' @export
@@ -159,6 +152,8 @@ add.edge.network<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, edge.
   if(.validLHS(xn,parent.frame())){  #If x not anonymous, set in calling env 
     on.exit(eval.parent(call('<-',xn,x)))
   }
+  if(is.null(edge.check)||(length(edge.check)<1)||is.na(edge.check[1]))
+    edge.check<-FALSE
   x<-.Call(addEdge_R,x,tail,head,names.eval,vals.eval,edge.check)
   invisible(x)
 }
@@ -167,14 +162,7 @@ add.edge.network<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, edge.
 
 #' @rdname add.edges
 #' @export add.edges
-add.edges<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, ...){
-  xn<-substitute(x)
-  UseMethod("add.edges") 
-  if(.validLHS(xn,parent.frame())){  #If x not anonymous, set in calling env 
-    on.exit(eval.parent(call('<-',xn,x)))
-  }
-  invisible(x) 
-} 
+add.edges <- function(x, tail, head, names.eval=NULL, vals.eval=NULL, ...) UseMethod("add.edges")
 
 
 # Add multiple edges to network x.  Tail must be a list, each element of
@@ -199,7 +187,7 @@ add.edges.network<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, ...)
   if(length(unique(c(length(tail),length(head),length(names.eval), length(vals.eval))))>1)
     stop("head, tail, names.eval and vals.eval lists passed to add.edges must be of the same length!\n")
   edge.check<-list(...)$edge.check
-  if(is.null(edge.check))
+  if(is.null(edge.check)||(length(edge.check)<1)||is.na(edge.check[1]))
     edge.check<-FALSE
   #Pass the inputs to the C side
   xn<-substitute(x)
@@ -253,7 +241,7 @@ add.edges.network<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, ...)
 #' \code{\link{set.vertex.attribute}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}
+#' \doi{10.18637/jss.v024.i02}
 #' @keywords classes graphs
 #' @examples
 #' 
@@ -278,14 +266,7 @@ add.edges.network<-function(x, tail, head, names.eval=NULL, vals.eval=NULL, ...)
 #' get.network.attribute(bip,'bipartite')
 #' 
 #' @export add.vertices
-add.vertices<-function(x, nv, vattr=NULL, last.mode=TRUE, ...){
-  xn<-substitute(x)
-  UseMethod("add.vertices") 
-  if(.validLHS(xn,parent.frame())){  #If x not anonymous, set in calling env 
-    on.exit(eval.parent(call('<-',xn,x)))
-  }
-  invisible(x) 
-}
+add.vertices <- function(x, nv, vattr=NULL, last.mode=TRUE, ...) UseMethod("add.vertices")
 
 # Add nv vertices to network x.  Vertex attributes (in addition to those which
 # are required) are to be provided in vattr; vattr must be a list containing
@@ -430,7 +411,7 @@ add.vertices.network<-function(x, nv, vattr=NULL, last.mode=TRUE, ...){
 #'   \code{\link{as.matrix.network}}, \code{\link{network.extraction}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #'   Relational Data in R.}  \emph{Journal of Statistical Software}, 24(2).  
-#'   \url{https://www.jstatsoft.org/v24/i02/}
+#'   \doi{10.18637/jss.v024.i02}
 #' @author Carter T. Butts \email{buttsc@uci.edu}
 #' @examples
 #' #Create a network with three edges
@@ -485,9 +466,7 @@ add.vertices.network<-function(x, nv, vattr=NULL, last.mode=TRUE, ...){
 #' 
 #' @keywords classes graphs
 #' @export delete.edge.attribute
-delete.edge.attribute <- function(x, attrname, ...) {
-  UseMethod("delete.edge.attribute")
-}
+delete.edge.attribute <- function(x, attrname, ...) UseMethod("delete.edge.attribute")
 
 #' @rdname attribute.methods
 #' @export
@@ -538,7 +517,7 @@ delete.edge.attribute.network <- function(x, attrname, ...) {
 #'
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing 
 #'   Relational Data in R.}  \emph{Journal of Statistical Software}, 24(2).  
-#'   \url{https://www.jstatsoft.org/v24/i02/}
+#'   \doi{10.18637/jss.v024.i02}
 #' @author Carter T. Butts \email{buttsc@uci.edu}
 #' 
 #' @seealso \code{\link{get.edgeIDs}}, \code{\link{network.extraction}}, 
@@ -564,9 +543,7 @@ delete.edge.attribute.network <- function(x, attrname, ...) {
 #' 
 #' @keywords classes graphs
 #' @export
-delete.edges <- function(x, eid, ...) {
-  UseMethod("delete.edges")
-}
+delete.edges <- function(x, eid, ...) UseMethod("delete.edges")
 
 #' @rdname deletion.methods
 #' @export
@@ -589,9 +566,7 @@ delete.edges.network <- function(x, eid, ...) {
 #
 #' @rdname attribute.methods
 #' @export
-delete.network.attribute <- function(x, attrname, ...) {
-  UseMethod("delete.network.attribute")
-}
+delete.network.attribute <- function(x, attrname, ...) UseMethod("delete.network.attribute")
 
 #' @rdname attribute.methods
 #' @export
@@ -610,9 +585,7 @@ delete.network.attribute.network <- function(x, attrname, ...){
 #
 #' @rdname attribute.methods
 #' @export
-delete.vertex.attribute <- function(x, attrname, ...) {
-  UseMethod("delete.vertex.attribute")
-}
+delete.vertex.attribute <- function(x, attrname, ...) UseMethod("delete.vertex.attribute")
 
 #' @rdname attribute.methods
 #' @export
@@ -633,9 +606,7 @@ delete.vertex.attribute.network <- function(x, attrname, ...) {
 #
 #' @rdname deletion.methods
 #' @export
-delete.vertices <- function(x, vid, ...) {
-  UseMethod("delete.vertices")
-}
+delete.vertices <- function(x, vid, ...) UseMethod("delete.vertices")
 
 #' @rdname deletion.methods
 #' @export
@@ -685,11 +656,11 @@ get.edge.attribute.network <- function(x, attrname, unlist=TRUE, na.omit=FALSE, 
   if (!is.list(x))
     stop("x must be a network object or a list.")
 
-  if (!is.character(attrname))
+  if (!is.character(attrname) || (length(attrname)==0))
     stop("attrname must be a character vector.")
 
   if (!is.logical(unlist) || !is.logical(na.omit) || !is.logical(null.na) ||
-      !is.logical(deleted.edges.omit))
+      !is.logical(deleted.edges.omit) || (length(unlist)*length(na.omit)*length(null.na)*length(deleted.edges.omit)==0))
     stop("na.omit, null.na, deleted.edges.omit must be a logical vector.")
 
   edges <- .Call(getEdgeAttribute_R,x,attrname,na.omit,null.na,deleted.edges.omit)
@@ -708,9 +679,7 @@ get.edge.attribute.list <- get.edge.attribute.network
 #
 #' @rdname attribute.methods
 #' @export
-get.edge.value <- function(x, ...) {
-  UseMethod("get.edge.value")
-}
+get.edge.value <- function(x, ...) UseMethod("get.edge.value")
 
 #' @rdname attribute.methods
 #' @export
@@ -770,7 +739,7 @@ get.edge.value.list <- get.edge.value.network
 #' @seealso \code{\link{get.neighborhood}}, \code{\link{valid.eids}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}
+#' \doi{10.18637/jss.v024.i02}
 #' @keywords classes graphs
 #' @examples
 #' 
@@ -906,6 +875,8 @@ get.dyads.eids<-function(x,tails,heads,neighborhood = c("out", "in", "combined")
 #' @param eid optionally, a numeric vector of valid edge ids in \code{x} that
 #' should be retained (cannot be used with \code{v} or \code{alter})
 #'
+#' @param ... additional arguments for methods.
+#'
 #' @return A \code{\link{network}} object containing the induced subgraph.
 #' @author Carter T. Butts \email{buttsc@@uci.edu}
 #' @seealso \code{\link{network}}, \code{\link{network.extraction}}
@@ -936,7 +907,11 @@ get.dyads.eids<-function(x,tails,heads,neighborhood = c("out", "in", "combined")
 #' 
 #' 
 #' @export get.inducedSubgraph
-get.inducedSubgraph<-function(x, v, alters=NULL, eid=NULL){
+get.inducedSubgraph <- function(x, ...) UseMethod("get.inducedSubgraph")
+
+#' @rdname get.inducedSubgraph
+#' @export
+get.inducedSubgraph.network <- function(x, v, alters=NULL, eid=NULL, ...){
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("get.inducedSubgraph requires an argument of class network.")
@@ -1021,9 +996,7 @@ get.inducedSubgraph<-function(x, v, alters=NULL, eid=NULL){
 #
 #' @rdname attribute.methods
 #' @export
-get.network.attribute <- function(x, ...) {
-  UseMethod("get.network.attribute")
-}
+get.network.attribute <- function(x, ...) UseMethod("get.network.attribute")
 
 #' @rdname attribute.methods
 #' @export
@@ -1056,7 +1029,7 @@ get.network.attribute.network <- function(x, attrname, unlist=FALSE, ...) {
 #' @seealso \code{\link{get.edges}}, \code{\link{is.adjacent}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}
+#' \doi{10.18637/jss.v024.i02}
 #' 
 #' Wasserman, S. and Faust, K.  1994.  \emph{Social Network Analysis: Methods
 #' and Applications.} Cambridge: Cambridge University Press.
@@ -1099,9 +1072,7 @@ get.neighborhood<-function(x, v, type=c("out","in","combined"), na.omit=TRUE){
 # 
 #' @rdname attribute.methods
 #' @export
-get.vertex.attribute <- function(x, ...) {
-  UseMethod("get.vertex.attribute")
-}
+get.vertex.attribute <- function(x, ...) UseMethod("get.vertex.attribute")
 
 #' @rdname attribute.methods
 #' @export
@@ -1183,7 +1154,7 @@ get.vertex.attribute.network <- function(x, attrname, na.omit=FALSE, null.na=TRU
 #' \code{set.network.attribute}, \code{\link{add.edges}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}
+#' \doi{10.18637/jss.v024.i02}
 #' @keywords classes graphs
 #' @examples
 #' 
@@ -1254,7 +1225,7 @@ has.loops<-function(x){
 #' \code{\link{attribute.methods}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}
+#' \doi{10.18637/jss.v024.i02}
 #' 
 #' Wasserman, S. and Faust, K.  1994.  \emph{Social Network Analysis: Methods
 #' and Applications}.  Cambridge: Cambridge University Press.
@@ -1383,7 +1354,7 @@ is.multiplex<-function(x){
 #' \code{\link{get.network.attribute}}, \code{is.adjacent}, \code{\link{is.na}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}
+#' \doi{10.18637/jss.v024.i02}
 #' @keywords classes graphs
 #' @examples
 #' 
@@ -1504,7 +1475,7 @@ is.na.network<-function(x){
 #' \code{\link{network.indicators}}, \code{\link{plot.network}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}
+#' \doi{10.18637/jss.v024.i02}
 #' @keywords classes graphs
 #' @examples
 #' 
@@ -1526,9 +1497,7 @@ is.network<-function(x){
 #
 #' @rdname attribute.methods
 #' @export
-list.edge.attributes <- function(x, ...) {
-  UseMethod("list.edge.attributes")
-}
+list.edge.attributes <- function(x, ...) UseMethod("list.edge.attributes")
 
 #' @rdname attribute.methods
 #' @export
@@ -1546,9 +1515,7 @@ list.edge.attributes.network <- function(x, ...) {
 #
 #' @rdname attribute.methods
 #' @export
-list.network.attributes <- function(x, ...) {
-  UseMethod("list.network.attributes")
-}
+list.network.attributes <- function(x, ...) UseMethod("list.network.attributes")
 
 #' @rdname attribute.methods
 #' @export
@@ -1562,9 +1529,7 @@ list.network.attributes.network <- function(x, ...) {
 #
 #' @rdname attribute.methods
 #' @export
-list.vertex.attributes <- function(x, ...) {
-  UseMethod("list.vertex.attributes")
-}
+list.vertex.attributes <- function(x, ...) UseMethod("list.vertex.attributes")
 
 #' @rdname attribute.methods
 #' @export
@@ -1611,7 +1576,7 @@ network.dyadcount<-function(x, ...) UseMethod("network.dyadcount")
 #' \code{\link{network.edgecount}}, \code{\link{is.directed}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}
+#' \doi{10.18637/jss.v024.i02}
 #' @keywords classes graphs
 #' @examples
 #' 
@@ -1716,7 +1681,7 @@ network.edgecount<-function(x, ...) UseMethod("network.edgecount")
 #' @seealso \code{\link{get.network.attribute}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}
+#' \doi{10.18637/jss.v024.i02}
 #' @keywords classes graphs
 #' @examples
 #' 
@@ -1767,7 +1732,7 @@ network.naedgecount.network<-function(x, ...){
 #' @seealso \code{\link{get.network.attribute}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}
+#' \doi{10.18637/jss.v024.i02}
 #' @keywords classes graphs
 #' @examples
 #' 
@@ -1832,13 +1797,14 @@ network.vertex.names<-function(x){
 #' @param x an object of class \code{\link{network}}.
 #' @param vids a vector of vertex IDs, in the order to which they are to be
 #' permuted.
+#' @param ... additional arguments to methods.
 #' @return Invisibly, a pointer to the permuted network.
 #' \code{permute.vertexIDs} modifies its argument in place.
 #' @author Carter T. Butts \email{buttsc@@uci.edu}
 #' @seealso \code{\link{network}}
 #' @references Butts, C. T.  (2008).  \dQuote{network: a Package for Managing
 #' Relational Data in R.} \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}
+#' \doi{10.18637/jss.v024.i02}
 #' @keywords manip graphs
 #' @examples
 #' 
@@ -1849,7 +1815,11 @@ network.vertex.names<-function(x){
 #' all(flo[n:1,n:1]==as.sociomatrix(nflo))          #Should be TRUE
 #' 
 #' @export permute.vertexIDs
-permute.vertexIDs<-function(x,vids){
+permute.vertexIDs <- function(x, vids, ...) UseMethod("permute.vertexIDs")
+
+#' @rdname permute.vertexIDs
+#' @export
+permute.vertexIDs.network <- function(x, vids, ...) {
   #First, check to see that this is a graph object
   if(!is.network(x))
     stop("permute.vertexIDs requires an argument of class network.\n")
@@ -1902,9 +1872,7 @@ permute.vertexIDs<-function(x,vids){
 # }
 #' @rdname attribute.methods
 #' @export
-set.edge.attribute <- function(x, attrname, value, e, ...) {
-  UseMethod("set.edge.attribute")
-}
+set.edge.attribute <- function(x, attrname, value, e, ...) UseMethod("set.edge.attribute")
 
 #' @rdname attribute.methods
 #' @export
@@ -1975,9 +1943,7 @@ set.edge.attribute.network <- function(x, attrname, value, e=seq_along(x$mel), .
 #
 #' @rdname attribute.methods
 #' @export
-set.edge.value <- function(x, attrname, value, e, ...) {
-  UseMethod("set.edge.value")
-}
+set.edge.value <- function(x, attrname, value, e, ...) UseMethod("set.edge.value")
 
 #' @rdname attribute.methods
 #' @export
@@ -1999,6 +1965,10 @@ set.edge.value.network <- function(x, attrname, value, e = seq_along(x$mel), ...
   } else if (min(dim(value)) < n) {
     stop("set.edge.value requires a matrix whose dimension is equal to or larger than the network size")
   }
+  #Ensure that the attribute name is legit
+  attrname<-as.character(attrname)
+  if(length(attrname)==0)
+    stop("Attribute name required in set.edge.value.network.")
   #Do the deed
   xn<-substitute(x)
   x<-.Call(setEdgeValue_R,x,attrname,value,e)
@@ -2013,9 +1983,7 @@ set.edge.value.network <- function(x, attrname, value, e = seq_along(x$mel), ...
 #
 #' @rdname attribute.methods
 #' @export
-set.network.attribute <- function(x, attrname, value, ...) {
-  UseMethod("set.network.attribute")
-}
+set.network.attribute <- function(x, attrname, value, ...) UseMethod("set.network.attribute")
 
 #' @rdname attribute.methods
 #' @export
@@ -2098,9 +2066,7 @@ set.network.attribute.network <- function(x, attrname, value, ...) {
 #' valid.eids(net)
 #' 
 #' @export
-valid.eids <- function(x, ...) {
-  UseMethod("valid.eids")
-}
+valid.eids <- function(x, ...) UseMethod("valid.eids")
 
 #' @rdname valid.eids
 #' @export
@@ -2111,9 +2077,7 @@ valid.eids.network <- function(x, ...) {
 
 #' @rdname attribute.methods
 #' @export
-set.vertex.attribute <- function(x, attrname, value, v = seq_len(network.size(x)), ...) {
-  UseMethod("set.vertex.attribute")
-}
+set.vertex.attribute <- function(x, attrname, value, v = seq_len(network.size(x)), ...) UseMethod("set.vertex.attribute")
 
 #' @rdname attribute.methods
 #' @export

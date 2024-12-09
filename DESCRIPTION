@@ -1,6 +1,6 @@
 Package: network
-Version: 1.18.2
-Date: 2023-12-04
+Version: 1.19.0
+Date: 2024-12-08
 Title: Classes for Relational Data
 Authors@R: c(
     person("Carter T.", "Butts", role=c("aut","cre"), email="buttsc@uci.edu"),
@@ -20,13 +20,13 @@ Suggests: sna, testthat, covr
 Description: Tools to create and modify network objects.  The network class can represent a range of relational data types, and supports arbitrary vertex/edge/graph attributes.
 License: GPL (>= 2)
 URL: https://statnet.org/
-RoxygenNote: 7.2.0
+RoxygenNote: 7.3.2.9000
 Collate: 'access.R' 'as.edgelist.R' 'assignment.R' 'coercion.R'
         'constructors.R' 'dataframe.R' 'fileio.R' 'layout.R' 'misc.R'
         'network-package.R' 'operators.R' 'plot.R' 'printsum.R' 'zzz.R'
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2023-12-05 06:05:56 UTC; buttsc
+Packaged: 2024-12-08 22:18:07 UTC; buttsc
 Author: Carter T. Butts [aut, cre],
   David Hunter [ctb],
   Mark Handcock [ctb],
@@ -38,4 +38,4 @@ Author: Carter T. Butts [aut, cre],
   Michał Bojanowski [ctb] (<https://orcid.org/0000-0001-7503-852X>),
   Chad Klumb [ctb]
 Repository: CRAN
-Date/Publication: 2023-12-05 11:30:02 UTC
+Date/Publication: 2024-12-09 11:30:02 UTC

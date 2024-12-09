@@ -21,7 +21,6 @@ networkOperatorSetup(x, y = NULL)
 network.}
 
 \item{y}{a network or something coercible to one.}
-
 }
 \description{
 Internal network functions.
