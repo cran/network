@@ -1,6 +1,6 @@
 Package: network
-Version: 1.19.0
-Date: 2024-12-08
+Version: 1.20.0
+Date: 2026-02-06
 Title: Classes for Relational Data
 Authors@R: c(
     person("Carter T.", "Butts", role=c("aut","cre"), email="buttsc@uci.edu"),
@@ -26,16 +26,18 @@ Collate: 'access.R' 'as.edgelist.R' 'assignment.R' 'coercion.R'
         'network-package.R' 'operators.R' 'plot.R' 'printsum.R' 'zzz.R'
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2024-12-08 22:18:07 UTC; buttsc
+Packaged: 2026-02-07 06:57:12 UTC; buttsc
 Author: Carter T. Butts [aut, cre],
   David Hunter [ctb],
   Mark Handcock [ctb],
   Skye Bender-deMoll [ctb],
   Jeffrey Horner [ctb],
   Li Wang [ctb],
-  Pavel N. Krivitsky [ctb] (<https://orcid.org/0000-0002-9101-3362>),
-  Brendan Knapp [ctb] (<https://orcid.org/0000-0003-3284-4972>),
-  Michał Bojanowski [ctb] (<https://orcid.org/0000-0001-7503-852X>),
+  Pavel N. Krivitsky [ctb] (ORCID:
+    <https://orcid.org/0000-0002-9101-3362>),
+  Brendan Knapp [ctb] (ORCID: <https://orcid.org/0000-0003-3284-4972>),
+  Michał Bojanowski [ctb] (ORCID:
+    <https://orcid.org/0000-0001-7503-852X>),
   Chad Klumb [ctb]
 Repository: CRAN
-Date/Publication: 2024-12-09 11:30:02 UTC
+Date/Publication: 2026-02-07 10:00:02 UTC
